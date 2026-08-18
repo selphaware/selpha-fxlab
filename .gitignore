@@ -219,3 +219,8 @@ __marimo__/
 
 # py env
 env_fxlab/
+
+# selpha-fxlab harness / runtime outputs
+verify/artifacts/
+data/
+HANDOFF.md.bak

@@ -1,0 +1,134 @@
+[
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-14",
+    "hour": 12,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/14/12h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 47834,
+    "last_modified": "Tue, 14 Jul 2026 13:01:20 GMT",
+    "file": "EURUSD_2026-07-14_12h.bi5",
+    "weekday": "Tue"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-14",
+    "hour": 13,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/14/13h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 43161,
+    "last_modified": "Tue, 14 Jul 2026 14:01:26 GMT",
+    "file": "EURUSD_2026-07-14_13h.bi5",
+    "weekday": "Tue"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-14",
+    "hour": 14,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/14/14h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 33428,
+    "last_modified": "Tue, 14 Jul 2026 15:01:24 GMT",
+    "file": "EURUSD_2026-07-14_14h.bi5",
+    "weekday": "Tue"
+  },
+  {
+    "pair": "USDJPY",
+    "date": "2026-07-14",
+    "hour": 13,
+    "url": "https://datafeed.dukascopy.com/datafeed/USDJPY/2026/06/14/13h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 48590,
+    "last_modified": "Tue, 14 Jul 2026 14:01:27 GMT",
+    "file": "USDJPY_2026-07-14_13h.bi5",
+    "weekday": "Tue"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-11",
+    "hour": 13,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/11/13h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 0,
+    "last_modified": "Sat, 11 Jul 2026 14:00:52 GMT",
+    "file": "EURUSD_2026-07-11_13h.bi5",
+    "weekday": "Sat"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-17",
+    "hour": 20,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/17/20h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 5505,
+    "last_modified": null,
+    "file": "EURUSD_2026-07-17_20h.bi5",
+    "weekday": "Fri"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-17",
+    "hour": 21,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/17/21h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 0,
+    "last_modified": null,
+    "file": "EURUSD_2026-07-17_21h.bi5",
+    "weekday": "Fri"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-17",
+    "hour": 22,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/17/22h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 0,
+    "last_modified": "Fri, 17 Jul 2026 23:01:11 GMT",
+    "file": "EURUSD_2026-07-17_22h.bi5",
+    "weekday": "Fri"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-19",
+    "hour": 19,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/19/19h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 0,
+    "last_modified": "Sun, 19 Jul 2026 20:00:53 GMT",
+    "file": "EURUSD_2026-07-19_19h.bi5",
+    "weekday": "Sun"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-19",
+    "hour": 20,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/19/20h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 0,
+    "last_modified": "Sun, 19 Jul 2026 21:00:55 GMT",
+    "file": "EURUSD_2026-07-19_20h.bi5",
+    "weekday": "Sun"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-19",
+    "hour": 21,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/19/21h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 1043,
+    "last_modified": "Sun, 19 Jul 2026 22:00:55 GMT",
+    "file": "EURUSD_2026-07-19_21h.bi5",
+    "weekday": "Sun"
+  },
+  {
+    "pair": "EURUSD",
+    "date": "2026-07-19",
+    "hour": 22,
+    "url": "https://datafeed.dukascopy.com/datafeed/EURUSD/2026/06/19/22h_ticks.bi5",
+    "status": 200,
+    "compressed_bytes": 6471,
+    "last_modified": "Sun, 19 Jul 2026 23:00:56 GMT",
+    "file": "EURUSD_2026-07-19_22h.bi5",
+    "weekday": "Sun"
+  }
+]

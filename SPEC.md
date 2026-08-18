@@ -1,7 +1,10 @@
 # spec.md — Phase 1: FX data & research plumbing (`fxlab`)
 
-> Harness-builder: update the ⚠ marked facts with Phase 0 findings before this
-> spec is used for a build run.
+> Phase 0 complete (2026-08-18). Every ⚠ in the original draft has been replaced
+> with a fact measured against the live Dukascopy feed and cross-checked against
+> OANDA. Where a measurement contradicted the draft it is called out inline as
+> **CORRECTION**. Machine-specific environment facts and the full deliverable
+> contract live in `CLAUDE.md`.
 
 ## Goal
 
@@ -31,20 +34,53 @@ Python 3.12, full type hints, PEP8, docstrings, logging (no prints), pytest.
 - Dukascopy ticks: 2015-01-01 → present (config-driven; must be extendable
   back to ~2005 later without code change)
 - OANDA candles (cross-check only): H1 and D, same range
-- All timestamps stored tz-aware UTC. FX week: Sunday ~21:00 UTC open to
-  Friday ~21:00 UTC close (verify exact boundaries against real data ⚠).
+- All timestamps stored tz-aware UTC.
+- **CORRECTION — the FX week boundary is not a fixed UTC hour.** Measured from
+  the live feed:
+
+  | period | opens | closes |
+  |---|---|---|
+  | Northern summer (July 2026, observed) | Sun **21:00 UTC** | Fri **21:00 UTC** |
+  | Northern winter (January 2026, observed) | Sun **22:00 UTC** | Fri **22:00 UTC** |
+
+  Evidence: EURUSD Fri 2026-07-17 20:00Z = 1,163 ticks, 21:00Z = empty; Sun
+  2026-07-19 20:00Z = empty, 21:00Z = 222 ticks. The same probe in January shows
+  Fri 2026-01-09 21:00Z still carrying 868 ticks with 22:00Z empty. The boundary
+  tracks 17:00 `America/New_York`, so it must be derived with `zoneinfo`, never
+  hardcoded — a fixed 21:00 UTC rule is wrong for roughly half of every year and
+  fails silently, corrupting session and spread statistics downstream.
 
 ## Ingestion — Dukascopy (primary)
 
 - Fetch hourly bi5 files over HTTPS with retry/backoff, polite concurrency
   (≤ 4 in flight), resumable: already-downloaded hours are skipped via the
   manifest, never re-fetched.
-- ⚠ URL pattern: `https://datafeed.dukascopy.com/datafeed/{PAIR}/{YYYY}/{MM}/{DD}/{HH}h_ticks.bi5`
-  — CONFIRM in Phase 0, including the month-is-zero-indexed quirk if observed.
-- ⚠ Binary layout per tick record (confirm by decoding real data):
-  ms-offset-in-hour (uint32), ask (uint32), bid (uint32), ask-vol (float32),
-  bid-vol (float32), big-endian; price scaling is per-pair point value
-  (JPY pairs differ) — derive scaling from data, assert against sane ranges.
+- **CONFIRMED** URL pattern:
+  `https://datafeed.dukascopy.com/datafeed/{PAIR}/{YYYY}/{MM0}/{DD}/{HH}h_ticks.bi5`
+  where **`MM0` is zero-based** (January = `00` … December = `11`). The
+  zero-indexed-month quirk is real. Proven independently of any decoding: paths
+  `/2026/06/11/` and `/2026/06/18/` return empty bodies because they are
+  Saturdays 11 and 18 **July**, and every response carries a `Last-Modified`
+  header naming the true date (`Sat, 11 Jul 2026 14:00:52 GMT`).
+- **CONFIRMED** binary layout, exactly as drafted: 20-byte records, `struct`
+  format `>IIIff` (big-endian) =
+  `(ms_offset_in_hour, ask_uint32, bid_uint32, ask_vol_f32, bid_vol_f32)`.
+  **Ask precedes bid.** Compression is raw LZMA1 *alone* format
+  (`lzma.FORMAT_ALONE`), header `5d 00 00 40 00` + 8-byte LE uncompressed size.
+- **CONFIRMED** price scaling = `10 ** -display_precision`: `1e-3` for
+  JPY-quoted pairs, `1e-5` for all others. Derived from data and cross-validated
+  against OANDA H1 bid opens for all 12 pairs at 2026-07-14 13:00Z; worst
+  disagreement 1.2 pip (GBPJPY), which is the genuine ECN-vs-retail spread
+  difference rather than a scaling error.
+- **NEW — empty body means market closed.** Dukascopy answers a closed hour with
+  **HTTP 200 and a zero-byte body**, not 404. Treating that as an error would
+  manufacture gaps across every weekend; treating a real 404 as "closed" would
+  hide genuine holes. They are different cases.
+- **NEW — 503 is throttling, not a firewall.** Sustained fetching earns an
+  HAProxy `503 Service Unavailable` page. Back off exponentially; treat 503/429
+  and connection resets as retryable. Separately, **VPN/datacenter egress IPs are
+  rejected outright** by the datafeed front end while `www.dukascopy.com` keeps
+  working — which makes an IP-reputation block look like a routing fault.
 - Decode → validate → normalize → write Parquet. A failed/corrupt hour is
   recorded in the manifest as a gap, never silently skipped.
 
@@ -57,7 +93,21 @@ Python 3.12, full type hints, PEP8, docstrings, logging (no prints), pytest.
 - no ticks during closed market; weekend boundary handled explicitly
 - daily tick-count outliers vs trailing median flagged in manifest (warn)
 - OANDA cross-check job: hourly mid from Dukascopy resample vs OANDA H1 mid;
-  report distribution of differences; flag hours beyond a config threshold
+  report distribution of differences; flag hours beyond a config threshold.
+  Expect Dukascopy's bid to sit *above* OANDA's and its ask *below* — measured
+  at +0.7 / -0.6 pip on EURUSD, because Dukascopy's ECN spread (median 0.3 pip)
+  is tighter than OANDA's retail spread. Mids agree to ~0.15 pip. A cross-check
+  that flags this as an error is miscalibrated.
+- **CONFIRMED OANDA response shape** (`price=BAM&granularity=H1`): top-level
+  `instrument` / `granularity` / `candles`; each candle has `time`, `complete`,
+  `volume` and `bid`/`ask`/`mid` OHLC objects. Prices are **strings** and `time`
+  is RFC3339 with **nanosecond** precision — both need deliberate parsing.
+  `displayPrecision` / `pipLocation` from `/v3/accounts/{id}/instruments` is the
+  authoritative per-pair scaling reference.
+- **CORRECTION — environment selection must be config-driven.** `OANDA_ENV`
+  selects `practice` (default) or `live`; the client is restricted to the
+  read-only `instruments/candles` endpoints and must never call `/orders`,
+  `/trades` or `/positions`.
 
 ## Storage
 

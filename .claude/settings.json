@@ -1,0 +1,77 @@
+{
+  "$comment": [
+    "selpha-fxlab Phase 1 harness settings.",
+    "The deny rules exist because a self-verifying agent that can edit its own",
+    "judge will eventually edit its own judge. verify/ holds the gate, the frozen",
+    "fixtures and the reference implementation; env_fxlab/ is the interpreter the",
+    "gate runs on. Both are judge machinery, not deliverable."
+  ],
+  "permissions": {
+    "deny": [
+      "Write(./verify/**)",
+      "Edit(./verify/**)",
+      "MultiEdit(./verify/**)",
+      "NotebookEdit(./verify/**)",
+      "Write(./env_fxlab/**)",
+      "Edit(./env_fxlab/**)",
+      "MultiEdit(./env_fxlab/**)",
+      "NotebookEdit(./env_fxlab/**)",
+      "Write(./.claude/hooks/**)",
+      "Edit(./.claude/hooks/**)",
+      "Read(./env_fxlab/**)",
+      "Bash(rm:*verify*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "allow": [
+      "Bash(E:\\CODE\\selpha-fxlab\\env_fxlab\\Scripts\\python.exe:*)",
+      "Bash(E:/CODE/selpha-fxlab/env_fxlab/Scripts/python.exe:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin main)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git restore:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Read(./**)",
+      "Write(./fxlab/**)",
+      "Edit(./fxlab/**)",
+      "MultiEdit(./fxlab/**)",
+      "Write(./tests/**)",
+      "Edit(./tests/**)",
+      "MultiEdit(./tests/**)",
+      "Write(./config/**)",
+      "Edit(./config/**)",
+      "MultiEdit(./config/**)",
+      "Write(./HANDOFF.md)",
+      "Edit(./HANDOFF.md)",
+      "Edit(./README.md)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "E:\\CODE\\selpha-fxlab\\env_fxlab\\Scripts\\python.exe -E -s E:\\CODE\\selpha-fxlab\\.claude\\hooks\\gate_hook.py",
+            "timeout": 700
+          }
+        ]
+      }
+    ]
+  }
+}

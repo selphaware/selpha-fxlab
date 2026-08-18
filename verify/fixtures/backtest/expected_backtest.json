@@ -1,0 +1,88 @@
+{
+  "bar_seconds": 3600,
+  "commission_min": 2.0,
+  "commission_rate": 2e-05,
+  "fast": 2,
+  "pair": "EURUSD",
+  "scenarios": {
+    "large": {
+      "commission_at_minimum": [
+        false,
+        false
+      ],
+      "commission_legs": [
+        22.242,
+        21.958
+      ],
+      "correct": {
+        "commission": 44.2,
+        "gross_pnl": -14000.0,
+        "net_pnl": -14244.2,
+        "policy": "correct",
+        "spread_cost": 200.0,
+        "total_costs": 244.2,
+        "trade_count": 1,
+        "trades": [
+          {
+            "commission": 44.2,
+            "entry_fill": 1.1121,
+            "entry_mid": 1.112,
+            "entry_ts": "2026-07-14T05:00:00+00:00",
+            "exit_fill": 1.0979,
+            "exit_mid": 1.098,
+            "exit_ts": "2026-07-14T09:00:00+00:00",
+            "spread_cost": 200.0,
+            "units": 1000000
+          }
+        ],
+        "units": 1000000
+      },
+      "counterfactual_lookahead_net_pnl": -10244.2,
+      "counterfactual_mid_fill_net_pnl": -14044.2,
+      "counterfactual_zero_commission_net_pnl": -14200.0,
+      "counterfactual_zero_cost_net_pnl": -14000.0,
+      "counterfactual_zero_spread_net_pnl": -14044.2,
+      "units": 1000000
+    },
+    "small": {
+      "commission_at_minimum": [
+        true,
+        true
+      ],
+      "commission_legs": [
+        2.0,
+        2.0
+      ],
+      "correct": {
+        "commission": 4.0,
+        "gross_pnl": -70.0,
+        "net_pnl": -75.0,
+        "policy": "correct",
+        "spread_cost": 1.0,
+        "total_costs": 5.0,
+        "trade_count": 1,
+        "trades": [
+          {
+            "commission": 4.0,
+            "entry_fill": 1.1121,
+            "entry_mid": 1.112,
+            "entry_ts": "2026-07-14T05:00:00+00:00",
+            "exit_fill": 1.0979,
+            "exit_mid": 1.098,
+            "exit_ts": "2026-07-14T09:00:00+00:00",
+            "spread_cost": 1.0,
+            "units": 5000
+          }
+        ],
+        "units": 5000
+      },
+      "counterfactual_lookahead_net_pnl": -55.0,
+      "counterfactual_mid_fill_net_pnl": -74.0,
+      "counterfactual_zero_commission_net_pnl": -71.0,
+      "counterfactual_zero_cost_net_pnl": -70.0,
+      "counterfactual_zero_spread_net_pnl": -74.0,
+      "units": 5000
+    }
+  },
+  "slow": 4
+}
