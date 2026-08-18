@@ -69,6 +69,6 @@ runs green and is quietly wrong.
 
 ## Local reference
 
-`CLAUDE.md` holds the confirmed Dukascopy URL/layout/scaling facts, the FX week
-boundary (which moves with US DST — do not hardcode it), the pinned Parquet
-schema and the full deliverable contract. `spec.md` holds the scope.
+`SPEC.md` holds the confirmed Dukascopy URL/layout/scaling facts and the FX week
+boundary (which moves with US DST — do not hardcode it), plus the scope.
+`CLAUDE.md` holds the pinned Parquet schema and the full deliverable contract.

@@ -179,64 +179,15 @@ line instead of being buried in the fill price. A backtester that reports
 
 ---
 
-## Dukascopy — facts confirmed against the live feed
+## Dukascopy and OANDA — confirmed feed facts
 
-```
-https://datafeed.dukascopy.com/datafeed/{PAIR}/{YYYY}/{MM0}/{DD}/{HH}h_ticks.bi5
-```
-
-* **`MM0` is ZERO-BASED**: January = `00` … December = `11`. Confirmed six ways —
-  `/2026/06/11/` and `/2026/06/18/` return empty bodies (they are Saturdays
-  11 and 18 **July**), and every response's `Last-Modified` header names the real
-  date directly.
-* **Empty body = market closed**, not an error. Dukascopy returns **HTTP 200 with
-  0 bytes** for closed hours. A 404 means the hour genuinely does not exist.
-* **Compression**: raw LZMA1 *alone* format — `lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)`.
-  The header is `5d 00 00 40 00` + 8-byte little-endian uncompressed size.
-* **Record layout**: 20 bytes, `struct` format `>IIIff`, big-endian:
-  `(ms_offset_in_hour, ask_int, bid_int, ask_volume_f32, bid_volume_f32)`.
-  **ASK comes before BID.** Getting this backwards produces `ask < bid` on every
-  tick, which the gate rejects immediately.
-* **Price scale = 10 ^ -display_precision**: `1e-3` for JPY-quoted pairs,
-  `1e-5` for all others. Verified against OANDA H1 for all 12 pairs in scope —
-  worst disagreement 1.2 pip (GBPJPY), which is the genuine ECN-vs-retail spread
-  difference, not a scaling error.
-* **Rate limiting is real.** Sustained requests earn `HTTP 503` (an HAProxy page,
-  not a Dukascopy application error). Back off exponentially and treat 503/429 as
-  retryable. Connection resets are frequent — retry those too.
-* **VPN egress is blocked.** Datacenter/VPN IPs get a hard 503 from the
-  datafeed front end. `www.dukascopy.com` still works, which makes this look like
-  a routing problem when it is an IP-reputation problem.
-
-### FX week boundary — measured, and it moves with US DST
-
-| period | opens | closes |
-|---|---|---|
-| Northern **summer** (observed July 2026) | Sun **21:00 UTC** | Fri **21:00 UTC** |
-| Northern **winter** (observed January 2026) | Sun **22:00 UTC** | Fri **22:00 UTC** |
-
-Evidence: Fri 2026-07-17 20:00Z has 1,163 ticks and 21:00Z is empty; Sun
-2026-07-19 20:00Z is empty and 21:00Z has 222 ticks. In January the same probe
-shows Fri 2026-01-09 21:00Z still carrying 868 ticks and 22:00Z empty.
-
-**Do not hardcode 21:00 UTC.** The boundary tracks 17:00 `America/New_York`.
-Derive it with `zoneinfo`, or it will be wrong for half of every year — silently,
-in a way that corrupts every session and spread statistic downstream.
-
----
-
-## OANDA
-
-* Host is **config-driven**: `OANDA_ENV` selects `practice` (default) or `live`.
-  Practice is `https://api-fxpractice.oanda.com`.
-* Token comes from `OANDA_API_TOKEN` only. **Never** hardcode it, log it, print
-  it, or commit it.
-* The client is **read-only**: `/v3/instruments/{inst}/candles` and
-  `/v3/accounts/{id}/instruments`. Never `/orders`, `/trades`, or `/positions`.
-* Candle prices arrive as **strings** and timestamps as RFC3339 with **nanosecond**
-  precision (9 fractional digits). Parse both deliberately.
-* `displayPrecision` / `pipLocation` from the instruments endpoint is the
-  authoritative per-pair scaling reference.
+`SPEC.md` carries all of them, with the measurements they came from: the
+zero-based-month URL, the `>IIIff` ask-before-bid record layout, LZMA1
+`FORMAT_ALONE`, per-pair `10 ** -display_precision` scaling, empty-body-means-
+closed, 503 throttling and VPN-egress rejection, and the FX week boundary
+(which tracks 17:00 `America/New_York` — never hardcode 21:00 UTC).
+OANDA practice host is `https://api-fxpractice.oanda.com`; `OANDA_ENV` selects
+it. Read `SPEC.md` before touching `fxlab/ingestion/`.
 
 ---
 
@@ -254,6 +205,8 @@ in a way that corrupts every session and spread statistic downstream.
   "fixture"` cannot fetch.
 * **No secrets in code or commits.** Env vars only. IB credentials never enter
   this repo at all — they live in IBC config outside it (a Phase 3 concern).
+  The OANDA token comes from `OANDA_API_TOKEN` only — never hardcode, log,
+  print or commit it.
 * **Logging, not printing.** Use the `logging` module. The reason tokens above are
   the one deliberate exception: they go to stderr verbatim.
 
