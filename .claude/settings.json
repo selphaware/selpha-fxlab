@@ -4,22 +4,17 @@
     "The deny rules exist because a self-verifying agent that can edit its own",
     "judge will eventually edit its own judge. verify/ holds the gate, the frozen",
     "fixtures and the reference implementation; env_fxlab/ is the interpreter the",
-    "gate runs on. Both are judge machinery, not deliverable."
+    "gate runs on; .claude/ holds the hook and these permissions. All judge",
+    "machinery, not deliverable.",
+    "NOTE: file-path permissions use Edit(path) rules ONLY — Edit rules cover all",
+    "file-editing tools (Write/MultiEdit/NotebookEdit) in current Claude Code."
   ],
   "permissions": {
     "deny": [
-      "Write(./verify/**)",
       "Edit(./verify/**)",
-      "MultiEdit(./verify/**)",
-      "NotebookEdit(./verify/**)",
-      "Write(./env_fxlab/**)",
       "Edit(./env_fxlab/**)",
-      "MultiEdit(./env_fxlab/**)",
-      "NotebookEdit(./env_fxlab/**)",
-      "Write(./.claude/hooks/**)",
-      "Edit(./.claude/hooks/**)",
+      "Edit(./.claude/**)",
       "Read(./env_fxlab/**)",
-      "Bash(rm:*verify*)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)"
     ],
@@ -32,7 +27,6 @@
       "Bash(git show:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push origin main)",
       "Bash(git push:*)",
       "Bash(git checkout:*)",
       "Bash(git branch:*)",
@@ -46,16 +40,9 @@
       "Bash(cp:*)",
       "Bash(mv:*)",
       "Read(./**)",
-      "Write(./fxlab/**)",
       "Edit(./fxlab/**)",
-      "MultiEdit(./fxlab/**)",
-      "Write(./tests/**)",
       "Edit(./tests/**)",
-      "MultiEdit(./tests/**)",
-      "Write(./config/**)",
       "Edit(./config/**)",
-      "MultiEdit(./config/**)",
-      "Write(./HANDOFF.md)",
       "Edit(./HANDOFF.md)",
       "Edit(./README.md)"
     ]
