@@ -164,3 +164,46 @@ def test_trial_count_is_stated(trials: int) -> None:
     document = _document({"EURUSD": _pair("2005-01-03", 10)})
     assert f"**Trials ledgered under T1:** {trials}" in coverage_report.render(
         document, trials=trials)
+
+
+def test_harvest_cost_sums_the_ledger_end_records() -> None:
+    """T2 budgets from this, so it must add up the sessions rather than one."""
+    records = [
+        {"record": "start", "experiment_id": "T1-coverage-probe"},
+        {"record": "end", "experiment_id": "T1-coverage-probe",
+         "status": 'ok {"completed": 100, "seconds": 200.0, '
+                   '"seconds_parked": 50.0, "throttles": 7, '
+                   '"outages_ridden_out": 1}'},
+        {"record": "end", "experiment_id": "T1-coverage-probe",
+         "status": 'ok {"completed": 300, "seconds": 400.0, '
+                   '"seconds_parked": 10.0, "throttles": 3, '
+                   '"outages_ridden_out": 0}'},
+        {"record": "end", "experiment_id": "T0-spread-by-session",
+         "status": "ok"},
+    ]
+    cost = coverage_report.harvest_cost(records, "T1-coverage")
+    assert cost == {"sessions": 2, "probes": 400, "seconds": 600.0,
+                    "parked": 60.0, "throttles": 10, "outages": 1}
+
+
+def test_harvest_cost_survives_an_unparseable_status() -> None:
+    """A session killed mid-write must not take the whole cost table with it."""
+    records = [{"record": "end", "experiment_id": "T1-coverage-probe",
+                "status": "failed:INTERRUPTED {broken"}]
+    cost = coverage_report.harvest_cost(records, "T1-coverage")
+    assert cost["sessions"] == 1
+    assert cost["probes"] == 0
+
+
+def test_cost_section_appears_only_when_there_is_a_cost_to_report() -> None:
+    """An empty cost table is noise; T2 needs the numbers or nothing."""
+    document = _document({"EURUSD": _pair("2005-01-03", 10)})
+    assert "## What the survey cost" not in coverage_report.render(
+        document, trials=1)
+    text = coverage_report.render(
+        document, trials=1, cost={"sessions": 2, "probes": 63120,
+                                  "seconds": 50000.0, "parked": 12000.0,
+                                  "throttles": 900, "outages": 4})
+    assert "## What the survey cost" in text
+    assert "1.26 probes/s" in text
+    assert "13.9 h" in text

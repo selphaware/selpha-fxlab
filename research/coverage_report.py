@@ -212,18 +212,29 @@ def _pair_section(pair: str, entry: dict[str, Any],
         before = context.get("before") or {}
         after = context.get("after") or {}
         window = context.get("window", 0)
+        if start["first_data_date"] == start["date"]:
+            evidence = (
+                f"**Recommended start: {start['date']}.** The feed's first "
+                "answer carrying data for this pair is that same day, so "
+                "coverage begins at or before the edge of the probe window. "
+                f"Measured there, the data fraction is "
+                f"{start['near_fraction']:.2%} over the near window and "
+                f"{start['far_fraction']:.2%} over the remainder of the "
+                "window.")
+        else:
+            evidence = (
+                f"**Recommended start: {start['date']}.** The feed's first "
+                f"answer carrying data is earlier, on "
+                f"{start['first_data_date']}, but that day did *not* clear "
+                f"the rule: measured there the data fraction is "
+                f"{start['first_data_near_fraction']:.2%} over the near "
+                f"window and {start['first_data_far_fraction']:.2%} over the "
+                f"remainder. At {start['date']} they are "
+                f"{start['near_fraction']:.2%} and "
+                f"{start['far_fraction']:.2%}.")
         lines += [
-            f"**Recommended start: {start['date']}.** The feed's first "
-            f"answer of any kind for this pair that carried data is "
-            f"{start['first_data_date']}"
-            + ("" if start["first_data_date"] == start["date"] else
-               f", which did *not* clear the rule — measured there the data "
-               f"fraction is {start['first_data_near_fraction']:.2%} over the "
-               f"near window and {start['first_data_far_fraction']:.2%} over "
-               f"the remainder")
-            + f". At {start['date']} those become "
-              f"{start['near_fraction']:.2%} and {start['far_fraction']:.2%}. "
-              f"Last day returning data: {context.get('last_data_date') or '—'}.",
+            evidence + " Last day returning data: "
+            f"{context.get('last_data_date') or '—'}.",
             "",
             f"Probe density around the boundary, {window} trading days each "
             "side:",
@@ -415,8 +426,72 @@ def _observations(payload: dict[str, Any]) -> list[str]:
 # Rendering and CLI
 # --------------------------------------------------------------------------- #
 
+def harvest_cost(records: Sequence[dict[str, Any]],
+                 experiment_id: str) -> dict[str, Any]:
+    """Sum what the probe harvest actually cost, from the ledger end records.
+
+    Not asked for by the card, and reported anyway: T2 is bulk ingestion of the
+    same feed and its budget should come from a measurement rather than from
+    optimism. Each harvest session's end record carries its own counters; this
+    adds them up.
+    """
+    totals = {"sessions": 0, "probes": 0, "seconds": 0.0, "parked": 0.0,
+              "throttles": 0, "outages": 0}
+    for record in records:
+        if (record.get("record") != "end"
+                or record.get("experiment_id") != f"{experiment_id}-probe"):
+            continue
+        status = str(record.get("status", ""))
+        _, _, blob = status.partition("{")
+        try:
+            summary = json.loads("{" + blob) if blob else {}
+        except json.JSONDecodeError:
+            summary = {}
+        totals["sessions"] += 1
+        totals["probes"] += int(summary.get("completed", 0))
+        totals["seconds"] += float(summary.get("seconds", 0.0))
+        totals["parked"] += float(summary.get("seconds_parked", 0.0))
+        totals["throttles"] += int(summary.get("throttles", 0))
+        totals["outages"] += int(summary.get("outages_ridden_out", 0))
+    return totals
+
+
+def _cost_section(cost: dict[str, Any]) -> list[str]:
+    """What the harvest cost, as a budgeting input for T2."""
+    if not cost["sessions"] or cost["seconds"] <= 0:
+        return []
+    rate = cost["probes"] / cost["seconds"]
+    hours = cost["seconds"] / 3600.0
+    return [
+        "## What the survey cost",
+        "",
+        "Recorded because T2 ingests this same feed in bulk and should budget "
+        "from a measurement rather than from optimism. These are the harvest "
+        "sessions' own counters, summed from their ledger end records.",
+        "",
+        *_table(["measure", "value"], [
+            ["harvest sessions", cost["sessions"]],
+            ["probes completed", f"{cost['probes']:,}"],
+            ["wall clock", f"{hours:.1f} h"],
+            ["sustained rate", f"{rate:.2f} probes/s"],
+            ["seconds parked waiting out the feed",
+             f"{cost['parked']:,.0f} ({cost['parked'] / cost['seconds']:.0%} "
+             "of wall clock, summed across both workers)"],
+            ["throttled responses", f"{cost['throttles']:,}"],
+            ["outages ridden out", cost["outages"]],
+        ]),
+        "One probe is one hourly file. A full ingestion asks for every hour of "
+        "every day rather than one hour per trading day, so at this rate the "
+        "arithmetic for T2 follows directly from the hour count it plans to "
+        "fetch — and the parked share above is the part that no amount of "
+        "client tuning removes, because it is the feed being unavailable.",
+        "",
+    ]
+
+
 def render(document: dict[str, Any], trials: int,
-           gate_status: str = "not yet run") -> str:
+           gate_status: str = "not yet run",
+           cost: dict[str, Any] | None = None) -> str:
     """Render the whole report from a result document."""
     payload = document["payload"]
     lines: list[str] = []
@@ -427,6 +502,7 @@ def render(document: dict[str, Any], trials: int,
     for pair, entry in payload["pairs"].items():
         lines += _pair_section(pair, entry, payload["thresholds"])
     lines += _bounds_section(payload)
+    lines += _cost_section(cost or {"sessions": 0, "seconds": 0.0})
     lines += _observations(payload)
     lines += [
         "## Provenance",
@@ -469,9 +545,11 @@ def main(argv: list[str] | None = None) -> int:
     from research import ledger as ledger_mod
 
     document = json.loads(args.result.read_text(encoding="utf-8"))
-    trials = ledger_mod.trial_count(ledger_mod.read(base), args.taskcard)
+    records = ledger_mod.read(base)
+    trials = ledger_mod.trial_count(records, args.taskcard)
+    cost = harvest_cost(records, str(document["experiment_id"]))
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(document, trials, args.gate_status),
+    args.out.write_text(render(document, trials, args.gate_status, cost),
                         encoding="utf-8")
     _LOG.info("wrote %s", args.out)
     print(f"wrote {args.out}")
