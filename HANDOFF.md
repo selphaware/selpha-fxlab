@@ -154,7 +154,7 @@ tick of the week arrived 17.8 seconds after the derived open and the last one
 0.2 seconds before the derived close.
 
 A hardcoded 22:00 UTC rule -- the winter boundary, and a perfectly reasonable
-thing to write down in January -- would have rejected all 1,817 ticks of the
+thing to write down in January -- would have rejected all 293 ticks of the
 Sunday 21:00 hour as closed-market and failed the run, while expecting data in
 the Friday 21:00 hour the feed served empty. The derivation is not decoration.
 
@@ -177,9 +177,10 @@ to nine times wider at p90**, on 4% of the tick volume. Any strategy that trades
 in those hours pays a completely different cost, and a single average spread
 would hide that entirely.
 
-Tick counts by UTC hour show the same shape from the other side, peaking at
-12:00–14:00 (21,352 / 20,977 / 18,298) and bottoming at 20:00–21:00
-(3,839 / 1,817).
+Tick counts by UTC hour show the same shape from the other side. Summed across
+the week they peak at 12:00–14:00 (21,352 / 20,977 / 18,298) and bottom at
+20:00–21:00 (3,839 / 1,817), and the individual 21:00 hours are thinner still:
+293, 298, 448, 478 and 300 ticks on the five days the feed served them.
 
 ### OANDA cross-check
 
