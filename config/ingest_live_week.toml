@@ -1,0 +1,38 @@
+# Live-mode ingest of one complete FX week of EURUSD ticks.
+#
+# The week runs Sunday 17:00 to Friday 17:00 America/New_York, which in
+# northern summer is Sunday 21:00 UTC to Friday 21:00 UTC. The range below
+# deliberately asks for all 24 hours of all six calendar days it touches, so
+# that the hours outside the week are fetched too: they come back as HTTP 200
+# with an empty body and are recorded as "closed", which is how the week
+# boundary gets checked against the live feed rather than against a comment.
+#
+# archive_raw_dir keeps the compressed payloads so the whole week can be
+# re-decoded offline later without fetching it again.
+
+[ingest]
+mode = "live"
+out_dir = "data/live_week"
+archive_raw_dir = "data/live_week/raw"
+source = "dukascopy"
+resume = true
+fail_on_gap = true
+bar_timeframes = ["1min", "5min", "1h"]
+
+[ingest.dukascopy]
+max_concurrency = 4
+max_retries = 5
+backoff_initial = 1.0
+backoff_factor = 2.0
+backoff_max = 30.0
+timeout = 30.0
+
+[ingest.oanda]
+enabled = true
+granularity = "H1"
+max_mid_diff_pips = 1.0
+
+[[ingest.range]]
+pair = "EURUSD"
+start = "2026-08-09"
+end = "2026-08-14"

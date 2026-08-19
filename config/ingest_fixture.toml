@@ -1,0 +1,26 @@
+# Fixture-mode ingest: reads frozen bi5 files from disk and never touches the
+# network. This is the mode the offline gate runs.
+
+[ingest]
+mode = "fixture"
+raw_dir = "verify/fixtures/raw"
+out_dir = "data/fixture"
+source = "dukascopy"
+resume = true
+fail_on_gap = true
+bar_timeframes = ["1min", "5min", "1h"]
+
+[[ingest.hours]]
+pair = "EURUSD"
+date = "2026-07-14"
+hour = 12
+
+[[ingest.hours]]
+pair = "EURUSD"
+date = "2026-07-14"
+hour = 13
+
+[[ingest.hours]]
+pair = "USDJPY"
+date = "2026-07-14"
+hour = 13

@@ -1,0 +1,20 @@
+# Reference backtest over 1h bars resampled from stored ticks.
+#
+# The strategy is plumbing, not research: a moving-average cross exists here
+# only to exercise signal -> order -> fill -> cost -> P&L.
+
+[backtest]
+bars_path = "data/live_week/bars/timeframe=1h/pair=EURUSD/EURUSD_1h.parquet"
+pair = "EURUSD"
+units = 1000000
+fast = 12
+slow = 48
+out_path = "data/live_week/backtest_EURUSD_1h.json"
+initial_equity = 0.0
+
+[backtest.costs]
+# IB tier 1: 0.20 bp of notional, USD 2.00 minimum per order.
+commission_rate = 2e-05
+commission_min = 2.0
+# Raise to 1.5 or 2.0 to stress-test a strategy against worse execution.
+cost_multiplier = 1.0
