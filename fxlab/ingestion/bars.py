@@ -109,8 +109,6 @@ def resample_ticks(ticks: Any, timeframe: str, pair: str | None = None) -> BarRe
         covers [open, open + delta); bins with no ticks are dropped from the
         frame and listed in ``empty_bins``.
     """
-    import pandas as pd
-
     rule = offset_alias(timeframe)
     if pair is None:
         pair = str(ticks["pair"].iloc[0]) if len(ticks) else ""

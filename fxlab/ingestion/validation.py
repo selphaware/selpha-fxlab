@@ -24,7 +24,7 @@ counts drift between runs with nothing to show for it.
 from __future__ import annotations
 
 import datetime as dt
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Final
 
 import numpy as np

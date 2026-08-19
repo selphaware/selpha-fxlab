@@ -24,7 +24,7 @@ import logging
 import os
 import pathlib
 from dataclasses import dataclass, field
-from typing import Any, Final, Iterable, Iterator
+from typing import Any, Final, Iterator
 
 from fxlab.config import HourRequest, IngestConfig
 from fxlab.ingestion.bi5 import Bi5DecodeError, decode_bi5

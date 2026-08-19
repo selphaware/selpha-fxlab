@@ -5,7 +5,6 @@ from __future__ import annotations
 import lzma
 import struct
 
-import pytest
 
 from fxlab.ingestion.bi5 import RECORD_FORMAT, decode_bi5
 from fxlab.ingestion.validation import (

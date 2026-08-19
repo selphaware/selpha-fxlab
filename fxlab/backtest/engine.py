@@ -28,7 +28,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Final, Iterable
+from typing import Any, Final
 
 from fxlab.costs.model import BUY, SELL, CostModel, Execution, Quote
 
