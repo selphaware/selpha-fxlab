@@ -406,7 +406,10 @@ def run(params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
     """
     directory = experiment_dir(params)
     probes = read_probes(directory / PROBES_NAME)
-    quality = read_probes(directory / QUALITY_NAME)
+    # Deduplicated for the same reason the probes are: a spot check that could
+    # not be fetched is re-asked for, and the record that decoded must win over
+    # the record that says the feed was down at the time.
+    quality = list(dedupe(read_probes(directory / QUALITY_NAME)).values())
     index = dedupe(probes)
     pairs, days, hour, thresholds = _analysis_inputs(params)
 

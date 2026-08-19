@@ -1148,7 +1148,11 @@ def main(argv: list[str] | None = None) -> int:
     # self-limiting: it re-plans from the file each session, so an identity
     # that succeeds stops being an error and stops being planned.
     if args.stage == "quality":
-        done = probe_index(read_probes(quality_path))
+        # A spot check that could not be fetched is not a spot check. Only the
+        # ones that actually decoded count as done, so re-running the stage
+        # after a feed outage retries the rest instead of enshrining them.
+        done = probe_index(record for record in read_probes(quality_path)
+                           if "detail" not in record)
     elif args.stage == "retry":
         done = set()
     else:

@@ -506,3 +506,23 @@ def test_endpoint_pool_survives_a_resolver_failure() -> None:
     state["fail"] = True
     clock.now += 11.0
     assert pool.candidates() == ["1.1.1.1"]
+
+
+def test_run_prefers_a_retried_quality_check_over_the_failed_one(
+        tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A spot check the feed refused is retried, and the retry must win."""
+    params = _write_survey(tmp_path)
+    days = trading_days(dt.date(2024, 1, 1), dt.date(2024, 3, 29), 13)
+    date = days[10].isoformat()
+    with (tmp_path / "quality.jsonl").open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps({"pair": "EURUSD", "date": date, "hour": 13,
+                                 "ok": False, "ticks": 0,
+                                 "detail": "spot check returned error"}) + "\n")
+        handle.write(json.dumps({"pair": "EURUSD", "date": date, "hour": 13,
+                                 "ok": True, "ticks": 4321}) + "\n")
+    monkeypatch.setattr(coverage, "project_root", lambda: tmp_path.parent)
+
+    checks = coverage.run(params, seed=1, loader=None)["pairs"]["EURUSD"]["quality"]
+    assert len(checks) == 1
+    assert checks[0]["ok"] is True
+    assert checks[0]["ticks"] == 4321
