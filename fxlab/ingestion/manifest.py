@@ -38,6 +38,19 @@ STATUS_GAP: Final[str] = "gap"
 #: Statuses that mean "this hour is accounted for and needs no re-fetch".
 SETTLED_STATUSES: Final[frozenset[str]] = frozenset({STATUS_OK, STATUS_EMPTY, STATUS_CLOSED})
 
+#: Hours of stored data below which a day is partial rather than whole. An FX
+#: week opens on Sunday evening and closes on Friday evening, so its first and
+#: last days always fall short of 24.
+WHOLE_DAY_HOURS: Final[int] = 20
+
+#: Whole trading days of history required before a tick-count outlier is called.
+MIN_TREND_DAYS: Final[int] = 3
+
+#: Warning reasons that :meth:`Manifest.coverage` derives from the hour records
+#: on every render. They are recomputed rather than reloaded, so a manifest read
+#: back from disk does not accumulate a second copy of each one.
+DERIVED_WARNING_REASONS: Final[frozenset[str]] = frozenset({"TICK_COUNT_OUTLIER"})
+
 #: sha256 of a zero-byte body, which is what a closed hour hashes to.
 EMPTY_SHA256: Final[str] = (
     "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
@@ -153,6 +166,12 @@ class Manifest:
         previous days; a day more than 4x or less than a quarter of it is
         flagged as a warning. That is a coarse detector on purpose -- it exists
         to catch a truncated download, not to model volume seasonality.
+
+        Only **whole** trading days take part, on either side of the
+        comparison. The first and last days of an FX week are partial by
+        definition -- a week opens on Sunday evening and closes on Friday
+        evening -- so comparing a three-hour Sunday against a full Monday
+        flags every single week, which teaches the reader to ignore it.
         """
         outliers: list[dict[str, Any]] = []
         by_day: dict[tuple[str, str], dict[str, Any]] = {}
@@ -175,9 +194,10 @@ class Manifest:
         days = sorted(by_day.values(), key=lambda d: (d["pair"], d["date"]))
         history: dict[str, list[int]] = {}
         for day in days:
-            prior = [n for n in history.get(day["pair"], []) if n > 0]
+            prior = history.get(day["pair"], [])
+            day["whole_trading_day"] = day["hours_ok"] >= WHOLE_DAY_HOURS
             day["tick_count_outlier"] = False
-            if prior and day["ticks"] > 0:
+            if day["whole_trading_day"] and len(prior) >= MIN_TREND_DAYS:
                 prior_sorted = sorted(prior)
                 mid = len(prior_sorted) // 2
                 median = (prior_sorted[mid] if len(prior_sorted) % 2
@@ -190,7 +210,8 @@ class Manifest:
                         "detail": (f"{day['pair']} {day['date']}: {day['ticks']:,} ticks "
                                    f"against a trailing median of {median:,.0f}"),
                     })
-            history.setdefault(day["pair"], []).append(day["ticks"])
+            if day["whole_trading_day"] and day["ticks"] > 0:
+                history.setdefault(day["pair"], []).append(day["ticks"])
         return {"by_day": days, "outliers": outliers}
 
     def to_dict(self) -> dict[str, Any]:
@@ -217,7 +238,8 @@ class Manifest:
         return cls(
             hours=[HourRecord.from_dict(h) for h in data.get("hours", [])],
             errors=list(validation.get("errors", [])),
-            warnings=list(validation.get("warnings", [])),
+            warnings=[w for w in validation.get("warnings", [])
+                      if w.get("reason") not in DERIVED_WARNING_REASONS],
             source=str(data.get("source", "dukascopy")),
             generated_at=data.get("generated_at"),
             schema_version=int(data.get("schema_version", SCHEMA_VERSION)),
