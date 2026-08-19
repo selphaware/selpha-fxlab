@@ -809,9 +809,11 @@ def write_parquet(records: Sequence[dict[str, Any]],
     """Mirror the probe checkpoint as Parquet, with pinned Arrow types.
 
     The JSONL is the checkpoint and the audit trail; this is the same rows in
-    the columnar form the card asks for. Types are pinned for the same reason
-    Phase 1 pins its tick schema: pandas 3 infers ``large_string`` for object
-    columns and an inferred schema is a schema nobody agreed to.
+    the columnar form the card asks for, carrying the same fields including the
+    failure detail, so neither file is the only place something is recorded.
+    Types are pinned for the same reason Phase 1 pins its tick schema: pandas 3
+    infers ``large_string`` for object columns and an inferred schema is a
+    schema nobody agreed to.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -826,6 +828,7 @@ def write_parquet(records: Sequence[dict[str, Any]],
         ("ticks", pa.int64()),
         ("attempts", pa.int16()),
         ("stage", pa.large_string()),
+        ("detail", pa.large_string()),
     ])
     ordered = sorted(records, key=lambda r: (str(r.get("pair")),
                                              str(r.get("date")),
@@ -840,6 +843,7 @@ def write_parquet(records: Sequence[dict[str, Any]],
         "ticks": [int(r.get("ticks", 0)) for r in ordered],
         "attempts": [int(r.get("attempts", 0)) for r in ordered],
         "stage": [str(r.get("stage", "")) for r in ordered],
+        "detail": [str(r.get("detail", "")) for r in ordered],
     }
     table = pa.table(columns, schema=schema)
     path.parent.mkdir(parents=True, exist_ok=True)

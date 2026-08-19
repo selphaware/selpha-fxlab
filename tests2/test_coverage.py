@@ -322,7 +322,7 @@ def test_write_parquet_pins_its_schema(tmp_path: pathlib.Path) -> None:
     table = pq.read_table(path)
     assert table.column_names == ["pair", "date", "hour", "kind", "status",
                                   "compressed_bytes", "ticks", "attempts",
-                                  "stage"]
+                                  "stage", "detail"]
     assert str(table.schema.field("pair").type) == "large_string"
     assert str(table.schema.field("hour").type) == "int16"
     # Sorted, so the file does not depend on the order probes finished in.
