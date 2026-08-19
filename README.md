@@ -15,6 +15,7 @@ fxlab/
   ingest.py       python -m fxlab.ingest      --config <cfg.toml>
   backtest/       python -m fxlab.backtest    --config <cfg.toml>
   crosscheck.py   python -m fxlab.crosscheck  --config <ingest_cfg.toml>
+  report.py       python -m fxlab.report      --config <ingest_cfg.toml>
   ingestion/      Dukascopy bi5 fetch/decode, validation, Parquet store,
                   bar resampling, read-only OANDA client
   costs/          CostModel protocol and the IB-calibrated implementation
@@ -32,6 +33,7 @@ verify/           the offline gate, frozen fixtures (do not edit)
 env_fxlab\Scripts\python.exe -m fxlab.ingest     --config config\ingest_fixture.toml
 env_fxlab\Scripts\python.exe -m fxlab.ingest     --config config\ingest_live_week.toml
 env_fxlab\Scripts\python.exe -m fxlab.crosscheck --config config\ingest_live_week.toml
+env_fxlab\Scripts\python.exe -m fxlab.report     --config config\ingest_live_week.toml
 env_fxlab\Scripts\python.exe -m fxlab.backtest   --config config\backtest_example.toml
 ```
 
