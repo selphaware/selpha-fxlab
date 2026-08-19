@@ -21,8 +21,9 @@ from __future__ import annotations
 import concurrent.futures as futures
 import hashlib
 import logging
+import os
 import pathlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Final, Iterable, Iterator
 
 from fxlab.config import HourRequest, IngestConfig
@@ -75,11 +76,7 @@ class IngestReport:
     hours_skipped: int = 0
     ticks_written: int = 0
     duplicates_dropped: int = 0
-    bar_files: list[str] = None  # type: ignore[assignment]
-
-    def __post_init__(self) -> None:
-        if self.bar_files is None:
-            self.bar_files = []
+    bar_files: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -138,7 +135,9 @@ def _archive(config: IngestConfig, request: HourRequest, raw: RawHour) -> None:
         return
     target = pathlib.Path(config.archive_raw_dir) / request.fixture_name
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(raw.payload)
+    tmp = target.with_name(target.name + ".tmp")
+    tmp.write_bytes(raw.payload)
+    os.replace(tmp, target)
 
 
 def _record_gap(manifest: Manifest, request: HourRequest,
@@ -335,6 +334,7 @@ def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestR
                    request.label(), carried.status)
 
     workers = min(config.dukascopy.max_concurrency, max(1, len(pending)))
+    processed = 0
     for request, fetched in _fetch_batched(source, pending, workers):
         record = _process_hour(config, request, fetched, manifest)
         if record.status == STATUS_OK:
@@ -345,6 +345,15 @@ def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestR
         else:
             report.hours_gap += 1
         report.duplicates_dropped += record.duplicates_dropped
+
+        # Checkpoint the ledger as we go. A multi-day live pull that is
+        # interrupted -- and one will be, because the feed throttles and the
+        # transport drops -- must not lose the record of what it already has,
+        # or the next run re-fetches everything and earns the same throttling.
+        processed += 1
+        if processed % config.checkpoint_every == 0:
+            write_manifest(out_dir, manifest)
+            _LOG.debug("manifest checkpointed after %d hour(s)", processed)
 
     if config.bar_timeframes:
         _build_bars(config, report)

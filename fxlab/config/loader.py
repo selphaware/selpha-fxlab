@@ -178,6 +178,7 @@ class IngestConfig:
     source: str = "dukascopy"
     resume: bool = True
     fail_on_gap: bool = True
+    checkpoint_every: int = 25
     archive_raw_dir: pathlib.Path | None = None
     bar_timeframes: tuple[str, ...] = ()
     dukascopy: DukascopyConfig = field(default_factory=DukascopyConfig)
@@ -190,6 +191,8 @@ class IngestConfig:
                 f"ingest.mode is {self.mode!r}, expected one of {sorted(VALID_MODES)}")
         if self.mode == "fixture" and self.raw_dir is None:
             raise ConfigError("ingest.mode = 'fixture' requires ingest.raw_dir")
+        if self.checkpoint_every < 1:
+            raise ConfigError("ingest.checkpoint_every must be >= 1")
         if not self.hours:
             raise ConfigError(
                 "no hours requested: give at least one [[ingest.hours]] or "
@@ -299,6 +302,7 @@ def load_ingest_config(path: str | pathlib.Path) -> IngestConfig:
         source=str(table.get("source", "dukascopy")),
         resume=bool(table.get("resume", True)),
         fail_on_gap=bool(table.get("fail_on_gap", True)),
+        checkpoint_every=int(table.get("checkpoint_every", 25)),
         archive_raw_dir=(None if archive is None
                          else _as_path(archive, f"{where}.archive_raw_dir")),
         bar_timeframes=bar_timeframes,

@@ -209,3 +209,52 @@ def test_cli_reports_a_rejected_hour_on_stderr(tmp_path, capsys) -> None:
         "hour = 13\n", encoding="utf8")
     assert ingest_main(["--config", str(config)]) == 1
     assert "CROSSED_QUOTE" in capsys.readouterr().err
+
+
+def test_manifest_is_checkpointed_during_a_long_run(tmp_path, monkeypatch) -> None:
+    # An interrupted live pull must not lose the ledger; if it does, the next
+    # run re-fetches everything and earns the same throttling that stopped it.
+    import fxlab.ingestion.pipeline as pipeline_module
+
+    checkpoints: list[int] = []
+    real = pipeline_module.write_manifest
+
+    def watching(out_dir, manifest):
+        checkpoints.append(len(manifest.hours))
+        return real(out_dir, manifest)
+
+    monkeypatch.setattr(pipeline_module, "write_manifest", watching)
+    ingest(config_for(tmp_path, [("EURUSD", "2026-07-14", 12),
+                                 ("EURUSD", "2026-07-14", 13),
+                                 ("EURUSD", "2026-07-14", 14)],
+                      checkpoint_every=1))
+    # One checkpoint per settled hour, plus the final write.
+    assert checkpoints == [1, 2, 3, 3]
+
+
+def test_a_run_interrupted_after_a_checkpoint_resumes_from_it(
+        tmp_path, monkeypatch) -> None:
+    import fxlab.ingestion.pipeline as pipeline_module
+
+    config = config_for(tmp_path, [("EURUSD", "2026-07-14", 12),
+                                   ("EURUSD", "2026-07-14", 13),
+                                   ("EURUSD", "2026-07-14", 14)],
+                        checkpoint_every=1)
+    real = pipeline_module.write_manifest
+    calls = {"n": 0}
+
+    def die_after_two(out_dir, manifest):
+        calls["n"] += 1
+        result = real(out_dir, manifest)
+        if calls["n"] == 2:
+            raise KeyboardInterrupt("simulated interruption")
+        return result
+
+    monkeypatch.setattr(pipeline_module, "write_manifest", die_after_two)
+    with pytest.raises(KeyboardInterrupt):
+        ingest(config)
+
+    monkeypatch.setattr(pipeline_module, "write_manifest", real)
+    resumed = ingest(config)
+    assert resumed.hours_skipped == 2
+    assert resumed.hours_ok == 3

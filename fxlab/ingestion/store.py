@@ -21,10 +21,9 @@ import datetime as dt
 import logging
 import os
 import pathlib
+import re
 from dataclasses import dataclass
 from typing import Any, Final
-
-import re
 
 import numpy as np
 import pyarrow as pa

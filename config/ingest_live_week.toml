@@ -17,14 +17,24 @@ archive_raw_dir = "data/live_week/raw"
 source = "dukascopy"
 resume = true
 fail_on_gap = true
+# Write the manifest every N settled hours, so an interrupted pull resumes
+# where it stopped instead of starting over.
+checkpoint_every = 10
 bar_timeframes = ["1min", "5min", "1h"]
 
 [ingest.dukascopy]
-max_concurrency = 4
-max_retries = 5
+# Measured on this connection: four in flight earns sustained HTTP 503 from
+# the feed within a couple of minutes. Two is slower and finishes.
+max_concurrency = 2
+# The feed throttles hard under sustained fetching and the transport itself is
+# not always reliable: a real week of this pull produced bursts of HTTP 503
+# alongside connection resets and connect timeouts. Eight retries with a 60s
+# ceiling is patient enough to ride those out; anything that still fails is
+# recorded as a gap and picked up by the next resumed run.
+max_retries = 8
 backoff_initial = 1.0
 backoff_factor = 2.0
-backoff_max = 30.0
+backoff_max = 60.0
 timeout = 30.0
 
 [ingest.oanda]
