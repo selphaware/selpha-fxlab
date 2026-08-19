@@ -7,8 +7,10 @@
 bars_path = "data/live_week/bars/timeframe=1h/pair=EURUSD/EURUSD_1h.parquet"
 pair = "EURUSD"
 units = 1000000
-fast = 12
-slow = 48
+# Sized for one week of hourly bars (about 120 of them): a 48-bar slow window
+# would leave too little history to trade at all.
+fast = 6
+slow = 24
 out_path = "data/live_week/backtest_EURUSD_1h.json"
 initial_equity = 0.0
 
