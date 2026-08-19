@@ -151,9 +151,12 @@ The 24 hours the feed served as empty bodies were **exactly** Sunday
 That is precisely the window `fxlab.ingestion.sessions` derives from 17:00
 `America/New_York`, and the boundary ticks sit inside it by seconds: the first
 tick of the week arrived 17.8 seconds after the derived open and the last one
-0.2 seconds before the derived close. A hardcoded 22:00 UTC rule (the winter
-boundary) would have discarded the first hour of the week and admitted an hour
-that was shut; the derivation is not decoration.
+0.2 seconds before the derived close.
+
+A hardcoded 22:00 UTC rule -- the winter boundary, and a perfectly reasonable
+thing to write down in January -- would have rejected all 1,817 ticks of the
+Sunday 21:00 hour as closed-market and failed the run, while expecting data in
+the Friday 21:00 hour the feed served empty. The derivation is not decoration.
 
 ### Spread by session (pips)
 
@@ -167,12 +170,12 @@ that was shut; the derivation is not decoration.
 | sydney | 7,501 | 0.50 | 1.40 | 3.80 | 6.40 | 13.70 |
 
 The median is 0.30 pip almost everywhere, matching the ECN spread `SPEC.md`
-records. The interesting column is the tail: the four liquid sessions stay
+records. The interesting column is the tail. All four liquid sessions stay
 inside 1 pip at the 99th percentile, while the thin hours around the daily roll
-and the weekly reopen (`sydney` here) run **five times wider at p50 and ten
-times wider at p90**. Any strategy that trades in those hours is paying a
-completely different cost, and a single average spread would hide that
-entirely.
+and the weekly reopen (`sydney` here) run **1.7x wider at the median and eight
+to nine times wider at p90**, on 4% of the tick volume. Any strategy that trades
+in those hours pays a completely different cost, and a single average spread
+would hide that entirely.
 
 Tick counts by UTC hour show the same shape from the other side, peaking at
 12:00–14:00 (21,352 / 20,977 / 18,298) and bottoming at 20:00–21:00
