@@ -1,0 +1,68 @@
+# T1 - Dukascopy coverage survey by sampling probe. See taskcards/T1.md.
+#
+# Mode. This is a data survey, not a scored candidate: `scored = false`, so no
+# scorecard exists and none can be demanded. It is declared in `scoring` mode
+# rather than `mechanical` for two reasons. Mechanical mode may only name a
+# data_root on the allowlist (`data/live_week`), and this survey does not read
+# the quarantined live week or any other stored data - it reads what the feed
+# answers. And the research gate only scans a config for sealed dates when the
+# config targets the research tree, which for an experiment means scoring mode;
+# the card requires the probe window to be gate-checked against the seal, so
+# scoring mode is what puts this file under that check. The loader is built and
+# never used, and the empty access record in result.json is the evidence.
+#
+# Seal. The probe window ends on the last research day. No date at or after the
+# cutoff appears anywhere in this file, in the probe plan, or in any request
+# the harvester issues.
+
+[experiment]
+id = "T1-coverage"
+taskcard = "T1"
+entry = "research.coverage:run"
+seed = 20260819
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+[experiment.params]
+experiment_dir = "experiments/T1-coverage"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# The card's range and sampling hour: one liquid hour per trading day.
+start_date = "2005-01-01"
+end_date = "2025-02-28"
+probe_hour = 13
+
+# Alternate hours for the refinement sweep, all inside the card's 08:00-16:00
+# UTC band. Three spread across the band, so a day that has data at any liquid
+# hour cannot be mistaken for a day that has none.
+refine_hours = [9, 11, 15]
+boundary_days = 5
+refine_max_per_pair = 400
+
+# The sustained-coverage rule, stated before any result exists. A recommended
+# start must clear this data fraction over both the near window and the whole
+# remainder of the research window.
+sustained_fraction = 0.95
+sustained_window_days = 120
+
+# A run of this many consecutive non-data trading days is a material hole.
+gap_run_min = 5
+
+# Full decodes per pair for the data-quality spot checks.
+quality_probes_per_pair = 3
+
+# Feed client tunables. Concurrency is fixed at two by the harvester and is not
+# configurable here: the card caps it and HANDOFF.md records that four in
+# flight provoked sustained 503s within about two minutes.
+# Attempts per probe before it is recorded as an error, and the connect
+# timeout. Twelve attempts spread over the cooldown schedule cover about three
+# minutes, which spans several cycles of the feed's measured availability flap;
+# a probe recorded as an error after that really did fail to be answered.
+max_retries = 11
+timeout_seconds = 20.0
