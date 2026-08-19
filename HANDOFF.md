@@ -1,13 +1,16 @@
 # HANDOFF — Phase 1 (`fxlab`)
 
-Phase 1 is complete: the offline gate passes, and one real week of EURUSD ticks
+Phase 1 is complete. The offline gate passes, and one real week of EURUSD ticks
 has been pulled from the live Dukascopy feed through the identical decode,
-validate and store path and cross-checked against OANDA.
+validate and store path, then cross-checked against OANDA.
 
 ```
 E:\CODE\selpha-fxlab\env_fxlab\Scripts\python.exe -E -s verify\smoke_test.py fxlab
-GATE PASS   (exit 0)
+GATE PASS   (exit 0)   202 unit tests pass
 ```
+
+The live week in one line: **205,088 EURUSD ticks across 120 open hours, zero
+gaps, zero duplicates, mids agreeing with OANDA to a median of 0.000 pips.**
 
 This document is written for whoever bootstraps Phase 2. It says what exists,
 what the live feed actually does, what is deliberately unfinished, and which
@@ -104,30 +107,166 @@ trade carries its own `spread_cost` and `commission`.
 
 ---
 
-<!-- LIVE-FINDINGS -->
+## 3. The live run
+
+One complete FX week of EURUSD, pulled from the live Dukascopy feed on
+2026-08-19 through the same decode, validate and store path the offline gate
+exercises:
+
+```
+python -m fxlab.ingest     --config config/ingest_live_week.toml
+python -m fxlab.crosscheck --config config/ingest_live_week.toml
+python -m fxlab.report     --config config/ingest_live_week.toml
+python -m fxlab.backtest   --config config/backtest_example.toml
+```
+
+### Coverage
+
+| | |
+|---|---|
+| Hours requested | 144 (all 24 hours of the six calendar days the week touches) |
+| Hours with ticks | **120** |
+| Hours the feed served empty | **24** |
+| Gaps after resume | **0** |
+| Ticks stored | **205,088** |
+| Exact duplicates dropped | **0** |
+| First tick | `2026-08-09T21:00:17.798Z` |
+| Last tick | `2026-08-14T20:59:59.802Z` |
+
+| date | requested | with ticks | closed | ticks |
+|---|---|---|---|---|
+| 2026-08-09 (Sun) | 24 | 3 | 21 | 1,951 |
+| 2026-08-10 (Mon) | 24 | 24 | 0 | 38,391 |
+| 2026-08-11 (Tue) | 24 | 24 | 0 | 36,420 |
+| 2026-08-12 (Wed) | 24 | 24 | 0 | 45,491 |
+| 2026-08-13 (Thu) | 24 | 24 | 0 | 40,639 |
+| 2026-08-14 (Fri) | 24 | 21 | 3 | 42,196 |
+
+### The week boundary, confirmed against the feed rather than against a comment
+
+The 24 hours the feed served as empty bodies were **exactly** Sunday
+00:00–20:00 UTC and Friday 21:00–23:00 UTC. The 120 hours carrying ticks were
+**exactly** Sunday 21:00 UTC through Friday 20:00 UTC.
+
+That is precisely the window `fxlab.ingestion.sessions` derives from 17:00
+`America/New_York`, and the boundary ticks sit inside it by seconds: the first
+tick of the week arrived 17.8 seconds after the derived open and the last one
+0.2 seconds before the derived close. A hardcoded 22:00 UTC rule (the winter
+boundary) would have discarded the first hour of the week and admitted an hour
+that was shut; the derivation is not decoration.
+
+### Spread by session (pips)
+
+| session | ticks | p50 | p75 | p90 | p99 | max |
+|---|---|---|---|---|---|---|
+| all | 205,088 | 0.30 | 0.40 | 0.50 | 1.30 | 13.70 |
+| tokyo | 44,052 | 0.30 | 0.40 | 0.50 | 0.60 | 0.70 |
+| london | 46,643 | 0.30 | 0.40 | 0.40 | 0.50 | 1.20 |
+| london_ny_overlap | 60,627 | 0.30 | 0.40 | 0.40 | 0.60 | 3.60 |
+| new_york | 46,265 | 0.30 | 0.40 | 0.40 | 0.80 | 3.00 |
+| sydney | 7,501 | 0.50 | 1.40 | 3.80 | 6.40 | 13.70 |
+
+The median is 0.30 pip almost everywhere, matching the ECN spread `SPEC.md`
+records. The interesting column is the tail: the four liquid sessions stay
+inside 1 pip at the 99th percentile, while the thin hours around the daily roll
+and the weekly reopen (`sydney` here) run **five times wider at p50 and ten
+times wider at p90**. Any strategy that trades in those hours is paying a
+completely different cost, and a single average spread would hide that
+entirely.
+
+Tick counts by UTC hour show the same shape from the other side, peaking at
+12:00–14:00 (21,352 / 20,977 / 18,298) and bottoming at 20:00–21:00
+(3,839 / 1,817).
+
+### OANDA cross-check
+
+All 120 stored hourly bars were compared against 120 OANDA H1 candles.
+
+| statistic | pips |
+|---|---|
+| mid difference, mean | **-0.010** |
+| mid difference, median | **0.000** |
+| mid difference, p95 abs | 0.305 |
+| mid difference, max abs | 1.450 |
+| Dukascopy bid minus OANDA bid, median | **+0.600** |
+| Dukascopy ask minus OANDA ask, median | **-0.600** |
+
+Two independent feeds agreeing on the mid to a median of **zero pips** across a
+week is the strongest available evidence that the record layout, the price
+scale and the hour alignment are all correct — three bugs that are hard to
+separate any other way. The bid and ask offsets are the ECN-versus-retail
+spread difference `SPEC.md` predicted (+0.7 / -0.6 measured previously), and
+the cross-check deliberately does not threshold them.
+
+One hour of 120 exceeded the 1.0 pip mid threshold: `2026-08-12T21:00Z`, at
+-1.45 pips. That is 17:00 New York, the daily roll, where the hour opens on
+thin books and the two venues genuinely print different first ticks. The job
+exits 1 on it, which is correct behaviour for the configured threshold and a
+calibration question for Phase 2 rather than a defect.
+
+### What the feed did to us
+
+Across 145 hour requests the client absorbed **116 retries**:
+
+| failure | count | meaning |
+|---|---|---|
+| HTTP 503 | 57 | throttling, served as an HAProxy page |
+| connect timeout (`WinError 10060`) | 37 | transport, unrelated to throttling |
+| read timeout | 11 | transport |
+| connection reset (`WinError 10054`) | 11 | transport |
+
+Four connections in flight provoked sustained 503s within about two minutes; at
+two it completed. One hour (`2026-08-11T12:00Z`) still exhausted all nine
+attempts and was recorded as a gap, with `FETCH_ERROR` on stderr and in the
+manifest — not skipped. Re-running the same config re-fetched **that one hour
+and no other**, leaving the other 143 untouched, and the week closed with zero
+gaps. That is the resume path working under the conditions it exists for.
+
+### Reproducibility
+
+The run archived every compressed payload it fetched. Re-ingesting those 144
+files in fixture mode, offline, produced an **identical** manifest: same status,
+tick count, duplicate count, sha256, compressed size and boundary timestamps for
+every one of the 144 hours, and the same 205,088 ticks. The live path and the
+offline path are the same path.
+
+### Reference backtest on the live week
+
+Not a research result — it exists to show the chain ends somewhere real. A 6/24
+MA cross on the 120 hourly bars, 1,000,000 units, IB costs:
+
+| | |
+|---|---|
+| trades | 5 (one closed at the final bar) |
+| gross P&L (mid to mid) | -2,535.00 |
+| spread cost | 405.00 |
+| commission | 230.83 |
+| net P&L | **-3,170.83** |
+| max drawdown | 6,864.61 |
+
+Costs are 25% of the size of the gross move over one week at this trade rate,
+which is the entire reason the cost model is explicit and the spread is a
+separate line.
+
 
 ---
 
-## 4. What the live feed actually does
+## 4. Feed semantics worth not rediscovering
 
-Everything in this section was observed during the week pull above, not read in
-documentation.
+Three things about the datafeed that are cheap to get wrong and expensive to
+notice, all confirmed by observation rather than documentation.
 
 * **The month in the URL is zero-based.** `/2026/07/12/` is 12 **August** 2026.
-  Confirmed independently of any decoding: the response carries a
+  This is confirmable without decoding a single byte: every response carries a
   `Last-Modified` header naming the true date.
-* **An empty body with HTTP 200 means the market was closed**, and a 404 means
-  the hour is genuinely absent. Conflating them either manufactures gaps across
-  every weekend or hides real holes, so they are recorded as different statuses.
-* **Sustained fetching earns HTTP 503.** It is throttling served as an HAProxy
-  page, not an application error. Four connections in flight provoked it within
-  a couple of minutes on this connection; two did not.
-* **The transport itself is unreliable here.** Connect timeouts (`WinError
-  10060`) and resets (`WinError 10054`) arrived in bursts throughout, unrelated
-  to the 503s. Retries with exponential backoff absorbed them.
+* **An empty body with HTTP 200 means the market was closed. A 404 means the
+  hour is genuinely absent.** Conflating them either manufactures gaps across
+  every weekend or hides real holes, so they are recorded as different statuses
+  (`closed` and `gap`) and only one of them fails a run.
 * **A datacenter or VPN egress IP is rejected outright** by the datafeed front
-  end with 403 while `www.dukascopy.com` keeps working. That failure looks
-  exactly like a routing fault and is not one; the client says so in the error.
+  end with 403, while `www.dukascopy.com` keeps working. That failure looks
+  exactly like a routing fault and is not one, so the client says so in the
+  error text rather than leaving the next person to find out.
 
 ---
 
@@ -153,15 +292,29 @@ documentation.
 5. **`IBFeed` has never held a live connection.** It compiles and is tested
    against the `Feed` protocol; `ib_async` is not installed, and Phase 1 was
    explicitly not gated on it. Validate it by hand once IB approves the account.
-6. **The tick-count outlier check is coarse**, flagging a day outside a quarter
-   to four times the trailing median. It exists to catch a truncated download,
-   not to model volume seasonality.
+6. **The tick-count outlier check is coarse**, flagging a whole trading day
+   outside a quarter to four times the trailing median of at least three
+   previous whole days. It exists to catch a truncated download, not to model
+   volume seasonality. The partial first and last days of every FX week are
+   excluded from both sides of the comparison, because including them flagged
+   the live week twice for nothing at all.
 7. **Bars are rebuilt from the whole stored history** for a pair each time
    `bar_timeframes` is set. That is fine for a week and will not be fine for a
    decade; incremental bar building is a Phase 2 job.
 8. **Only TOML configuration is supported.** `spec.md` allowed YAML or TOML;
    PyYAML is not in the pinned environment and one config format is one fewer
    thing to get wrong.
+9. **The OANDA mid threshold is set to 1.0 pip and is not yet calibrated.** On
+   the live week it flagged exactly one hour of 120, the 21:00 UTC daily roll,
+   where thin books make the two venues print genuinely different first ticks.
+   That is the threshold doing its job on a real difference, but nobody has
+   decided yet whether the roll hour should be exempt or the threshold widened.
+10. **The spread sanity ceiling is deliberately blunt** — a p99.9 above 20 pips
+   for majors, 40 for crosses. It exists to catch a wrong price scale or a
+   mangled field order, both of which are off by orders of magnitude, not to
+   comment on a wide market. The weekly reopen alone reaches a p99.9 near 8.5
+   pips on EURUSD, so a tighter ceiling would warn every week and be ignored by
+   the second one.
 
 ---
 
@@ -180,13 +333,20 @@ documentation.
    has to survive, before seeing any results, or the choice becomes a way to
    rescue a strategy that failed.
 4. **How are holidays distinguished from gaps?** An empty body inside the
-   trading week is currently a warning (`EMPTY_TRADING_HOUR`). Some of those are
-   real holidays, and research over a multi-year window needs a calendar rather
+   trading week is currently a warning (`EMPTY_TRADING_HOUR`). None fired in the
+   live week, but some certainly will over a multi-year window, and some of
+   those will be real holidays. Research over that range needs a calendar rather
    than a warning.
-5. **Which bar timeframe is the research unit?** The reference strategy runs on
+5. **Should the daily roll be treated as its own regime?** The live week shows
+   the thin hours around 21:00 UTC running five times the median spread and ten
+   times the p90 of the liquid sessions, on a tenth of the tick volume, and it
+   is the one hour where the two feeds disagreed beyond threshold. Whether
+   Phase 2 excludes it, models it separately, or simply refuses to trade it is a
+   decision worth making before any strategy is scored, not after.
+6. **Which bar timeframe is the research unit?** The reference strategy runs on
    1h bars because that was enough to exercise the plumbing. Nothing about the
    universe selection has been done yet.
-6. **Does the IB paper account clear IDEALPRO cash FX, or only CFDs?** The whole
+7. **Does the IB paper account clear IDEALPRO cash FX, or only CFDs?** The whole
    cost model assumes IDEALPRO. This is a UK-retail permissions question and it
    invalidates the cost basis if the answer is CFDs.
 
