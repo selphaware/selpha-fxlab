@@ -29,18 +29,31 @@ share one :class:`Pacer`, so the *global* request rate is what backs off. A
 per-worker backoff cannot do this: two workers each backing off independently
 still present the feed with twice the rate either of them thinks it is using.
 
-Two costs were measured before any of this was tuned, and both were surprising
-enough to be worth writing down:
+Three costs were measured before any of this was tuned, and each changed the
+design:
 
-* a GET down a **warm** connection costs 0.09-0.42s, but **opening** one costs
-  3-12s and times out outright often enough to matter. Connection setup, not
+* a GET down a **warm** connection costs 0.09-0.42s, but **opening** one has a
+  median cost of 9.3s and failed ten times in fifteen. Connection setup, not
   transfer, is the expensive operation, so connections are held open and the
   first version's recycle-every-40-requests was removed;
 * the 503 is not a rate limit in any smooth sense. It says "No server is
   available to handle this request", arrives in 25ms, and arrives for *every*
-  request for tens of seconds at a time -- interleaved with stretches where a
-  request every 0.8s succeeds indefinitely. So the response to it is a global
-  pause, not a permanently slower rate.
+  request for minutes at a time -- interleaved with stretches where a request
+  every 0.4s succeeds indefinitely. So the response to it is a global pause,
+  not a permanently slower rate;
+* the host resolves to different addresses at different times, and health
+  travels with the *service* rather than with the address. Measured within one
+  hour: 194.8.15.180 served 40 of 40 requests at 1.4/s while the two addresses
+  DNS had returned earlier answered 503 to 38 of 40 -- and forty minutes later
+  DNS had swung back to those two, all three were failing, and the feed was
+  simply down. :class:`EndpointPool` therefore prefers whichever resolved
+  address is answering, which helps when one of a set is bad and is honest
+  about the fact that it cannot help when none of them is.
+
+The net of all three, measured over five thousand probes including the feed's
+bad windows, is about 0.7 probes per second. The bad windows are the feed's,
+not the client's: during one the client is parked, which is the correct thing
+to be.
 
 Resumability
 ------------
@@ -63,6 +76,7 @@ import json
 import logging
 import pathlib
 import queue
+import socket
 import ssl
 import threading
 import time
@@ -123,11 +137,15 @@ CONNECTION_LIFETIME: Final[int] = 1000
 #: longer than the cycle sleeps through the recovery it is waiting for.
 COOLDOWNS: Final[tuple[float, ...]] = (0.0, 0.5, 2.0, 5.0, 10.0, 20.0, 30.0)
 
-#: Consecutive exhausted probes after which a session gives up. An external
-#: dependency that is down is a stop-and-report condition (CLAUDE.md
-#: §Autonomy), not something to grind against for six hours. With the cooldown
-#: schedule above this is roughly half an hour of a total outage.
-DEAD_FEED_STREAK: Final[int] = 12
+#: Consecutive exhausted probes after which a stage stops probing and waits.
+#:
+#: Four, not more, because each exhausted probe has already spent twelve
+#: attempts over about three and a half minutes of cooldowns. Grinding through
+#: a dozen of them before noticing the feed is down would cost three quarters
+#: of an hour and record forty errors that are not evidence of anything. The
+#: stage pauses instead, and resumes; only ``--max-outages`` of these in one
+#: stage is a stop-and-report condition (CLAUDE.md §Autonomy).
+DEAD_FEED_STREAK: Final[int] = 4
 
 #: Exit code meaning "the feed is unreachable", distinct from a usage error.
 EXIT_FEED_UNREACHABLE: Final[int] = 4
@@ -359,6 +377,133 @@ class Pacer:
             self._gap = max(self.floor, self._gap * self.decay)
 
 
+class EndpointPool:
+    """The datafeed host's addresses, ordered by how they have been behaving.
+
+    ``datafeed.dukascopy.com`` resolves to different addresses at different
+    times, and not all of them work. Measured within one afternoon: one address
+    served 40 of 40 requests at 1.4/s with a median latency of 0.12s, while two
+    others -- the answer DNS had been giving four hours earlier -- accepted TLS
+    in 0.07s and then answered the HAProxy "No server is available" 503 to 38
+    of 40 requests. A dead backend and a healthy one are indistinguishable
+    until you ask, and DNS will hand you either.
+
+    So the pool asks, remembers, and rotates. An address that answers is
+    preferred; one that fails :attr:`fail_threshold` times in a row is blocked
+    for :attr:`block_seconds` and the next candidate is tried. When every
+    candidate is blocked the least-recently-blocked one is used anyway, because
+    refusing to try at all is worse than trying something that failed a minute
+    ago. Addresses are re-resolved every :attr:`ttl` seconds, so an address
+    that only becomes healthy later is still found.
+
+    One pool is shared by both workers: what one of them learns about a dead
+    backend, the other should not have to rediscover.
+    """
+
+    def __init__(self, host: str, port: int = 443,
+                 resolver: Callable[..., Any] = socket.getaddrinfo,
+                 clock: Callable[[], float] = time.monotonic,
+                 ttl: float = 300.0, block_seconds: float = 90.0,
+                 fail_threshold: int = 3) -> None:
+        self.host = host
+        self.port = port
+        self.resolver = resolver
+        self.clock = clock
+        self.ttl = ttl
+        self.block_seconds = block_seconds
+        self.fail_threshold = fail_threshold
+        self._addresses: list[str] = []
+        self._resolved_at = float("-inf")
+        self._failures: dict[str, int] = {}
+        self._blocked_until: dict[str, float] = {}
+        self._lock = threading.Lock()
+        self.rotations = 0
+
+    def _resolve(self) -> None:
+        """Refresh the address list. Called with the lock held."""
+        try:
+            infos = self.resolver(self.host, self.port,
+                                  proto=socket.IPPROTO_TCP)
+        except OSError as exc:
+            _LOG.warning("could not resolve %s: %s", self.host, exc)
+            return
+        found = sorted({info[4][0] for info in infos})
+        if found and found != self._addresses:
+            _LOG.info("%s resolves to %s", self.host, found)
+        if found:
+            self._addresses = found
+        self._resolved_at = self.clock()
+
+    def candidates(self) -> list[str]:
+        """Addresses to try, best first."""
+        with self._lock:
+            now = self.clock()
+            if now - self._resolved_at > self.ttl or not self._addresses:
+                self._resolve()
+            free = [a for a in self._addresses
+                    if self._blocked_until.get(a, 0.0) <= now]
+            blocked = sorted((a for a in self._addresses if a not in free),
+                             key=lambda a: self._blocked_until.get(a, 0.0))
+            return free + blocked
+
+    def succeeded(self, address: str) -> None:
+        """Record that an address answered."""
+        with self._lock:
+            self._failures.pop(address, None)
+            self._blocked_until.pop(address, None)
+
+    def failed(self, address: str) -> None:
+        """Record a failure, blocking the address once it has enough of them."""
+        with self._lock:
+            count = self._failures.get(address, 0) + 1
+            self._failures[address] = count
+            if count >= self.fail_threshold:
+                self._blocked_until[address] = self.clock() + self.block_seconds
+                _LOG.info("endpoint %s blocked for %.0fs after %d consecutive "
+                          "failures", address, self.block_seconds, count)
+
+    def should_rotate(self, address: str) -> bool:
+        """Whether dropping the connection to ``address`` would gain anything.
+
+        False when there is nowhere better to go. Rotating for its own sake
+        would trade a cheap 503 -- which arrives in 25ms down a connection that
+        is already open -- for a reconnect, and reconnecting is the expensive
+        operation.
+        """
+        with self._lock:
+            now = self.clock()
+            if self._blocked_until.get(address, 0.0) <= now:
+                return False
+            better = [a for a in self._addresses
+                      if a != address and self._blocked_until.get(a, 0.0) <= now]
+            if better:
+                self.rotations += 1
+            return bool(better)
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """An HTTPS connection to a chosen address, presenting the real hostname.
+
+    The address comes from :class:`EndpointPool` rather than from whatever the
+    resolver returns at connect time, so a known-dead backend can be avoided.
+    ``server_hostname`` is still the hostname, so SNI and certificate
+    validation are exactly as strict as they would otherwise be.
+    """
+
+    def __init__(self, host: str, address: str, port: int = 443,
+                 timeout: float = 20.0, read_timeout: float = 15.0) -> None:
+        super().__init__(host, port, timeout=timeout,
+                         context=ssl.create_default_context())
+        self.address = address
+        self.read_timeout = read_timeout
+
+    def connect(self) -> None:
+        """Connect to the pinned address and hand the socket a read timeout."""
+        raw = socket.create_connection((self.address, self.port), self.timeout)
+        self.sock = self._context.wrap_socket(raw, server_hostname=self.host)
+        self.sock.settimeout(self.read_timeout)
+
+
 class Connection:
     """A long-lived keep-alive HTTPS connection to the datafeed host.
 
@@ -371,18 +516,25 @@ class Connection:
     more than the wait. A GET down a warm connection returns in 0.09-0.42s when
     the feed is healthy, so this is roughly forty times the healthy latency and
     exists only to bound a hung backend.
+
+    Connections are made to an address chosen by :class:`EndpointPool` rather
+    than to whatever the resolver happens to return, with the hostname still
+    presented for SNI and certificate validation.
     """
 
     #: Read timeout, once the connection is up. Long on purpose; see above.
     read_timeout: Final[float] = 15.0
 
-    def __init__(self, base_url: str, timeout: float, user_agent: str) -> None:
+    def __init__(self, base_url: str, timeout: float, user_agent: str,
+                 pool: EndpointPool | None = None) -> None:
         parsed = urllib.parse.urlsplit(base_url)
         self.host = parsed.netloc
         self.prefix = parsed.path.rstrip("/")
         self.timeout = timeout
         self.headers = {"User-Agent": user_agent, "Accept": "*/*"}
+        self.pool = pool or EndpointPool(self.host)
         self._conn: http.client.HTTPSConnection | None = None
+        self._address: str | None = None
         self._served = 0
 
     def path_for(self, key: ProbeKey) -> str:
@@ -391,8 +543,42 @@ class Connection:
         return (f"{self.prefix}/{key.pair}/{day.year:04d}/{day.month - 1:02d}/"
                 f"{day.day:02d}/{key.hour:02d}h_ticks.bi5")
 
+    def _open(self) -> None:
+        """Open a connection to the best candidate address that will take one.
+
+        Raises:
+            OSError: If every candidate refused. Every failure is reported to
+                the pool first, so the next attempt starts from what was just
+                learned rather than from the same hopeful order.
+        """
+        candidates = self.pool.candidates()
+        if not candidates:
+            raise OSError(f"{self.host} did not resolve to any address")
+        last: Exception | None = None
+        for address in candidates:
+            try:
+                conn = _PinnedHTTPSConnection(
+                    self.host, address, port=self.pool.port,
+                    timeout=self.timeout, read_timeout=self.read_timeout)
+                conn.connect()
+                self._conn = conn
+                self._address = address
+                self._served = 0
+                return
+            except Exception as exc:  # noqa: BLE001 - try the next address
+                self.pool.failed(address)
+                last = exc
+        raise OSError(f"no address for {self.host} accepted a connection "
+                      f"({len(candidates)} tried); last error: {last}")
+
     def get(self, key: ProbeKey) -> tuple[int, bytes]:
         """Issue one GET and return ``(status, body)``.
+
+        A retryable status is reported to the pool and, when a healthier
+        address is available, the connection is dropped so the next attempt
+        lands somewhere else. When there is nowhere better the connection is
+        kept: a 503 down an open connection costs 25ms, and reconnecting to
+        prove a point costs seconds.
 
         Raises:
             OSError: For any transport fault. The connection is dropped first,
@@ -401,22 +587,27 @@ class Connection:
         try:
             if self._conn is None or self._served >= CONNECTION_LIFETIME:
                 self.close()
-                conn = http.client.HTTPSConnection(
-                    self.host, 443, timeout=self.timeout,
-                    context=ssl.create_default_context())
-                conn.connect()
-                if conn.sock is not None:
-                    conn.sock.settimeout(self.read_timeout)
-                self._conn = conn
-                self._served = 0
+                self._open()
+            assert self._conn is not None and self._address is not None
             self._conn.request("GET", self.path_for(key), headers=self.headers)
             response = self._conn.getresponse()
             body = response.read()
             self._served += 1
-            return int(response.status), body
+            status = int(response.status)
+            address = self._address
         except Exception:
+            if self._address is not None:
+                self.pool.failed(self._address)
             self.close()
             raise
+
+        if status in RETRYABLE_STATUS:
+            self.pool.failed(address)
+            if self.pool.should_rotate(address):
+                self.close()
+        else:
+            self.pool.succeeded(address)
+        return status, body
 
     def close(self) -> None:
         """Drop the underlying connection, if any."""
@@ -424,6 +615,7 @@ class Connection:
             with contextlib.suppress(Exception):
                 self._conn.close()
         self._conn = None
+        self._address = None
         self._served = 0
 
 
@@ -436,13 +628,14 @@ class Prober:
 
     def __init__(self, pacer: Pacer, config: DukascopyConfig,
                  max_attempts: int,
-                 should_stop: Callable[[], bool] | None = None) -> None:
+                 should_stop: Callable[[], bool] | None = None,
+                 pool: EndpointPool | None = None) -> None:
         self.pacer = pacer
         self.config = config
         self.max_attempts = max_attempts
         self.should_stop = should_stop or (lambda: False)
         self.connection = Connection(config.base_url, config.timeout,
-                                     config.user_agent)
+                                     config.user_agent, pool=pool)
 
     def probe(self, key: ProbeKey, stage: str,
               keep_payload: bool = False) -> tuple[ProbeRecord, bytes | None]:
@@ -535,6 +728,7 @@ class SessionStats:
     throttles: int = 0
     parked: float = 0.0
     outages: int = 0
+    rotations: int = 0
     started: float = dataclasses.field(default_factory=time.monotonic)
 
     def record(self, kind: str) -> None:
@@ -561,13 +755,15 @@ class SessionStats:
                 "worst_error_streak": self.worst_streak,
                 "throttles": self.throttles,
                 "seconds_parked": round(self.parked, 1),
-                "outages_ridden_out": self.outages}
+                "outages_ridden_out": self.outages,
+                "endpoint_rotations": self.rotations}
 
 
 def run_probes(keys: Sequence[ProbeKey], stage: str, writer: ProbeWriter,
                config: DukascopyConfig, *, max_attempts: int,
                deadline: float | None, pacer: Pacer | None = None,
-               stats: SessionStats | None = None) -> SessionStats:
+               stats: SessionStats | None = None,
+               pool: EndpointPool | None = None) -> SessionStats:
     """Probe every key with :data:`MAX_WORKERS` connections.
 
     Args:
@@ -591,6 +787,7 @@ def run_probes(keys: Sequence[ProbeKey], stage: str, writer: ProbeWriter,
     """
     pacer = pacer or Pacer()
     stats = stats or SessionStats()
+    pool = pool or EndpointPool(urllib.parse.urlsplit(config.base_url).netloc)
     work: queue.Queue[ProbeKey | None] = queue.Queue()
     for key in keys:
         work.put(key)
@@ -607,7 +804,8 @@ def run_probes(keys: Sequence[ProbeKey], stage: str, writer: ProbeWriter,
 
     def worker() -> None:
         prober = Prober(pacer, config, max_attempts,
-                        should_stop=lambda: stop.is_set() or expired())
+                        should_stop=lambda: stop.is_set() or expired(),
+                        pool=pool)
         try:
             while not stop.is_set():
                 key = work.get()
@@ -654,6 +852,7 @@ def run_probes(keys: Sequence[ProbeKey], stage: str, writer: ProbeWriter,
         thread.join()
     stats.throttles += pacer.throttles
     stats.parked += pacer.parked
+    stats.rotations = pool.rotations
     if fatal:
         raise fatal[0]
     return stats
@@ -1004,11 +1203,13 @@ def main(argv: list[str] | None = None) -> int:
             # would need restarting a hundred times overnight, and every
             # restart would be another ledger entry inflating this card's trial
             # count with something that is not a trial.
+            pool = EndpointPool(
+                urllib.parse.urlsplit(feed.base_url).netloc)
             while todo:
                 try:
                     run_probes(todo, args.stage, writer, feed,
                                max_attempts=feed.max_retries + 1,
-                               deadline=deadline, stats=stats)
+                               deadline=deadline, stats=stats, pool=pool)
                 except FeedUnreachable as exc:
                     outages += 1
                     if outages > args.max_outages:

@@ -15,6 +15,7 @@ import pytest
 
 from research import coverage
 from research.coverage_probe import (PROBE_DATA, PROBE_EMPTY, PROBE_ERROR,
+                                     EndpointPool,
                                      PROBE_MISSING, ProbeKey, ProbeRecord,
                                      Pacer, first_pass_keys, probe_index,
                                      quality_targets, read_probes,
@@ -406,3 +407,102 @@ def test_run_reports_an_incomplete_survey_rather_than_hiding_it(
     assert missing["counts"][PROBE_MISSING] == 0
     assert missing["recommended_start"]["date"] is None
     assert payload["totals"]["survey_completeness"] < 1.0
+
+
+# --------------------------------------------------------------------------- #
+# Endpoint health
+# --------------------------------------------------------------------------- #
+
+class _Clock:
+    """A hand-wound clock, so blocking windows are tested rather than slept."""
+
+    def __init__(self) -> None:
+        self.now = 1000.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def _resolver(*addresses: str):
+    """A getaddrinfo stand-in returning fixed addresses."""
+    def resolve(host, port, **kwargs):
+        return [(0, 0, 0, "", (a, port)) for a in addresses]
+    return resolve
+
+
+def test_endpoint_pool_blocks_a_backend_that_keeps_failing() -> None:
+    """Measured: one address served 40/40 while another 503'd 38 of 40."""
+    clock = _Clock()
+    pool = EndpointPool("h", resolver=_resolver("1.1.1.1", "2.2.2.2"),
+                        clock=clock, block_seconds=90.0, fail_threshold=3)
+    assert pool.candidates() == ["1.1.1.1", "2.2.2.2"]
+    for _ in range(3):
+        pool.failed("1.1.1.1")
+    assert pool.candidates() == ["2.2.2.2", "1.1.1.1"]
+    assert pool.should_rotate("1.1.1.1") is True
+
+
+def test_endpoint_pool_unblocks_when_the_window_expires() -> None:
+    """A block is a timeout, not a verdict; addresses come back."""
+    clock = _Clock()
+    pool = EndpointPool("h", resolver=_resolver("1.1.1.1", "2.2.2.2"),
+                        clock=clock, block_seconds=90.0, fail_threshold=2)
+    pool.failed("1.1.1.1")
+    pool.failed("1.1.1.1")
+    assert pool.candidates()[0] == "2.2.2.2"
+    clock.now += 91.0
+    assert pool.candidates() == ["1.1.1.1", "2.2.2.2"]
+
+
+def test_endpoint_pool_does_not_rotate_when_there_is_nowhere_better() -> None:
+    """Rotating for its own sake trades a 25ms 503 for a multi-second connect."""
+    clock = _Clock()
+    pool = EndpointPool("h", resolver=_resolver("1.1.1.1"), clock=clock,
+                        fail_threshold=1)
+    pool.failed("1.1.1.1")
+    assert pool.should_rotate("1.1.1.1") is False
+    assert pool.candidates() == ["1.1.1.1"], "a blocked sole address is still tried"
+
+
+def test_endpoint_pool_success_clears_the_record() -> None:
+    """Consecutive failures, not lifetime ones: a working address is working."""
+    clock = _Clock()
+    pool = EndpointPool("h", resolver=_resolver("1.1.1.1", "2.2.2.2"),
+                        clock=clock, fail_threshold=2)
+    pool.failed("1.1.1.1")
+    pool.succeeded("1.1.1.1")
+    pool.failed("1.1.1.1")
+    assert pool.candidates() == ["1.1.1.1", "2.2.2.2"]
+
+
+def test_endpoint_pool_re_resolves_after_its_ttl() -> None:
+    """An address that only becomes healthy later must still be found."""
+    clock = _Clock()
+    seen = {"n": 0}
+
+    def resolve(host, port, **kwargs):
+        seen["n"] += 1
+        return [(0, 0, 0, "", (f"9.9.9.{seen['n']}", port))]
+
+    pool = EndpointPool("h", resolver=resolve, clock=clock, ttl=300.0)
+    assert pool.candidates() == ["9.9.9.1"]
+    assert pool.candidates() == ["9.9.9.1"], "within the TTL, no re-resolution"
+    clock.now += 301.0
+    assert pool.candidates() == ["9.9.9.2"]
+
+
+def test_endpoint_pool_survives_a_resolver_failure() -> None:
+    """DNS falling over must not empty a pool that already knows an address."""
+    clock = _Clock()
+    state = {"fail": False}
+
+    def resolve(host, port, **kwargs):
+        if state["fail"]:
+            raise OSError("no resolver")
+        return [(0, 0, 0, "", ("1.1.1.1", port))]
+
+    pool = EndpointPool("h", resolver=resolve, clock=clock, ttl=10.0)
+    assert pool.candidates() == ["1.1.1.1"]
+    state["fail"] = True
+    clock.now += 11.0
+    assert pool.candidates() == ["1.1.1.1"]
