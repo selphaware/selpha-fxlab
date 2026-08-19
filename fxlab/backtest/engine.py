@@ -244,6 +244,29 @@ class BacktestResult:
         """Gross less total costs. Asserted exactly by the gate."""
         return self.gross_pnl - self.total_costs
 
+    def by_pair(self) -> dict[str, dict[str, float]]:
+        """Break P&L and costs down per pair.
+
+        The engine is multi-pair from the start, so the portfolio total is a
+        sum of things that are individually meaningful rather than the only
+        number available.
+        """
+        out: dict[str, dict[str, float]] = {}
+        for pair in sorted({t.pair for t in self.trades}):
+            trades = [t for t in self.trades if t.pair == pair]
+            gross = sum(t.gross_pnl for t in trades)
+            spread = sum(t.spread_cost for t in trades)
+            commission = sum(t.commission for t in trades)
+            out[pair] = {
+                "trade_count": len(trades),
+                "gross_pnl": gross,
+                "spread_cost": spread,
+                "commission": commission,
+                "total_costs": spread + commission,
+                "net_pnl": gross - spread - commission,
+            }
+        return out
+
     @property
     def max_drawdown(self) -> float:
         """Largest peak-to-trough fall of the equity curve, as a positive number."""

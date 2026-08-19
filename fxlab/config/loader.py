@@ -335,8 +335,21 @@ class CostConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class Instrument:
+    """One pair and the bar table it is backtested over."""
+
+    pair: str
+    bars_path: pathlib.Path
+
+
+@dataclass(frozen=True, slots=True)
 class BacktestConfig:
-    """Everything the backtest entrypoint needs."""
+    """Everything the backtest entrypoint needs.
+
+    ``pair`` and ``bars_path`` describe a single-instrument run. A multi-pair
+    run adds ``[[backtest.instruments]]`` tables, each with its own ``pair`` and
+    ``bars_path``; the engine is multi-pair either way.
+    """
 
     bars_path: pathlib.Path
     pair: str
@@ -346,6 +359,7 @@ class BacktestConfig:
     out_path: pathlib.Path
     costs: CostConfig = field(default_factory=CostConfig)
     initial_equity: float = 0.0
+    instruments: tuple[Instrument, ...] = ()
     origin: pathlib.Path | None = None
 
     def __post_init__(self) -> None:
@@ -384,9 +398,29 @@ def load_backtest_config(path: str | pathlib.Path) -> BacktestConfig:
     except TypeError as exc:
         raise ConfigError(f"{origin}: unknown key in [backtest.costs]: {exc}") from exc
 
+    instruments: list[Instrument] = []
+    for i, entry in enumerate(table.get("instruments") or []):
+        entry_where = f"{origin}: [[backtest.instruments]] #{i}"
+        if not isinstance(entry, dict):
+            raise ConfigError(f"{entry_where}: expected a table")
+        instruments.append(Instrument(
+            pair=str(_require(entry, "pair", entry_where)),
+            bars_path=_as_path(_require(entry, "bars_path", entry_where),
+                               f"{entry_where}.bars_path")))
+
+    if instruments:
+        pair = str(table.get("pair", instruments[0].pair))
+        bars_path = (_as_path(table["bars_path"], f"{where}.bars_path")
+                     if "bars_path" in table else instruments[0].bars_path)
+    else:
+        pair = str(_require(table, "pair", where))
+        bars_path = _as_path(_require(table, "bars_path", where), f"{where}.bars_path")
+        instruments = [Instrument(pair=pair, bars_path=bars_path)]
+
     return BacktestConfig(
-        bars_path=_as_path(_require(table, "bars_path", where), f"{where}.bars_path"),
-        pair=str(_require(table, "pair", where)),
+        bars_path=bars_path,
+        pair=pair,
+        instruments=tuple(instruments),
         units=int(_require(table, "units", where)),
         fast=int(_require(table, "fast", where)),
         slow=int(_require(table, "slow", where)),

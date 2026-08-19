@@ -42,30 +42,33 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def load_bars(config: BacktestConfig) -> list:
-    """Read the configured bar table and return :class:`Bar` objects.
+def load_bars(config: BacktestConfig) -> dict[str, list]:
+    """Read every configured bar table, keyed by pair.
 
     Args:
         config: The backtest configuration.
 
     Returns:
-        Bars for ``config.pair``, in ascending time order.
+        Bars per pair, each list in ascending time order.
 
     Raises:
-        FileNotFoundError: If the bars file is missing.
-        ValueError: If the file holds no rows for the requested pair.
+        FileNotFoundError: If a bars file is missing.
+        ValueError: If a file holds no rows for its pair.
     """
     import pyarrow.parquet as pq
 
-    path = pathlib.Path(config.bars_path)
-    if not path.exists():
-        raise FileNotFoundError(f"bars file not found: {path}")
-    frame = pq.read_table(path).to_pandas()
-    if "pair" in frame.columns:
-        frame = frame[frame["pair"] == config.pair]
-    if not len(frame):
-        raise ValueError(f"{path} holds no bars for pair {config.pair}")
-    return bars_from_frame(frame, config.pair)
+    bars_by_pair: dict[str, list] = {}
+    for instrument in config.instruments:
+        path = pathlib.Path(instrument.bars_path)
+        if not path.exists():
+            raise FileNotFoundError(f"bars file not found: {path}")
+        frame = pq.read_table(path).to_pandas()
+        if "pair" in frame.columns:
+            frame = frame[frame["pair"] == instrument.pair]
+        if not len(frame):
+            raise ValueError(f"{path} holds no bars for pair {instrument.pair}")
+        bars_by_pair[instrument.pair] = bars_from_frame(frame, instrument.pair)
+    return bars_by_pair
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -80,12 +83,14 @@ def main(argv: list[str] | None = None) -> int:
         return EXIT_CONFIG
 
     try:
-        bars = load_bars(config)
+        bars_by_pair = load_bars(config)
         cost_model = IBCostModel.from_config(config.costs)
         strategy = MovingAverageCrossStrategy(config.fast, config.slow, config.units)
-        result = run_backtest({config.pair: bars}, cost_model, strategy,
+        result = run_backtest(bars_by_pair, cost_model, strategy,
                               initial_equity=config.initial_equity)
         payload = result_to_dict(result, extra={
+            "instruments": [{"pair": i.pair, "bars_path": str(i.bars_path)}
+                            for i in config.instruments],
             "bars_path": str(config.bars_path),
             "pair": config.pair,
             "units": config.units,

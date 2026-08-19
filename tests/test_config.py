@@ -126,3 +126,32 @@ def test_missing_backtest_key_names_itself(tmp_path) -> None:
     with pytest.raises(ConfigError, match="units"):
         load_backtest_config(write(tmp_path, "b.toml",
                                    BACKTEST.replace("units = 1000000\n", "")))
+
+
+def test_multi_instrument_backtest_config(tmp_path) -> None:
+    text = """
+[backtest]
+units = 1000000
+fast = 2
+slow = 4
+out_path = "results.json"
+
+[[backtest.instruments]]
+pair = "EURUSD"
+bars_path = "eurusd.parquet"
+
+[[backtest.instruments]]
+pair = "USDJPY"
+bars_path = "usdjpy.parquet"
+"""
+    config = load_backtest_config(write(tmp_path, "b.toml", text))
+    assert [i.pair for i in config.instruments] == ["EURUSD", "USDJPY"]
+    # The single-pair keys stay meaningful, defaulting to the first instrument.
+    assert config.pair == "EURUSD"
+    assert config.bars_path.name == "eurusd.parquet"
+
+
+def test_single_pair_config_still_yields_one_instrument(tmp_path) -> None:
+    config = load_backtest_config(write(tmp_path, "b.toml", BACKTEST))
+    assert len(config.instruments) == 1
+    assert config.instruments[0].pair == "EURUSD"

@@ -219,3 +219,19 @@ def test_results_document_has_the_contracted_shape(fixture_bars, known_answers) 
     for trade in payload["trades"]:
         assert "spread_cost" in trade and "commission" in trade
     assert set(payload["equity"][0]) == {"ts", "equity"}
+
+
+def test_summary_breaks_pnl_down_per_pair() -> None:
+    engine = BacktestEngine(IBCostModel(), ScriptedStrategy([1000, 1000, 0, 0]))
+    result = engine.run({
+        "EURUSD": make_bars([1.10, 1.10, 1.20, 1.20]),
+        "USDJPY": make_bars([160.0, 160.0, 150.0, 150.0], spread=0.02,
+                            pair="USDJPY"),
+    })
+    per_pair = result.by_pair()
+    assert set(per_pair) == {"EURUSD", "USDJPY"}
+    assert per_pair["EURUSD"]["gross_pnl"] > 0
+    assert per_pair["USDJPY"]["gross_pnl"] < 0
+    assert sum(p["net_pnl"] for p in per_pair.values()) == pytest.approx(
+        result.net_pnl)
+    assert result_to_dict(result)["summary"]["by_pair"] == per_pair

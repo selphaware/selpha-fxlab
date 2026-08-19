@@ -36,6 +36,7 @@ def summarise(result: BacktestResult) -> dict[str, Any]:
         "max_drawdown": result.max_drawdown,
         "win_count": len(wins),
         "win_rate": (len(wins) / len(result.trades)) if result.trades else 0.0,
+        "by_pair": result.by_pair(),
         "bar_count": result.bar_count,
         "pairs": list(result.pairs),
         "strategy": result.strategy,
