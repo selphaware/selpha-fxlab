@@ -54,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "E:\\CODE\\selpha-fxlab\\env_fxlab\\Scripts\\python.exe -E -s E:\\CODE\\selpha-fxlab\\.claude\\hooks\\gate_hook.py",
+            "command": "E:/CODE/selpha-fxlab/env_fxlab/Scripts/python.exe -E -s E:/CODE/selpha-fxlab/.claude/hooks/gate_hook.py",
             "timeout": 700
           }
         ]
