@@ -227,6 +227,31 @@ def holes(series: Sequence[tuple[str, str]], *, minimum: int,
     return found
 
 
+def start_context(series: Sequence[tuple[str, str]], start: str | None,
+                  window: int) -> dict[str, Any]:
+    """Classification counts either side of the recommended start date.
+
+    The card asks for the start date *and the probe density around it*. A start
+    date is only as good as the evidence that coverage really turns on there,
+    and the shape of that evidence is this: what the feed answered for the
+    ``window`` trading days before it, and for the ``window`` after.
+    """
+    dates = [date for date, _kind in series]
+    if start is None or start not in dates:
+        return {"window": window, "before": {}, "after": {},
+                "last_data_date": None}
+    centre = dates.index(start)
+    before = series[max(0, centre - window):centre]
+    after = series[centre:centre + window]
+    data_dates = [date for date, kind in series if kind == PROBE_DATA]
+    return {
+        "window": window,
+        "before": counts_of(before),
+        "after": counts_of(after),
+        "last_data_date": data_dates[-1] if data_dates else None,
+    }
+
+
 def by_year(series: Sequence[tuple[str, str]]) -> dict[str, dict[str, int]]:
     """Classification counts per calendar year."""
     years: dict[str, dict[str, int]] = {}
@@ -394,13 +419,16 @@ def run(params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         evidence = refinement_evidence(index, pair, hour)
         raw_holes = holes(series, minimum=thresholds["gap_run_min"],
                           since=start["date"])
-        covered = sum(1 for date, kind in series
-                      if kind == PROBE_DATA
-                      and (start["date"] is None or date >= start["date"]))
+        after_start = [(date, kind) for date, kind in series
+                       if start["date"] is not None and date >= start["date"]]
+        covered = sum(1 for _date, kind in after_start if kind == PROBE_DATA)
         per_pair[pair] = {
             "counts": counts_of(series),
+            "counts_from_start": counts_of(after_start),
             "expected_trading_days": len(days),
             "recommended_start": start,
+            "start_context": start_context(series, start["date"],
+                                           int(params.get("context_days", 20))),
             "holes": annotate_holes(raw_holes, evidence),
             "by_year": by_year(series),
             "refined_dates": len(evidence),
