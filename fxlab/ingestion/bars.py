@@ -29,6 +29,7 @@ TIMEFRAME_ALIASES: Final[dict[str, str]] = {
     "1m": "1min", "1min": "1min", "m1": "1min",
     "5m": "5min", "5min": "5min", "m5": "5min",
     "15m": "15min", "15min": "15min", "m15": "15min",
+    "30m": "30min", "30min": "30min", "m30": "30min",
     "1h": "1h", "h1": "1h", "60min": "1h",
     "4h": "4h", "h4": "4h",
     "1d": "1D", "d1": "1D", "1day": "1D",

@@ -1,0 +1,76 @@
+{
+  "$comment": [
+    "selpha-fxlab Phase 1 + Phase 2 harness settings.",
+    "PROPOSED REPLACEMENT for .claude/settings.json. The agent cannot install it:",
+    "Edit(./.claude/**) is denied, which is the rule working as intended. Copy it",
+    "into place and restart the session.",
+    "The deny rules exist because a self-verifying agent that can edit its own",
+    "judge will eventually edit its own judge. verify/ holds the Phase 1 gate and",
+    "its frozen fixtures; verify2/ holds the Phase 2 research gate, its leakage",
+    "known answers and its selftest; env_fxlab/ is the interpreter both run on;",
+    ".claude/ holds the hook and these permissions. All judge machinery, not",
+    "deliverable.",
+    "verify2/proposed/ is inside the deny rule too. That is deliberate: the agent",
+    "writes a proposed harness change once, and the human decides whether it lands.",
+    "NOTE: file-path permissions use Edit(path) rules ONLY -- Edit rules cover all",
+    "file-editing tools (Write/MultiEdit/NotebookEdit) in current Claude Code."
+  ],
+  "permissions": {
+    "deny": [
+      "Edit(./verify/**)",
+      "Edit(./verify2/**)",
+      "Edit(./env_fxlab/**)",
+      "Edit(./.claude/**)",
+      "Read(./env_fxlab/**)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ],
+    "allow": [
+      "Bash(E:\\CODE\\selpha-fxlab\\env_fxlab\\Scripts\\python.exe:*)",
+      "Bash(E:/CODE/selpha-fxlab/env_fxlab/Scripts/python.exe:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git restore:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Read(./**)",
+      "Edit(./fxlab/**)",
+      "Edit(./tests/**)",
+      "Edit(./tests2/**)",
+      "Edit(./config/**)",
+      "Edit(./research/**)",
+      "Edit(./experiments/**)",
+      "Edit(./reports/**)",
+      "Edit(./taskcards/**)",
+      "Edit(./HANDOFF.md)",
+      "Edit(./README.md)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "E:/CODE/selpha-fxlab/env_fxlab/Scripts/python.exe -E -s E:/CODE/selpha-fxlab/.claude/hooks/gate_hook.py",
+            "timeout": 700
+          }
+        ]
+      }
+    ]
+  }
+}

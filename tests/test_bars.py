@@ -35,6 +35,9 @@ def _ticks(rows):
 def test_timeframe_spellings_normalise() -> None:
     assert offset_alias("1m") == offset_alias("1min") == "1min"
     assert offset_alias("H1") == offset_alias("1h") == "1h"
+    # 30m is in the Phase 2 research timeframe set (SPEC2 pre-reg #6).
+    assert offset_alias("30m") == offset_alias("30min") == "30min"
+    assert offset_alias("4h") == "4h" and offset_alias("1d") == "1D"
     with pytest.raises(TimeframeError):
         offset_alias("fortnightly")
 

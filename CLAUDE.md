@@ -234,3 +234,179 @@ gate's messages name the specific bug and often the specific line of reasoning.
 
 Do not work around the gate. Do not weaken a test to make it pass. If you believe
 the gate is wrong, say so and stop — do not edit it.
+
+---
+---
+
+# CLAUDE.md — selpha-fxlab Phase 2 (research)
+
+Everything above stands. Phase 1 is frozen: `verify/` is deny-edited, its gate
+is now a **regression gate**, and it must exit 0 at every point in Phase 2.
+This section adds what is different about research work.
+
+`SPEC2.md` is the law of this phase. Its §Pre-registered decisions were fixed
+before any result existed and are not yours to reinterpret. If a task seems to
+require breaking one, stop and say so.
+
+---
+
+## Definition of done, Phase 2
+
+Per task card, not per phase:
+
+```
+E:\CODE\selpha-fxlab\env_fxlab\Scripts\python.exe -E -s verify2\research_gate.py experiments\<experiment-id>
+```
+
+Exit 0 and the card's deliverable report exists, and the task is done. The exit
+codes mean exactly what they mean in Phase 1:
+
+| exit | meaning | what to do |
+|---|---|---|
+| 0 | PASS | commit |
+| 1 | **DELIVERABLE FAILURE** — the research or the record is wrong | read the named reason, fix `research/` or the experiment |
+| 2 | **HARNESS ERROR** — the judge is broken | **do not touch `research/`**; tell the user |
+| 3 | **ENVIRONMENT ERROR** — machine not judgable | **do not touch `research/`**; tell the user |
+
+Other forms:
+
+```
+verify2\research_gate.py --fast        # Phase 1 gate + leakage + seal + ledger; what the hook runs
+verify2\research_gate.py --selftest    # proves the gate by breaking it, ~3 min
+```
+
+The research gate **runs** the Phase 1 gate as its first check. It does not
+reimplement it. A Phase 1 failure reports as `PHASE1_REGRESSION` and nothing
+else matters until it is green.
+
+## What the research gate judges, and the reasons it names
+
+Named reasons go to stderr verbatim, exactly like the Phase 1 tokens:
+
+| area | reasons |
+|---|---|
+| regression | `PHASE1_REGRESSION`, `RESEARCH_TESTS_FAILED` |
+| leakage | `LEAKAGE_SELFCHECK_FAILED` |
+| seal | `SEAL_LOADER_PERMISSIVE`, `SEAL_DATA_PRESENT`, `SEAL_CONFIG_DATE`, `SEAL_SCOPE_BREACH` |
+| ledger | `LEDGER_MISSING_ENTRY`, `LEDGER_AFTER_RESULT`, `LEDGER_TASKCARD_MISMATCH`, `LEDGER_INCOMPLETE`, `LEDGER_MALFORMED`, `TASKCARD_MISSING` |
+| costs | `COST_LADDER_INCOMPLETE`, `COST_LADDER_INCONSISTENT`, `COST_ARITHMETIC`, `COST_ZEROED`, `COST_MODEL_DRIFT`, `COST_CURRENCY`, `NON_USD_COST_UNFIXED`, `COST_FIX_MISDECLARED`, `SURVIVAL_VERDICT_MISMATCH` |
+| reproducibility | `NOT_REPRODUCIBLE`, `UNSEEDED`, `CONFIG_DRIFT` |
+
+## The task-card protocol
+
+Each bounded loop task is defined by `taskcards/T<N>.md`, written by the user
+with chat-Claude and **committed before the loop starts**. A card states scope,
+allowed pairs and dates, the deliverable report path, and explicit non-goals.
+
+* **The agent may not act outside its card.** Not a new pair, not a wider date
+  range, not "a few more variants", not a new hypothesis. Pre-reg #3: the loop
+  executes, chat decides.
+* Every experiment's ledger entry names its card, and the gate checks that the
+  card file exists and that the result agrees with the entry.
+* If the card turns out to be impossible or wrong, **stop and report**. Do not
+  reinterpret it.
+* Observations worth chasing go in the report as observations. They become a
+  next card only after a checkpoint.
+
+## The seal rule
+
+Sealed: **2025-03-01 onward**, open-ended. Enforced by absence first — that data
+is not downloaded in Phase 2 — and by refusal second:
+
+* all research reads go through `research.loader.ResearchLoader`. Nothing opens
+  a Parquet directly;
+* `scoring` mode refuses any date at or after the cutoff with `HOLDOUT_SEALED`,
+  before touching the filesystem;
+* `mechanical` mode exists only for pipeline checks against `data/live_week/`
+  and **can never produce a scorecard**;
+* a scoring config may not so much as mention a sealed date, comments included;
+* nothing dated on or after the cutoff may appear under `data/research/`.
+
+The Phase 1 live week and the Phase 1 fixtures are inside the seal and are
+deliberately out of scope of the on-disk check (`SPEC2.md` §Harness rulings,
+ruling A). That carve-out is the quarantine, not a loophole: it is allowlisted
+in one place, it is visible in every gate run, and it cannot score.
+
+## The ledger rule
+
+`experiments/ledger.jsonl`, append-only, JSON Lines.
+
+* **The start entry is written before the experiment runs.** Not after, not
+  alongside. An abandoned or crashed trial still leaves a mark, which is the
+  only thing that makes a trial count honest.
+* Every result file needs a start entry that precedes it. A result without one
+  fails the gate.
+* Reviews state the trial count next to any highlighted result (pre-reg #10).
+  `research.ledger.trial_count` produces it.
+* Re-run class is declared up front: `full` by default, and mandatory for any
+  experiment deciding survival or kill unless a full re-run exceeds about two
+  hours; `deterministic-subset` above that bound, with the subset hashed
+  **before** results exist.
+
+## Cost rules
+
+* One cost model, one set of parameters, every candidate. Declared in the
+  experiment config, carried in the scorecard, checked by the gate.
+* Every scorecard reports the full ladder 1.0 / 1.2 / 1.5 / 2.0×.
+* The survival bar is pinned: aggregate out-of-sample walk-forward net P&L in
+  USD above zero at 1.5×, at the level the candidate is proposed to trade.
+  Nothing else is thresholded. Do not add a threshold; do not soften this one.
+* **Until SPEC2 prerequisite P0-A lands, no non-USD-quoted pair may be scored**
+  — all 8 of them, not just the 4 JPY-quoted ones. The gate fails it.
+
+## Autonomy in a research loop
+
+Work through gate failures independently: read the named reason, fix, re-run.
+The autonomy limits of Phase 1 stand, plus two more.
+
+**Stop and ask if:**
+* the same gate failure survives three genuine fix attempts;
+* the gate reports exit 2 or 3 (harness or environment — not yours to fix);
+* an external dependency is unreachable;
+* **the task card does not cover what you have found yourself needing to do**;
+* **a pre-registered decision appears to block the task.**
+
+Never weaken a gate, never edit `verify/` or `verify2/`, never widen a card to
+fit a result.
+
+## Scope of writes, Phase 2
+
+`research/`, `tests2/`, `experiments/`, `reports/`, `taskcards/` — plus the
+Phase 1 trees already listed, `HANDOFF2.md` and `README.md`.
+
+**Never edit `verify2/`.** It holds the research gate, the leakage known
+answers, the USD-accounting known answers and the selftest. Settings deny it,
+for the same reason they deny `verify/`.
+
+`.claude/` is denied too, so harness changes the agent proposes land in
+`verify2/proposed/` and the user copies them into place. `verify2/proposed/`
+currently holds the Phase 2 hook and settings; both need a session restart to
+take effect.
+
+## Layout
+
+```
+research/      analysis code — the judged surface
+  seal.py        the cutoff, one definition
+  loader.py      the only way research reads data; scoring | mechanical
+  ledger.py      append-only experiment record
+  walkforward.py purged, embargoed splitting and execution
+  experiment.py  config, hashing, result documents
+  run.py         python -m research.run --config <cfg>
+tests2/        research unit tests (kept out of tests/ so a research bug
+               never reports itself as a Phase 1 regression)
+experiments/   ledger.jsonl + one directory per experiment (config + result)
+reports/       human-readable task deliverables
+taskcards/     the cards, committed before their loop runs
+data/research/ research data root — nothing dated 2025-03-01 or later
+data/live_week/ quarantined Phase 1 live week, mechanical mode only
+verify2/       the research gate. Deny-edited.
+```
+
+## Environment additions
+
+`statsmodels`, `scipy`, `scikit-learn`, `matplotlib`, `duckdb` may be installed
+into the pinned interpreter when a task card needs them; **none are installed
+yet**. Justify each here when it lands. Nothing that phones home. No notebooks
+in the loop — scripts and reports only, so everything is diffable and
+reproducible.

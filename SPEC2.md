@@ -14,11 +14,19 @@ or an honest report that none do.
 
 ## Pre-registered decisions (fixed 2026-08-19)
 
-1. **Cost survival bar: 1.5×.** A candidate survives only if net-profitable
-   with all costs multiplied by 1.5. Every scorecard reports the full ladder
-   1.0× / 1.2× / 1.5× / 2.0×. Candidates clearing 1.2× but not 1.5× are
-   PARKED (visible, not deleted), revisitable only if recorder-measured IB
-   costs later prove the model overestimates — evidence, not preference.
+1. **Cost survival bar: 1.5×.** **Pinned, approved in chat 2026-08-19:** a
+   candidate survives if and only if its **aggregate out-of-sample walk-forward
+   net P&L, denominated in USD, is greater than zero with all costs multiplied
+   by 1.5, at the level the candidate is proposed to trade** — per-pair for a
+   single-pair candidate, portfolio for one proposed as a portfolio. That one
+   inequality is the entire quantitative bar. Everything else — window-by-window
+   consistency, regime stability, Sharpe, drawdown, turnover, parsimony — is
+   checkpoint review judgement: the scorecard displays it, nothing thresholds
+   it, and no threshold may be added to it after a result exists.
+   Every scorecard reports the full ladder 1.0× / 1.2× / 1.5× / 2.0×.
+   Candidates clearing 1.2× but not 1.5× are PARKED (visible, not deleted),
+   revisitable only if recorder-measured IB costs later prove the model
+   overestimates — evidence, not preference. Below 1.2× is dead.
 2. **Holdout: sealed from 2025-03-01.** Research window ends 2025-02-28.
    Data from 2025-03-01 onward is NOT DOWNLOADED during Phase 2 — the seal is
    absence. It is ingested once, at final-exam time, and each surviving
@@ -44,12 +52,28 @@ or an honest report that none do.
    ranked in EDA**: 5m, 30m, 1h, 4h, 1d. (Sub-minute is out of scope for
    Phase 2 — gated behind recorder-measured venue costs, per PLAN.md.)
 7. **OANDA cross-check threshold: 1.0 pip on hourly mids, roll hour exempt.**
-   Any other hour beyond threshold blocks the affected data from research use
-   until resolved.
-8. **Validation scheme**: walk-forward with purge and embargo (embargo ≥ 1
-   holding period of the strategy under test; ⚠ exact purge windows set per
-   timeframe in the harness and recorded here). Never random K-fold. Tuning
-   only inside training windows.
+   Pinned 2026-08-19: “roll hour” here means exactly the window of #4 — the
+   derived 16:00–18:00 `America/New_York` window, not a single hardcoded UTC
+   hour. Any hour outside that window beyond threshold blocks the affected data
+   from research use until resolved.
+8. **Validation scheme**: walk-forward with purge and embargo. Never random
+   K-fold. Tuning only inside training windows. The floor stands: embargo ≥ 1
+   holding period of the strategy under test. Set in the harness and recorded
+   here 2026-08-19 (`research/walkforward.py::PURGE_EMBARGO_BARS`):
+
+   | timeframe | purge (bars) | embargo (bars) | wall-clock each |
+   |---|---|---|---|
+   | 5m  | 288 | 288 | 1 trading day |
+   | 30m | 48  | 48  | 1 trading day |
+   | 1h  | 24  | 24  | 1 trading day |
+   | 4h  | 30  | 30  | 1 trading week |
+   | 1d  | 5   | 5   | 1 trading week |
+
+   Effective values are `max(table value, holding period in bars)` for both,
+   so a strategy holding longer than the floor widens its own purge and
+   embargo rather than under-purging. Train/test window lengths are not
+   pre-registered globally: each task card declares them and the ledger
+   records them.
 9. **Universe (12)**: EURUSD GBPUSD USDJPY USDCHF AUDUSD USDCAD NZDUSD
    EURGBP EURJPY GBPJPY EURCHF AUDJPY. Membership changes are a checkpoint
    decision.
@@ -59,12 +83,155 @@ or an honest report that none do.
 
 ## Prerequisite fixes (block everything downstream of them)
 
-* **P0-A — JPY commission notional** (HANDOFF known issue 1): commission
-  minimum and rate must apply to USD-equivalent notional via a cross rate at
-  fill time. Known-answer test required; research gate fails any JPY-scored
-  experiment until this lands.
+* **P0-A — USD accounting** (HANDOFF known issue 1, widened by ruling B,
+  2026-08-19). The Phase 1 model computes notional as `units * fill_price`,
+  which is the **quote** currency; 8 of the 12 universe pairs are not
+  USD-quoted (USDJPY, USDCHF, USDCAD, EURGBP, EURJPY, GBPJPY, EURCHF, AUDJPY),
+  and `BacktestResult.gross_pnl` sums per-trade P&L across pairs without
+  converting, so a portfolio figure can add JPY to CHF to USD. The fix is
+  therefore not a JPY commission patch but full USD accounting:
+
+  * every per-trade quantity — gross P&L, spread cost, commission, and the
+    notional the `commission_min` floor is tested against — is converted to
+    USD before it is reported or summed;
+  * conversion uses the **fill-time mid of a universe pair** (JPY via USDJPY,
+    CHF via USDCHF, CAD via USDCAD, GBP via GBPUSD, and so on), never a period
+    average and never a constant;
+  * conversion is **lookahead-safe**: the rate is the last mid at or before the
+    fill timestamp. A rate from a later bar is leakage and is treated as such;
+  * portfolio aggregation happens only in USD.
+
+  Known-answer test required, covering both the floor applied to a
+  USD-equivalent notional and a portfolio sum mixing three quote currencies.
+  The research gate fails any scored experiment touching a **non-USD-quoted**
+  pair (all 8, not only the 4 JPY-quoted ones) until this lands. The gate
+  detects landing by the capability flag `fxlab.costs.USD_ACCOUNTING`; setting
+  that flag without the conversion is a lie the known-answer test exists to
+  catch.
 * **P0-B — Incremental bar building** (HANDOFF known issue 7): rebuilding all
   bars per run will not survive a decade of 12 pairs.
+
+## Harness rulings and Phase 0 facts (approved in chat 2026-08-19)
+
+Approved by the user in chat during the Phase 2 bootstrap. The pre-registration
+note at the top of this file still stands for everything above it: nothing in
+§Pre-registered decisions changes without the same approval.
+
+### The seal is enforced by scope, not by a blanket file ban (ruling A)
+
+A literal “no Parquet on disk carries a sealed date” rule was unbuildable. The
+Phase 1 live week (`data/live_week/`, EURUSD 2026-08-09 → 2026-08-14, 120 tick
+files) and the frozen Phase 1 fixture
+`verify/fixtures/backtest/bars_EURUSD_1h.parquet` (timestamps 2026-07-14) both
+sit after the cutoff, and `verify/` is deny-edited. So:
+
+* the on-disk seal assertion is scoped to the **research data root**,
+  `data/research/**` — no Parquet under it may carry a date ≥ 2025-03-01;
+* the research loader has two modes. **`scoring`** refuses any date ≥ the
+  cutoff with the named reason `HOLDOUT_SEALED`. **`mechanical`** is permitted
+  only against an explicit allowlist containing exactly `data/live_week/`, and
+  any experiment declaring it is **barred from emitting a scorecard**;
+* every experiment records the dates its loader actually served, and the gate
+  asserts that a scored result ran in `scoring` mode and touched no sealed
+  date.
+
+Mechanical mode exists for pipeline checks — pre-reg #2 already allows the live
+week for exactly that — and for nothing else. It cannot produce a number a
+strategy decision rests on.
+
+### Data layout (ruling D3)
+
+Research data lives under `data/research/`, mirroring the Phase 1 store exactly:
+`ticks/pair=<PAIR>/date=<YYYY-MM-DD>/*.parquet` and
+`bars/timeframe=<TF>/pair=<PAIR>/<PAIR>_<TF>.parquet`, same pinned Arrow
+schemas. `data/live_week/` stays where it is as the quarantined mechanical area.
+`data/holdout/` does not exist and is not created until T-final.
+
+### Reproducibility re-run classes (ruling D5)
+
+The gate re-executes an experiment from its recorded config and seed and
+requires the result hash to match exactly. Ingestion is **never** re-run. Every
+ledger entry declares a re-run class:
+
+* **`full`** — the default, and mandatory for any experiment that decides
+  survival or kill, unless a full re-run exceeds roughly two hours;
+* **`deterministic-subset`** — permitted only above that bound. The subset is
+  declared and hashed **before results exist**, and must contain the best
+  window, the worst window, and a seeded random selection of the rest.
+  Choosing a subset after seeing results is the failure this rule prevents.
+
+### Timeframes (ruling D1)
+
+`fxlab.ingestion.bars` shipped Phase 1 without a 30m alias, which pre-reg #6
+requires. Added under the Phase 1 gate.
+
+### Phase 0 verification, 2026-08-19
+
+| check | result |
+|---|---|
+| `verify\smoke_test.py fxlab` | exit 0, 202 tests, all four stages green |
+| `python -m fxlab.report --config config/ingest_live_week.toml` | exit 0; 144 hours → 120 ok / 24 closed, 205,088 ticks, 0 duplicates, median spread 0.30 pips |
+| interpreter | 3.12.13, `sys.base_prefix = a:\envs\py312` (mapped drive up) |
+| pinned libs | pandas 3.0.5, pyarrow 25.0.1, numpy 2.5.2, pytest 9.1.1 |
+| Phase 2 libs | scipy, statsmodels, scikit-learn, matplotlib, duckdb — none installed yet |
+| `data/` | git-ignored, nothing tracked; only `data/live_week/` exists |
+
+### The harness as built (2026-08-19)
+
+```
+verify2\research_gate.py <experiment_dir>   # full judgement of one experiment
+verify2\research_gate.py --fast             # Phase 1 gate + leakage + seal + ledger
+verify2\research_gate.py --selftest         # 28 assertions, one per failure mode
+```
+
+Judged surface: `research/` and `tests2/`. Judge: `verify2/`, deny-edited like
+`verify/`. Research unit tests live in `tests2/`, not `tests/`, so that a
+research bug can never report itself as a Phase 1 regression.
+
+Selftest coverage, all green: leaky walk-forward (three distinct leaks), sealed
+date in a config, sealed Parquet on disk, permissive loader, scored result over
+sealed data, scored result from mechanical mode, unseeded experiment,
+non-integer seed, result with no ledger entry, ledger written after the result,
+wrong task card, zero-cost scorecard, missing ladder rung, per-rung cost drift,
+unsupported survival verdict, JPY scored before P0-A, and the Phase 1 exit codes
+1/2/3 translating to regression / harness / environment.
+
+The walk-forward known answer: a twenty-bar series whose training mean is
+exactly zero, giving an honest out-of-sample P&L of **-11**. Test-window
+peeking gives **+17** (a losing rule turned profitable, which is what leakage
+looks like), unpurged overlap **-15**, full-sample normalisation **-13**. Four
+distinct hand-computed numbers, so the fixture is known to discriminate rather
+than merely to agree.
+
+### The interface P0-A must expose
+
+Fixed here so the fix is written against a target rather than against whatever
+the test happens to call. `verify2/fixtures/cost_known_answers.py` holds the
+arithmetic and runs the moment the flag appears:
+
+* `fxlab.costs.USD_ACCOUNTING` — `True` once conversion is implemented;
+* `fxlab.costs.quote_to_usd(pair, rates)` — the factor converting one unit of
+  the pair's quote currency into USD, given a mapping of conversion pair to its
+  **fill-time** mid;
+* `IBCostModel.commission_for(units, fill_price, *, quote_to_usd=1.0)` and
+  `IBCostModel.spread_cost_for(units, fill_price, mid, *, quote_to_usd=1.0)`,
+  both returning USD.
+
+Known answers, at `USDJPY = 150.00` and `USDCHF = 0.90`: 50,000 USDJPY is a
+50,000 USD notional whose 0.20bp is 1.00, so commission is the **2.00** floor,
+not the 1,500 JPY the quote-currency path produces; 1,000,000 USDJPY costs
+**20.00**; a 0.015 half-spread on 100,000 USDJPY costs **10.00**; and a
+portfolio of +300.00 USD, +3,000 JPY and -180.00 CHF is **+120.00 USD**, where
+the blind sum is 3,120 in no currency at all.
+
+### T0, the protocol shakedown
+
+`taskcards/T0.md` -> `experiments/T0-spread-by-session/` ->
+`reports/T0_spread_by_session.md`, run end to end through card, ledger, result,
+report, gate exit 0 and a reproducibility re-run. Mechanical mode on the
+quarantined live week; not scorable, not a research finding. It reproduced the
+Phase 1 coverage report session by session, which is the only available
+evidence that the research loader does not reshape what it serves.
 
 ## Task roadmap (each = one task card, one bounded loop, one review)
 

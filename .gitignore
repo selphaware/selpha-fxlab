@@ -222,5 +222,6 @@ env_fxlab/
 
 # selpha-fxlab harness / runtime outputs
 verify/artifacts/
+verify2/artifacts/
 data/
 HANDOFF.md.bak
