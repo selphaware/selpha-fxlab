@@ -62,6 +62,15 @@ verify_timeframes = ["1m", "5m", "30m", "1h", "4h", "1d"]
 max_attempts = 12
 timeout_seconds = 20.0
 
+# How long to wait for a response once the connection is up. Four times T1's
+# 15s, and measured rather than guessed: on the first day of this run the feed
+# resolved to two addresses, one answering 503 to everything in 20ms and the
+# other answering 200 in 14.4-14.8 seconds. A 15s timeout against a feed in that
+# state is the worst of every option -- it waits the full 15s, gets nothing,
+# drops the connection and pays a reconnect. Sixty seconds still bounds a hung
+# backend; it just stops calling a slow one hung.
+read_timeout_seconds = 60.0
+
 # Seconds of the feed answering nothing at all before the session stops and
 # reports. CLAUDE.md calls an unreachable external dependency a stop-and-report;
 # three hours of parking is the line between a flap and an outage.

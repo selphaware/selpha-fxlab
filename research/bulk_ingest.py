@@ -141,6 +141,23 @@ REPROBE_AFTER_BACKOFF: Final[float] = 6 * 3600.0
 #: Attempts on one hour before it is either a gap or evidence of an outage.
 DEFAULT_MAX_ATTEMPTS: Final[int] = 12
 
+#: How long to wait for a response once the connection is up.
+#:
+#: Deliberately four times T1's 15s, and measured rather than guessed. On
+#: 2026-08-20 the datafeed resolved to two addresses, one answering HTTP 503 to
+#: everything in 20ms and the other answering 200 in 14.4-14.8 seconds. A 15s
+#: timeout against a feed in that state is the worst of every option: it waits
+#: the full 15s, gets nothing, drops the connection and pays a reconnect. T1's
+#: own reasoning argues for the opposite -- a response that is merely slow must
+#: be waited for, because abandoning it costs more than the wait -- and 15s was
+#: simply calibrated against a healthier feed than this one. Sixty seconds still
+#: bounds a genuinely hung backend; it just stops calling a slow one hung.
+DEFAULT_READ_TIMEOUT: Final[float] = 60.0
+
+#: Failed attempts between progress warnings while the feed is misbehaving.
+#: Without this a degraded feed looks identical to a hung client.
+FAILURE_LOG_EVERY: Final[int] = 50
+
 #: Consecutive exhausted hours, or seconds without any answer, that mean the
 #: feed itself is down rather than one hour being unlucky.
 DEAD_FEED_STREAK: Final[int] = 3
@@ -287,11 +304,13 @@ class HourFeed:
     def __init__(self, config: DukascopyConfig, *, level: int = MIN_LEVEL,
                  max_attempts: int = DEFAULT_MAX_ATTEMPTS,
                  outage_budget: float = DEFAULT_OUTAGE_BUDGET,
+                 read_timeout: float = DEFAULT_READ_TIMEOUT,
                  parks: Sequence[float] = OUTAGE_PARKS,
                  should_stop: Callable[[], bool] | None = None) -> None:
         self.config = config
         self.max_attempts = max_attempts
         self.outage_budget = outage_budget
+        self.read_timeout = read_timeout
         self.parks = tuple(parks)
         self.should_stop = should_stop or (lambda: False)
         self.pool = EndpointPool(_host_of(config.base_url))
@@ -315,6 +334,8 @@ class HourFeed:
         self.connections_opened = 0
         self.outages_ridden_out = 0
         self.attempts_spent = 0
+        self.failed_attempts = 0
+        self.hours_exhausted = 0
 
     # -- rate ---------------------------------------------------------------
 
@@ -363,8 +384,10 @@ class HourFeed:
             pass
         with self._lock:
             self.connections_opened += 1
-        return Connection(self.config.base_url, self.config.timeout,
-                          self.config.user_agent, pool=self.pool)
+        connection = Connection(self.config.base_url, self.config.timeout,
+                                self.config.user_agent, pool=self.pool)
+        connection.read_timeout = self.read_timeout
+        return connection
 
     def _release(self, connection: Connection) -> None:
         """Return a connection to the pool. A dropped one reopens on next use."""
@@ -433,6 +456,7 @@ class HourFeed:
                 status, body = connection.get(key)
             except Exception as exc:  # noqa: BLE001 - every transport fault retries
                 detail = f"{type(exc).__name__}: {exc}"
+                self._note_failure(detail)
                 self._pacer.penalise()
                 continue
             finally:
@@ -463,11 +487,29 @@ class HourFeed:
                     "routing fault.")
             detail = (f"HTTP {status} after {len(body)} bytes"
                       if status in RETRYABLE_STATUS else f"HTTP {status}")
+            self._note_failure(detail)
             self._pacer.penalise()
 
         with self._lock:
             self._exhausted_streak += 1
-        return None, f"{self.max_attempts} attempts exhausted; last: {detail}"
+            self.hours_exhausted += 1
+        detail = f"{self.max_attempts} attempts exhausted; last: {detail}"
+        _LOG.warning("%s: %s", key.label(), detail)
+        return None, detail
+
+    def _note_failure(self, detail: str) -> None:
+        """Count a failed attempt and say so occasionally.
+
+        A feed that has gone slow and a client that has hung look identical from
+        outside. This is the difference, at one line per fifty failures.
+        """
+        with self._lock:
+            self.failed_attempts += 1
+            count = self.failed_attempts
+        if count % FAILURE_LOG_EVERY == 0:
+            _LOG.warning("%d failed attempt(s) so far; last: %s "
+                         "(gap %.2fs, level %d)", count, detail,
+                         self._pacer.gap, self.level)
 
     @staticmethod
     def _origin(connection: Connection, key: ProbeKey) -> str:
@@ -730,6 +772,8 @@ class SessionStats:
                 "seconds_parked": round(feed.parked_seconds, 1),
                 "outages_ridden_out": feed.outages_ridden_out,
                 "connections_opened": feed.connections_opened,
+                "failed_attempts": feed.failed_attempts,
+                "hours_exhausted": feed.hours_exhausted,
                 "endpoint_rotations": feed.pool.rotations,
                 "level": feed.level,
                 "requests_per_second": round(feed.requests / elapsed, 3),
@@ -840,6 +884,7 @@ class Params:
     timeframes: tuple[str, ...]
     max_attempts: int
     timeout: float
+    read_timeout: float
     outage_budget: float
     build_bars: bool
 
@@ -873,6 +918,8 @@ def load_params(config_path: pathlib.Path, base: pathlib.Path) -> Params:
         timeframes=tuple(str(t) for t in block.get("timeframes", TIMEFRAMES)),
         max_attempts=int(block.get("max_attempts", DEFAULT_MAX_ATTEMPTS)),
         timeout=float(block.get("timeout_seconds", 20.0)),
+        read_timeout=float(block.get("read_timeout_seconds",
+                                     DEFAULT_READ_TIMEOUT)),
         outage_budget=float(block.get("outage_budget_seconds",
                                       DEFAULT_OUTAGE_BUDGET)),
         build_bars=bool(block.get("build_bars", True)),
@@ -903,7 +950,8 @@ class Driver:
         self.feed = HourFeed(
             DukascopyConfig(max_concurrency=MAX_LEVEL, timeout=params.timeout),
             level=level, max_attempts=params.max_attempts,
-            outage_budget=params.outage_budget, should_stop=self.should_stop)
+            outage_budget=params.outage_budget,
+            read_timeout=params.read_timeout, should_stop=self.should_stop)
         self.log = ChunkLog(params.experiment_dir / CHUNKS_NAME)
         self.stats = SessionStats()
         self.gap_chunks: set[str] = set()

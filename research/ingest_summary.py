@@ -344,15 +344,16 @@ def tick_footprint(base: pathlib.Path, pair: str) -> dict[str, Any]:
     days = 0
     if not root.is_dir():
         return {"files": 0, "bytes": 0, "days": 0, "bytes_per_tick": 0.0}
-    for day_dir in os.scandir(root):
-        if not day_dir.is_dir():
-            continue
-        days += 1
-        with os.scandir(day_dir.path) as entries:
-            for entry in entries:
-                if entry.name.endswith(".parquet"):
-                    files += 1
-                    total += entry.stat().st_size
+    with os.scandir(root) as day_dirs:
+        for day_dir in day_dirs:
+            if not day_dir.is_dir():
+                continue
+            days += 1
+            with os.scandir(day_dir.path) as entries:
+                for entry in entries:
+                    if entry.name.endswith(".parquet"):
+                        files += 1
+                        total += entry.stat().st_size
     return {"files": files, "bytes": total, "days": days}
 
 

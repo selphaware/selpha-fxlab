@@ -213,6 +213,17 @@ def test_raising_the_level_shortens_the_gap_and_keeps_the_counters() -> None:
     assert feed.pacer.floor < 0.4
 
 
+def test_a_connection_gets_the_generous_read_timeout() -> None:
+    # T1's 15s was calibrated when a warm GET cost 0.09-0.42s. Against a feed
+    # answering in 14.4-14.8s -- measured on the first day of this run -- it
+    # converts "slow but answering" into "failed", drops the connection and pays
+    # a reconnect for nothing.
+    feed = HourFeed(DukascopyConfig(timeout=1.0), read_timeout=45.0)
+    connection = feed._acquire()                # noqa: SLF001 - test seam
+    assert connection.read_timeout == 45.0
+    feed.close()
+
+
 def test_the_level_is_clamped_to_the_cards_ceiling() -> None:
     feed = _feed([])
     feed.set_level(9)
