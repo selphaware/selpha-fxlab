@@ -1066,6 +1066,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="stop cleanly once this file exists")
     parser.add_argument("--no-bars", action="store_true",
                         help="store ticks only; leave the bar tables alone")
+    parser.add_argument("--verbose", action="store_true",
+                        help="log every ingested hour, not just every chunk")
     parser.add_argument("--base", type=pathlib.Path, default=None,
                         help="project root; derived when omitted")
     return parser.parse_args(argv)
@@ -1075,6 +1077,10 @@ def main(argv: list[str] | None = None) -> int:
     """Run one bulk-ingest session and return a process exit code."""
     args = parse_args(argv)
     configure_logging()
+    if not args.verbose:
+        # Three quarters of a million INFO lines is not a log, it is a second
+        # copy of the manifest. Chunk-level progress stays; per-hour does not.
+        logging.getLogger("fxlab.ingestion.pipeline").setLevel(logging.WARNING)
     base = pathlib.Path(args.base).resolve() if args.base else project_root()
 
     try:

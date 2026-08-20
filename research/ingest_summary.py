@@ -74,7 +74,8 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         experiment_dir = project_root() / experiment_dir
 
     expected = expected_hours(start, end)
-    coverage = {pair: read_pair(base, pair, start, end, expected)
+    calendar = open_map(start, end)
+    coverage = {pair: read_pair(base, pair, start, end, expected, calendar)
                 for pair in pairs}
     for pair in pairs:
         coverage[pair]["storage"] = tick_footprint(base, pair)
@@ -100,6 +101,15 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
     totals["bar_rows"] = sum(int(row["rows"]) for p in pairs
                              for row in coverage[p]["bars"].values())
 
+    boundary = {
+        "derived_closed_hours_fetched": sum(
+            int(coverage[p]["boundary"]["fetched"]) for p in pairs),
+        "derived_closed_hours_with_ticks": sum(
+            int(coverage[p]["boundary"]["closed_but_traded"]) for p in pairs),
+        "derived_open_hours_empty": sum(
+            int(coverage[p]["boundary"]["open_but_empty"]) for p in pairs),
+    }
+
     return {
         "note": ("Bulk ingestion of the research window, read back from the "
                  "sharded manifests and the store itself. Coverage, validation "
@@ -115,6 +125,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         "pairs": coverage,
         "gaps": {"count": len(gaps), "listed": min(len(gaps), MAX_GAP_ROWS),
                  "rows": gaps[:MAX_GAP_ROWS]},
+        "week_boundary": boundary,
         "throughput": throughput,
         "loader": {"mode": loader.mode,
                    "timeframes_verified": sorted(verify),
@@ -153,6 +164,23 @@ def expected_hours(start: dt.date, end: dt.date) -> dict[str, Any]:
             "open_by_year": open_by_year}
 
 
+def open_map(start: dt.date, end: dt.date) -> dict[tuple[str, int], bool]:
+    """``(date, hour) -> is the market open``, computed once for every pair.
+
+    The same derived boundary the ingestion stored by. Built as a lookup because
+    a zoneinfo conversion per manifest record, over a million of them, costs
+    more than the whole rest of this summary.
+    """
+    out: dict[tuple[str, int], bool] = {}
+    for day in _days(start, end):
+        iso = day.isoformat()
+        for hour in range(24):
+            out[(iso, hour)] = is_market_open(
+                dt.datetime(day.year, day.month, day.day, hour,
+                            tzinfo=dt.timezone.utc))
+    return out
+
+
 def _days(start: dt.date, end: dt.date) -> Iterator[dt.date]:
     """Every date in an inclusive range."""
     for offset in range((end - start).days + 1):
@@ -176,7 +204,8 @@ def _months(start: dt.date, end: dt.date) -> list[str]:
 # --------------------------------------------------------------------------- #
 
 def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
-              expected: dict[str, Any]) -> dict[str, Any]:
+              expected: dict[str, Any],
+              calendar: dict[tuple[str, int], bool]) -> dict[str, Any]:
     """Aggregate one pair's manifest shards, one shard at a time.
 
     Shards are read and discarded rather than accumulated: a decade of twelve
@@ -194,6 +223,12 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
     days_with_data: set[str] = set()
     first_ts: str | None = None
     last_ts: str | None = None
+    # The derived-boundary audit. The driver fetches the shut hour either side
+    # of every week boundary rather than assuming it; these two counters are
+    # what that buys. `closed_but_traded` above zero means the derivation is
+    # shutting the week too early somewhere, which is the failure that
+    # hardcoding 21:00 UTC produces for half of every year.
+    boundary = {"fetched": 0, "closed_but_traded": 0, "open_but_empty": 0}
 
     for month in _months(start, end):
         path = (base / MANIFEST_DIRNAME / f"pair={pair}" / month / MANIFEST_NAME)
@@ -211,6 +246,14 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
         for record in document.get("hours", []):
             status = str(record.get("status", ""))
             ticks = int(record.get("written_ticks", 0))
+            slot = (str(record.get("date")), int(record.get("hour", -1)))
+            market_open = calendar.get(slot, True)
+            if not market_open and str(record.get("origin") or "") != "derived:market-closed":
+                boundary["fetched"] += 1
+                if status == STATUS_OK:
+                    boundary["closed_but_traded"] += 1
+            if market_open and status == STATUS_EMPTY:
+                boundary["open_but_empty"] += 1
             dupes = int(record.get("duplicates_dropped", 0))
             totals["hours_recorded"] += 1
             bucket["hours_recorded"] += 1
@@ -265,6 +308,7 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
     accounted = totals["hours_ok"] + totals["hours_empty"]
     return {
         "totals": totals,
+        "boundary": boundary,
         "by_year": {k: by_year[k] for k in sorted(by_year)},
         "days_with_data": len(days_with_data),
         "first_tick": first_ts,
@@ -362,9 +406,18 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
     sessions = _read_sessions(experiment_dir / SESSIONS_NAME)
 
     by_level: dict[str, dict[str, Any]] = {}
+    by_timeframe: dict[str, dict[str, Any]] = {}
     ingest_seconds = bar_seconds = 0.0
     requests = throttles = 0
     for record in chunks.values():
+        for entry in record.get("bars", []):
+            alias = str(entry.get("timeframe", "?"))
+            bucket = by_timeframe.setdefault(alias, {"builds": 0, "dates": 0,
+                                                     "rows": 0, "seconds": 0.0})
+            bucket["builds"] += 1
+            bucket["dates"] += int(entry.get("dates", 0))
+            bucket["rows"] += int(entry.get("rows", 0))
+            bucket["seconds"] += float(entry.get("seconds", 0.0))
         level = str(record.get("level", "?"))
         bucket = by_level.setdefault(level, {"chunks": 0, "requests": 0,
                                              "throttles": 0, "seconds": 0.0})
@@ -384,6 +437,9 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
             round(bucket["requests"] / bucket["seconds"], 3)
             if bucket["seconds"] else 0.0)
 
+    for bucket in by_timeframe.values():
+        bucket["seconds"] = round(bucket["seconds"], 2)
+
     wall = sum(float(s.get("seconds", 0.0)) for s in sessions)
     parked = sum(float(s.get("seconds_parked", 0.0)) for s in sessions)
     return {
@@ -398,6 +454,7 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
         "session_parked_seconds": round(parked, 1),
         "requests_per_second": (round(requests / wall, 3) if wall else 0.0),
         "by_level": {k: by_level[k] for k in sorted(by_level)},
+        "bars_by_timeframe": {k: by_timeframe[k] for k in sorted(by_timeframe)},
         "calibration": [s.get("calibration") for s in sessions
                         if s.get("calibration")],
         "session_rows": sessions,
