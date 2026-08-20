@@ -1,0 +1,70 @@
+# T2a - bulk ingestion of the twelve-pair universe. See taskcards/T2a.md.
+#
+# Two programs read this file, and the split is deliberate.
+#
+#   python -m research.bulk_ingest --config <this file>
+#       does the pulling. It is resumable, it is ledgered per session, and it is
+#       NOT the experiment: ruling D5 says ingestion is never re-run.
+#
+#   python -m research.run --config <this file>
+#       is the experiment. Its entry point reads back what the pulling left on
+#       disk -- the sharded manifests, the store, the bar tables -- and produces
+#       result.json. That is what the research gate re-executes and re-hashes.
+#
+# Mode. A data survey, not a scored candidate: `scored = false`, so no scorecard
+# exists and none can be demanded. `scoring` mode, following T1, because that is
+# what puts this config under the gate's sealed-date scan and what makes the
+# loader police every date it serves. The loader is used for real here: the
+# summary reads every bar table through it, so the result's own access log is
+# the evidence that the stored bars stop where the research window stops.
+#
+# Seal. The window ends on the last research day. No date at or after the cutoff
+# appears in this file, in the plan the driver builds from it, or in any request
+# the driver issues -- `research.bulk_ingest.load_params` refuses one outright.
+
+[experiment]
+id = "T2a-ingestion"
+taskcard = "T2a"
+entry = "research.ingest_summary:run"
+seed = 20260820
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+[experiment.params]
+experiment_dir = "experiments/T2a-ingestion"
+out_dir = "data/research"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it. That
+# order is also the order pairs are worked within each month.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# The card's range, inclusive at both ends. Work proceeds newest month first.
+start_date = "2015-01-01"
+end_date = "2025-02-28"
+
+# Bar timeframes built incrementally as each pair-month lands (pre-reg #6).
+timeframes = ["1m", "5m", "30m", "1h", "4h", "1d"]
+
+# Timeframes the summary reads back through the loader. All six: reading them is
+# how the access log comes to prove what the report claims.
+verify_timeframes = ["1m", "5m", "30m", "1h", "4h", "1d"]
+
+# Feed client tunables. Concurrency is NOT set here: the card fixes the starting
+# level at 2 and the ceiling at 4, and `research.bulk_ingest` owns the
+# calibration between them. Twelve attempts spread over the cooldown schedule
+# cover about three minutes, which spans several cycles of the feed's measured
+# availability flap; an hour recorded as a gap after that really did fail to be
+# answered while the feed was answering everything else.
+max_attempts = 12
+timeout_seconds = 20.0
+
+# Seconds of the feed answering nothing at all before the session stops and
+# reports. CLAUDE.md calls an unreachable external dependency a stop-and-report;
+# three hours of parking is the line between a flap and an outage.
+outage_budget_seconds = 10800
+
+build_bars = true
