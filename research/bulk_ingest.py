@@ -117,6 +117,26 @@ BASE_GAP_SECONDS: Final[float] = 0.8
 #: Ceiling the pacer may widen the gap to under sustained complaint.
 PACER_CEILING_SECONDS: Final[float] = 4.0
 
+#: How the steady-state gap responds to a failure and to a success.
+#:
+#: T1's Pacer separates two failure modes and says why: the **gap** answers rate
+#: limiting, and the **cooldown** answers a backend outage, "and no amount of
+#: widening the gap shortens it". Its own numbers -- widen by 1.25, decay by
+#: 0.98 -- were tuned for a survey against a feed that was throttling. Measured
+#: here on 2026-08-20, the feed was doing the other thing: one address answering
+#: HTTP 503 to everything in 20ms and the other alternating 200s and 503s. At a
+#: 50% failure rate 1.25 x 0.98 pins the gap at the ceiling within a minute, so
+#: the client answers a dead backend by offering less load -- which fixes
+#: nothing and costs everything -- and then takes 114 consecutive successes to
+#: crawl back down.
+#:
+#: 1.05 and 0.90 keep the same two controls and let the cooldowns do the job T1
+#: assigned them. A genuine rate limit still walks the gap up (and the ceiling
+#: still stands); a dead backend no longer does, and recovery takes about
+#: twenty successes rather than a hundred and fourteen.
+PACER_WIDEN_FACTOR: Final[float] = 1.05
+PACER_DECAY: Final[float] = 0.90
+
 #: Continuous clean seconds at a level before the next one is probed.
 CLEAN_BEFORE_STEP_UP: Final[float] = 3600.0
 
@@ -317,8 +337,7 @@ class HourFeed:
 
         self._lock = threading.Lock()
         self._idle: queue.LifoQueue[Connection] = queue.LifoQueue()
-        self._pacer = Pacer(floor=BASE_GAP_SECONDS / level,
-                            ceiling=PACER_CEILING_SECONDS)
+        self._pacer = self._new_pacer(level)
         self._retired_throttles = 0
         self._retired_parked = 0.0
         self._last_success = time.monotonic()
@@ -338,6 +357,13 @@ class HourFeed:
         self.hours_exhausted = 0
 
     # -- rate ---------------------------------------------------------------
+
+    @staticmethod
+    def _new_pacer(level: int) -> Pacer:
+        """A pacer offering what ``level`` connections are allowed to offer."""
+        return Pacer(floor=BASE_GAP_SECONDS / level,
+                     ceiling=PACER_CEILING_SECONDS,
+                     factor=PACER_WIDEN_FACTOR, decay=PACER_DECAY)
 
     @property
     def pacer(self) -> Pacer:
@@ -367,8 +393,7 @@ class HourFeed:
         with self._lock:
             self._retired_throttles += self._pacer.throttles
             self._retired_parked += self._pacer.parked
-            self._pacer = Pacer(floor=BASE_GAP_SECONDS / level,
-                                ceiling=PACER_CEILING_SECONDS)
+            self._pacer = self._new_pacer(level)
             self.level = level
         _LOG.info("concurrency level %d: %d connection(s), %.3fs gap "
                   "(%.2f req/s offered)", level, level,
