@@ -260,6 +260,30 @@ def test_annotate_holes_separates_hour_specific_from_whole_day() -> None:
     assert coverage.annotate_holes(hole, {})[0]["verdict"] == "unrefined"
 
 
+def test_a_hole_that_only_partly_recovers_is_called_partial() -> None:
+    """The shape of the first hole this survey actually found.
+
+    USDJPY over 2009-06-15 to 2009-06-19 is empty at 09:00, 11:00 and 15:00 as
+    well as at 13:00 for its first refined days and returns data at 15:00 on
+    the last. ``hour-specific`` would overstate it; ``whole-day`` would miss
+    where the feed comes back.
+    """
+    hole = [{"start": "2009-06-15", "end": "2009-06-19", "trading_days": 5,
+             "composition": {PROBE_EMPTY: 5}}]
+    evidence = {
+        "2009-06-15": {"hours": {"09": PROBE_EMPTY}, "data_hours": 0,
+                       "any_data": False},
+        "2009-06-17": {"hours": {"09": PROBE_EMPTY}, "data_hours": 0,
+                       "any_data": False},
+        "2009-06-19": {"hours": {"15": PROBE_DATA}, "data_hours": 1,
+                       "any_data": True},
+    }
+    annotated = coverage.annotate_holes(hole, evidence)
+    assert annotated[0]["verdict"] == "partial"
+    assert annotated[0]["refined_days"] == 3
+    assert annotated[0]["days_with_data_at_another_hour"] == 1
+
+
 def test_refinement_evidence_ignores_the_survey_hour() -> None:
     """Only alternate hours are evidence about the survey hour."""
     index = {("EURUSD", "2010-01-01", 13): {"kind": PROBE_MISSING},

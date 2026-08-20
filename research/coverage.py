@@ -367,18 +367,32 @@ def annotate_holes(hole_list: list[dict[str, Any]],
 
     A hole whose days return data at 09:00 is a hole in the 13:00 hour, not in
     the day, and the two have completely different consequences for T2.
+
+    Four verdicts, not two. ``partial`` exists because the first hole this
+    survey actually found is one: USDJPY over 2009-06-15 to 2009-06-19 is empty
+    at 09:00, 11:00 and 15:00 as well as at 13:00 for its first two refined
+    days, and then returns data at 15:00 on the last. Calling that
+    ``hour-specific`` because *some* day recovered would overstate it, and
+    calling it ``whole-day`` would miss where the feed comes back.
     """
     annotated: list[dict[str, Any]] = []
     for hole in hole_list:
         probed = {date: entry for date, entry in evidence.items()
                   if hole["start"] <= date <= hole["end"]}
         with_data = sorted(d for d, e in probed.items() if e["any_data"])
+        if not probed:
+            verdict = "unrefined"
+        elif not with_data:
+            verdict = "whole-day"
+        elif len(with_data) == len(probed):
+            verdict = "hour-specific"
+        else:
+            verdict = "partial"
         annotated.append(hole | {
             "refined_days": len(probed),
             "days_with_data_at_another_hour": len(with_data),
             "examples": with_data[:3],
-            "verdict": ("hour-specific" if with_data else
-                        ("whole-day" if probed else "unrefined")),
+            "verdict": verdict,
         })
     return annotated
 

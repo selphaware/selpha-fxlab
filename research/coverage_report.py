@@ -379,10 +379,9 @@ def _bounds_section(payload: dict[str, Any]) -> list[str]:
         "return data, when it carries a hole of 20 trading days or more, or "
         "when a quality spot check failed.",
         "",
-        *_table(["pair", "why it is flagged"], flagged),
     ]
-    if not flagged:
-        lines += ["No pair met any flag condition.", ""]
+    lines += (_table(["pair", "why it is flagged"], flagged) if flagged
+              else ["**No pair met any flag condition.**", ""])
     return lines
 
 
@@ -392,34 +391,85 @@ def _observations(payload: dict[str, Any]) -> list[str]:
     starts = sorted(entry["recommended_start"]["date"]
                     for entry in pairs.values()
                     if entry["recommended_start"]["date"])
-    hour_specific = sum(1 for entry in pairs.values()
-                        for hole in entry["holes"]
-                        if hole["verdict"] == "hour-specific")
-    whole_day = sum(1 for entry in pairs.values()
-                    for hole in entry["holes"]
-                    if hole["verdict"] == "whole-day")
+    verdicts: dict[str, int] = {}
+    for entry in pairs.values():
+        for hole in entry["holes"]:
+            verdicts[hole["verdict"]] = verdicts.get(hole["verdict"], 0) + 1
+    hour_specific = verdicts.get("hour-specific", 0)
+    whole_day = verdicts.get("whole-day", 0)
+    partial = verdicts.get("partial", 0)
     lines = ["## Observations", "",
              "Recorded for the checkpoint review. Per the card, an observation "
              "worth chasing becomes a next card only after a checkpoint; "
              "nothing here proposes work.", ""]
-    if starts:
+    if starts and starts[0] == starts[-1]:
+        lines.append(
+            f"* Every pair's recommended start is the same day, {starts[0]}, "
+            "and that day is the first the probe window contains. The common "
+            "window and the per-pair windows are therefore identical, and the "
+            "binding constraint on how far back research can go is the card's "
+            "range rather than anything the feed is short of.")
+    elif starts:
         lines.append(
             f"* Recommended starts span {starts[0]} to {starts[-1]}. A "
             "portfolio study restricted to the common window would begin at "
             f"**{starts[-1]}**; one that accepts unequal histories per pair "
             f"could begin at {starts[0]} for the earliest.")
     lines.append(
-        f"* Of the material holes that refinement reached, {hour_specific} "
-        f"are hour-specific — the day has data at another liquid hour — and "
-        f"{whole_day} are whole-day. Only the whole-day ones are gaps in the "
-        "feed's history; the rest are gaps in this survey's chosen hour and "
-        "will not appear in a full ingestion.")
+        "* A material hole is *hour-specific* when every day in it has data at "
+        "another liquid hour, *partial* when only some do, and *whole-day* "
+        "when none do. Of the ones refinement reached: "
+        f"{hour_specific} hour-specific, {partial} partial, {whole_day} "
+        "whole-day. Only whole-day holes are gaps in the feed's history at "
+        "every hour; an hour-specific one will not survive a full ingestion "
+        "that asks for all twenty-four.")
     lines.append(
         "* Every hole's composition is reported. A run of `empty` is the "
         "feed reporting a closed market and is a candidate input to the "
         "holiday calendar of pre-reg #5, which is T3's work, not this card's.")
+    lines.extend(_density_observation(pairs))
     lines.append("")
     return lines
+
+
+def _density_observation(pairs: dict[str, Any]) -> list[str]:
+    """What the spot checks say about early history versus recent history.
+
+    Presence is not usability and neither is usability constant. The earliest
+    and latest spot checks are the same hour of the same pair twenty years
+    apart, so the ratio between them is a fact about the data rather than an
+    opinion about it. What that fact means for a strategy is T5's question.
+    """
+    rows = []
+    for pair, entry in pairs.items():
+        checks = [q for q in (entry.get("quality") or []) if q.get("ok")]
+        if len(checks) < 2:
+            continue
+        first, last = checks[0], checks[-1]
+        first_spread = (first.get("spread_pips") or {}).get("median_pips")
+        last_spread = (last.get("spread_pips") or {}).get("median_pips")
+        if not first_spread or not last_spread:
+            continue
+        rows.append([f"`{pair}`", first["date"], f"{first['ticks']:,}",
+                     f"{first_spread:.2f}", last["date"],
+                     f"{last['ticks']:,}", f"{last_spread:.2f}",
+                     f"{first_spread / last_spread:.1f}×"])
+    if not rows:
+        return []
+    return [
+        "* Early history is present and clean, and it is **not the same "
+        "market**. The earliest and latest spot checks are the same hour of "
+        "the same pair twenty years apart:",
+        "",
+        *_table(["pair", "earliest", "ticks", "median spread (pips)",
+                 "latest", "ticks", "median spread (pips)", "spread ratio"],
+                rows),
+        "  Both columns passed every validation rule, so this is a change in "
+        "the market rather than a defect in the data. What it means for a "
+        "strategy — which horizons can clear a spread that wide, and whether "
+        "early history should be weighted differently or excluded — is the "
+        "cost-geometry question of T5, and is not answered here.",
+    ]
 
 
 # --------------------------------------------------------------------------- #
@@ -456,12 +506,21 @@ def harvest_cost(records: Sequence[dict[str, Any]],
     return totals
 
 
-def _cost_section(cost: dict[str, Any]) -> list[str]:
+def _cost_section(cost: dict[str, Any], on_disk: int = 0) -> list[str]:
     """What the harvest cost, as a budgeting input for T2."""
     if not cost["sessions"] or cost["seconds"] <= 0:
         return []
     rate = cost["probes"] / cost["seconds"]
     hours = cost["seconds"] / 3600.0
+    unaccounted = max(0, on_disk - cost["probes"])
+    tail = ([
+        f"A session that is interrupted leaves a start record and no end "
+        f"record, which is exactly what the ledger is for. {unaccounted:,} "
+        "probes on disk were collected by such a session and are counted in "
+        "the survey above but not in this table, so the rate here is measured "
+        "over the sessions that finished and reported their own counters.",
+        "",
+    ] if unaccounted else [])
     return [
         "## What the survey cost",
         "",
@@ -470,8 +529,8 @@ def _cost_section(cost: dict[str, Any]) -> list[str]:
         "sessions' own counters, summed from their ledger end records.",
         "",
         *_table(["measure", "value"], [
-            ["harvest sessions", cost["sessions"]],
-            ["probes completed", f"{cost['probes']:,}"],
+            ["harvest sessions that finished", cost["sessions"]],
+            ["probes completed in them", f"{cost['probes']:,}"],
             ["wall clock", f"{hours:.1f} h"],
             ["sustained rate", f"{rate:.2f} probes/s"],
             ["seconds parked waiting out the feed",
@@ -480,6 +539,7 @@ def _cost_section(cost: dict[str, Any]) -> list[str]:
             ["throttled responses", f"{cost['throttles']:,}"],
             ["outages ridden out", cost["outages"]],
         ]),
+        *tail,
         "One probe is one hourly file. A full ingestion asks for every hour of "
         "every day rather than one hour per trading day, so at this rate the "
         "arithmetic for T2 follows directly from the hour count it plans to "
@@ -502,7 +562,8 @@ def render(document: dict[str, Any], trials: int,
     for pair, entry in payload["pairs"].items():
         lines += _pair_section(pair, entry, payload["thresholds"])
     lines += _bounds_section(payload)
-    lines += _cost_section(cost or {"sessions": 0, "seconds": 0.0})
+    lines += _cost_section(cost or {"sessions": 0, "seconds": 0.0},
+                           int(payload.get("probe_records", 0)))
     lines += _observations(payload)
     lines += [
         "## Provenance",

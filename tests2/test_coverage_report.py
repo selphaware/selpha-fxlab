@@ -145,8 +145,7 @@ def test_report_separates_hour_specific_holes_from_whole_day_ones() -> None:
     document = _document({"EURUSD": _pair("2005-01-03", 5000, holes=[hole])})
     text = coverage_report.render(document, trials=1)
     assert "hour-specific" in text
-    assert "1 are hour-specific" in text
-    assert "0 are whole-day" in text or "and 0 are whole-day" in text
+    assert "1 hour-specific, 0 partial, 0 whole-day" in text
 
 
 def test_bar_ceilings_are_stated_as_ceilings() -> None:
@@ -207,3 +206,79 @@ def test_cost_section_appears_only_when_there_is_a_cost_to_report() -> None:
     assert "## What the survey cost" in text
     assert "1.26 probes/s" in text
     assert "13.9 h" in text
+
+
+def test_report_contrasts_early_history_with_recent_history() -> None:
+    """Presence is not usability, and usability is not constant either."""
+    entry = _pair("2005-01-03", 5000)
+    entry["quality"] = [
+        {"pair": "EURUSD", "date": "2005-01-03", "hour": 13, "ticks": 923,
+         "spread_pips": {"median_pips": 1.0, "p99_9_pips": 2.63},
+         "spread_ceiling_pips": 20.0, "issues": [], "ok": True},
+        {"pair": "EURUSD", "date": "2025-02-28", "hour": 13, "ticks": 6980,
+         "spread_pips": {"median_pips": 0.5, "p99_9_pips": 1.6},
+         "spread_ceiling_pips": 20.0, "issues": [], "ok": True},
+    ]
+    text = coverage_report.render(_document({"EURUSD": entry}), trials=1)
+    assert "not the same market" in text
+    assert "2.0×" in text
+    assert "T5" in text, "the interpretation must be handed on, not made here"
+
+
+def test_density_observation_is_skipped_without_two_good_checks() -> None:
+    """No contrast to draw is no paragraph, rather than a paragraph of dashes."""
+    entry = _pair("2005-01-03", 5000)
+    entry["quality"] = [entry["quality"][0]]
+    assert "not the same market" not in coverage_report.render(
+        _document({"EURUSD": entry}), trials=1)
+
+
+def test_report_counts_partial_holes_separately() -> None:
+    """A hole that recovers partway is neither of the other two verdicts."""
+    hole = {"start": "2009-06-15", "end": "2009-06-19", "trading_days": 5,
+            "composition": {"empty": 5}, "refined_days": 3,
+            "days_with_data_at_another_hour": 1, "verdict": "partial"}
+    text = coverage_report.render(
+        _document({"USDJPY": _pair("2005-01-03", 5000, holes=[hole])}),
+        trials=1)
+    assert "0 hour-specific, 1 partial, 0 whole-day" in text
+
+
+def test_cost_section_accounts_for_an_interrupted_session() -> None:
+    """Probes an interrupted session collected are in the survey, not the rate."""
+    document = _document({"EURUSD": _pair("2005-01-03", 10)})
+    document["payload"]["probe_records"] = 63385
+    text = coverage_report.render(
+        document, trials=1, cost={"sessions": 4, "probes": 58386,
+                                  "seconds": 36000.0, "parked": 5046.0,
+                                  "throttles": 782, "outages": 0})
+    assert "4,999 probes on disk were collected by such a session" in text
+    assert "sessions that finished" in text
+
+
+def test_observations_collapse_when_every_start_is_the_same_day() -> None:
+    """Twelve identical dates should not read as a range from X to X."""
+    pairs = {name: _pair("2005-01-03", 5000)
+             for name in ("EURUSD", "GBPUSD", "USDJPY")}
+    text = coverage_report.render(_document(pairs), trials=1)
+    assert "span 2005-01-03 to 2005-01-03" not in text
+    assert "Every pair's recommended start is the same day, 2005-01-03" in text
+    assert "the card's range rather than anything the feed is short of" in text
+
+
+def test_observations_report_a_range_when_starts_differ() -> None:
+    """And the common-window sentence still appears when there is a range."""
+    text = coverage_report.render(
+        _document({"EURUSD": _pair("2005-01-03", 5000),
+                   "AUDJPY": _pair("2012-06-01", 4800)}), trials=1)
+    assert "span 2005-01-03 to 2012-06-01" in text
+    assert "**2012-06-01**" in text
+
+
+def test_no_flags_reads_as_a_statement_not_an_empty_table() -> None:
+    """`_none_` under a heading is worse than a sentence saying so."""
+    text = coverage_report.render(
+        _document({"EURUSD": _pair("2005-01-03", 5000)}), trials=1)
+    flags = text.split("### Flags for the checkpoint")[1]
+    assert "**No pair met any flag condition.**" in flags
+    assert "_none_" not in flags
