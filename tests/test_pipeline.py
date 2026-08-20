@@ -258,3 +258,20 @@ def test_a_run_interrupted_after_a_checkpoint_resumes_from_it(
     resumed = ingest(config)
     assert resumed.hours_skipped == 2
     assert resumed.hours_ok == 3
+
+
+def test_the_manifest_can_be_sharded_away_from_the_store_root(tmp_path) -> None:
+    # A decade of twelve pairs is over a million hour records. One manifest.json
+    # cannot be checkpointed every few seconds at that size, so a bulk pull
+    # shards it by pair and month while the ticks stay in one store.
+    shard = tmp_path / "manifests" / "EURUSD" / "2026-07"
+    config = config_for(tmp_path, [("EURUSD", "2026-07-14", 13)],
+                        manifest_dir=shard)
+    report = ingest(config)
+
+    assert report.manifest_file == shard / "manifest.json"
+    assert report.manifest_file.is_file()
+    assert not (tmp_path / "data" / "manifest.json").exists()
+    assert (tmp_path / "data" / "ticks" / "pair=EURUSD").is_dir()
+    # Resume reads the shard back, so an interrupted bulk pull does not refetch.
+    assert ingest(config).hours_skipped == 1

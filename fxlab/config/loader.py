@@ -169,7 +169,15 @@ class OandaConfig:
 
 @dataclass(frozen=True, slots=True)
 class IngestConfig:
-    """Everything the ingest entrypoint needs."""
+    """Everything the ingest entrypoint needs.
+
+    ``manifest_dir`` moves the manifest out of the store root without moving the
+    ticks. A decade of twelve pairs is over a million hour records, which is one
+    JSON file nobody can checkpoint every few seconds; a bulk pull therefore
+    shards the manifest by pair and month while every tick still lands in the
+    one partitioned store. Left unset, the manifest sits at the root of
+    ``out_dir``, which is what the Phase 1 contract requires.
+    """
 
     mode: str
     out_dir: pathlib.Path
@@ -180,6 +188,7 @@ class IngestConfig:
     fail_on_gap: bool = True
     checkpoint_every: int = 25
     archive_raw_dir: pathlib.Path | None = None
+    manifest_dir: pathlib.Path | None = None
     bar_timeframes: tuple[str, ...] = ()
     dukascopy: DukascopyConfig = field(default_factory=DukascopyConfig)
     oanda: OandaConfig = field(default_factory=OandaConfig)
@@ -288,6 +297,7 @@ def load_ingest_config(path: str | pathlib.Path) -> IngestConfig:
 
     raw_dir = table.get("raw_dir")
     archive = table.get("archive_raw_dir")
+    manifest = table.get("manifest_dir")
     try:
         duka_cfg = DukascopyConfig(**duka)
         oanda_cfg = OandaConfig(**oanda)
@@ -305,6 +315,8 @@ def load_ingest_config(path: str | pathlib.Path) -> IngestConfig:
         checkpoint_every=int(table.get("checkpoint_every", 25)),
         archive_raw_dir=(None if archive is None
                          else _as_path(archive, f"{where}.archive_raw_dir")),
+        manifest_dir=(None if manifest is None
+                      else _as_path(manifest, f"{where}.manifest_dir")),
         bar_timeframes=bar_timeframes,
         dukascopy=duka_cfg,
         oanda=oanda_cfg,

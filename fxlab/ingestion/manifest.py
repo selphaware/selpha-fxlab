@@ -251,13 +251,13 @@ def manifest_path(out_dir: pathlib.Path) -> pathlib.Path:
     return pathlib.Path(out_dir) / MANIFEST_NAME
 
 
-def load_manifest(out_dir: pathlib.Path) -> Manifest:
-    """Load an existing manifest, or return an empty one.
+def load_manifest_file(path: pathlib.Path) -> Manifest:
+    """Load a manifest from an explicit path, or return an empty one.
 
     A manifest that cannot be parsed is treated as absent rather than fatal:
     the worst case is re-fetching hours that were already stored.
     """
-    path = manifest_path(out_dir)
+    path = pathlib.Path(path)
     if not path.is_file():
         return Manifest()
     try:
@@ -266,12 +266,22 @@ def load_manifest(out_dir: pathlib.Path) -> Manifest:
         return Manifest()
 
 
-def write_manifest(out_dir: pathlib.Path, manifest: Manifest) -> pathlib.Path:
-    """Write the manifest atomically and return its path."""
-    path = manifest_path(out_dir)
+def write_manifest_file(path: pathlib.Path, manifest: Manifest) -> pathlib.Path:
+    """Write a manifest atomically to an explicit path and return it."""
+    path = pathlib.Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     tmp.write_text(json.dumps(manifest.to_dict(), indent=2, sort_keys=False),
                    encoding="utf8")
     os.replace(tmp, path)
     return path
+
+
+def load_manifest(out_dir: pathlib.Path) -> Manifest:
+    """Load the manifest at the root of a store, or return an empty one."""
+    return load_manifest_file(manifest_path(out_dir))
+
+
+def write_manifest(out_dir: pathlib.Path, manifest: Manifest) -> pathlib.Path:
+    """Write the manifest to the root of a store and return its path."""
+    return write_manifest_file(manifest_path(out_dir), manifest)

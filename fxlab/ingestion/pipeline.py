@@ -77,6 +77,8 @@ class IngestReport:
     ticks_written: int = 0
     duplicates_dropped: int = 0
     bar_files: list[str] = field(default_factory=list)
+    bar_dates_built: int = 0
+    bar_seconds: float = 0.0
 
     @property
     def ok(self) -> bool:
@@ -269,24 +271,27 @@ def _already_stored(config: IngestConfig, manifest: Manifest,
 
 
 def _build_bars(config: IngestConfig, report: IngestReport) -> None:
-    """Resample stored ticks into the configured bar timeframes."""
-    from fxlab.ingestion.bars import resample_ticks, write_bars
-    from fxlab.ingestion.store import read_ticks
+    """Bring the configured bar tables up to date with the stored ticks.
 
-    pairs = sorted({rec.pair for rec in report.manifest.hours
-                    if rec.status == STATUS_OK})
-    for pair in pairs:
-        ticks = read_ticks(config.out_dir, pair=pair)
-        if not len(ticks):
-            continue
-        for timeframe in config.bar_timeframes:
-            result = resample_ticks(ticks, timeframe, pair=pair)
-            if not len(result):
-                continue
-            report.bar_files.append(str(write_bars(config.out_dir, result)))
-            if result.empty_bins:
-                _LOG.info("%s %s: %d empty bin(s) dropped",
-                          pair, result.timeframe, len(result.empty_bins))
+    Incremental, per SPEC2 prerequisite P0-B: only the days whose stored ticks
+    differ from what was last folded in are resampled. Rebuilding a pair's whole
+    history on every run is fine for a week and hopeless for a decade of twelve
+    pairs, which is the scale this store is being filled to.
+    """
+    from fxlab.ingestion.bars import build_bars_incremental
+
+    touched: dict[str, set[str]] = {}
+    for rec in report.manifest.hours:
+        if rec.status == STATUS_OK:
+            touched.setdefault(rec.pair, set()).add(rec.date)
+
+    for pair, dates in sorted(touched.items()):
+        for update in build_bars_incremental(config.out_dir, pair,
+                                             config.bar_timeframes,
+                                             dates=sorted(dates)):
+            report.bar_files.append(str(update.path))
+            report.bar_dates_built += update.dates_built
+            report.bar_seconds += update.seconds
 
 
 def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestReport:
@@ -302,7 +307,12 @@ def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestR
     out_dir = pathlib.Path(config.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    manifest = load_manifest(out_dir) if config.resume else Manifest()
+    # The manifest need not live in the store root: a bulk pull shards it by
+    # pair and month so that checkpointing stays cheap at a million hours.
+    manifest_root = (pathlib.Path(config.manifest_dir)
+                     if config.manifest_dir is not None else out_dir)
+    manifest_root.mkdir(parents=True, exist_ok=True)
+    manifest = load_manifest(manifest_root) if config.resume else Manifest()
     manifest.errors = []
     manifest.warnings = []
     manifest.source = config.source
@@ -315,7 +325,7 @@ def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestR
               len(config.hours), out_dir)
 
     report = IngestReport(manifest=manifest,
-                          manifest_file=manifest_path(out_dir),
+                          manifest_file=manifest_path(manifest_root),
                           hours_requested=len(config.hours))
 
     pending: list[HourRequest] = []
@@ -352,12 +362,12 @@ def ingest(config: IngestConfig, *, source: HourSource | None = None) -> IngestR
         # or the next run re-fetches everything and earns the same throttling.
         processed += 1
         if processed % config.checkpoint_every == 0:
-            write_manifest(out_dir, manifest)
+            write_manifest(manifest_root, manifest)
             _LOG.debug("manifest checkpointed after %d hour(s)", processed)
 
     if config.bar_timeframes:
         _build_bars(config, report)
 
-    write_manifest(out_dir, manifest)
+    write_manifest(manifest_root, manifest)
     _LOG.info("ingest complete: %s", report.summary_line())
     return report
