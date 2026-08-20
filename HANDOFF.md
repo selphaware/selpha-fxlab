@@ -302,9 +302,14 @@ notice, all confirmed by observation rather than documentation.
    volume seasonality. The partial first and last days of every FX week are
    excluded from both sides of the comparison, because including them flagged
    the live week twice for nothing at all.
-7. **Bars are rebuilt from the whole stored history** for a pair each time
-   `bar_timeframes` is set. That is fine for a week and will not be fine for a
-   decade; incremental bar building is a Phase 2 job.
+7. ~~**Bars are rebuilt from the whole stored history** for a pair each time
+   `bar_timeframes` is set.~~ **Fixed in Phase 2 (SPEC2 prerequisite P0-B,
+   landed under task card T2a).** `fxlab.ingestion.bars.build_bars_incremental`
+   resamples only the days whose stored ticks differ from what was last folded
+   in, and splices them into the stored table; coarser timeframes roll up from
+   the 1m bars rather than re-reading ticks. What changed is decided from the
+   store itself — a day's signature is its hour-file count and their total size
+   — so nothing has to remember to invalidate anything.
 8. **Only TOML configuration is supported.** `spec.md` allowed YAML or TOML;
    PyYAML is not in the pinned environment and one config format is one fewer
    thing to get wrong.
