@@ -297,6 +297,29 @@ def test_one_bad_window_is_not_enough_to_back_off() -> None:
     assert cal.level == 3
 
 
+def test_one_bad_window_does_not_reset_the_clean_clock() -> None:
+    # The feed flaps on a one-minute cycle, so a single burst is noise. Resetting
+    # the whole clean hour for one of them vetoes every step-up indefinitely --
+    # measured: level 3 ran 4.4%, 0.7%, 2.2%, 1.6% and then one window at 15.0%.
+    clock = FakeClock()
+    cal = Calibrator(clock=clock)
+    _run_windows(cal, clock, 3, 1000, 10)     # clean
+    _run_windows(cal, clock, 1, 1000, 400)    # one burst
+    _run_windows(cal, clock, 3, 1000, 10)     # clean again, past the hour
+    assert cal.level == MIN_LEVEL + 1
+
+
+def test_two_bad_windows_at_the_floor_block_the_level_above() -> None:
+    # There is nowhere to back off to at level 2, so what must be blocked is
+    # level 3: a feed complaining at the floor is not one to offer more to.
+    clock = FakeClock()
+    cal = Calibrator(clock=clock)
+    _run_windows(cal, clock, 2, 1000, 400)
+    assert cal.level == MIN_LEVEL
+    _run_windows(cal, clock, 8, 1000, 10)
+    assert cal.level == MIN_LEVEL
+
+
 def test_a_level_that_was_backed_off_is_not_probed_again_immediately() -> None:
     clock = FakeClock()
     cal = Calibrator(clock=clock)

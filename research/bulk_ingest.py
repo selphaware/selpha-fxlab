@@ -164,7 +164,17 @@ EVAL_WINDOW_SECONDS: Final[float] = 600.0
 #: constant only decides when it is allowed to be asked.
 CLEAN_THROTTLE_RATE: Final[float] = 0.10
 
-#: Consecutive windows above the step-up tolerance before backing off.
+#: Consecutive windows above tolerance that count as a *sustained* rise.
+#:
+#: The card asks for one thing in each direction: step up "after a sustained
+#: clean hour", back off "on any sustained rise in 503 rate". This constant is
+#: what "sustained" means, and it deliberately means the same thing both ways.
+#: The first version of this code used it only for backing off, so a single bad
+#: window -- one burst, on a feed measured to flap on a one-minute cycle -- reset
+#: the whole clean hour while two were needed to conclude anything. Measured on
+#: 2026-08-20, level 3 ran four windows at 4.4%, 0.7%, 2.2% and 1.6% and then one
+#: at 15.0%, and that single window alone would have vetoed the level-4 probe
+#: indefinitely. An isolated burst is not evidence in either direction.
 BAD_WINDOWS_BEFORE_BACKOFF: Final[int] = 2
 
 #: A stepped-up level is judged against the level below it: it must not exceed
@@ -653,6 +663,10 @@ class Calibrator:
       more than two percentage points, and the level steps back down and is not
       probed again for six hours.
 
+    "Sustained" means the same thing in both directions: an isolated bad window
+    neither backs the level off nor resets the clean clock. The feed was measured
+    to flap on a one-minute cycle, so a single burst is noise, not evidence.
+
     Every transition is recorded with the rates that caused it, so the report
     states what was measured rather than what was hoped for.
     """
@@ -700,11 +714,29 @@ class Calibrator:
                              "throttles": self._throttles,
                              "rate": round(rate, 5),
                              "seconds": round(now - self._window_started, 1)})
+        self._log_window(now, rate)
         self._close_window(now, rate)
         self._requests = 0
         self._throttles = 0
         self._window_started = now
         return self.level
+
+    def _log_window(self, now: float, rate: float) -> None:
+        """Say what each window measured and what it is being judged against.
+
+        Without this the calibration is only visible in the session record,
+        which exists once the session ends -- so a multi-day run gives no way to
+        tell "the level is not stepping up because the feed is complaining" from
+        "the level is not stepping up because something is stuck".
+        """
+        below = self.baselines.get(self.level - 1)
+        tolerance = (max(below * STEP_UP_RATE_FACTOR, below + STEP_UP_RATE_MARGIN)
+                     if self.level > MIN_LEVEL and below is not None
+                     else CLEAN_THROTTLE_RATE)
+        _LOG.info("calibration window: level %d, %.3f%% throttled against a "
+                  "%.3f%% tolerance, clean for %.0f min of the %.0f needed",
+                  self.level, rate * 100, tolerance * 100,
+                  (now - self._clean_since) / 60, CLEAN_BEFORE_STEP_UP / 60)
 
     def _close_window(self, now: float, rate: float) -> None:
         """Decide what one finished window means for the level."""
@@ -715,8 +747,10 @@ class Calibrator:
 
         if rate > tolerance:
             self._bad_windows += 1
-            self._clean_since = now
+            # An isolated burst breaks neither the clean streak nor the level:
+            # "sustained" means the same thing in both directions.
             if self._bad_windows >= BAD_WINDOWS_BEFORE_BACKOFF:
+                self._clean_since = now
                 self._back_off(now, rate, tolerance)
             return
 
@@ -741,17 +775,24 @@ class Calibrator:
                   "(throttle rate %.3f%%)", self.level, rate * 100)
 
     def _back_off(self, now: float, rate: float, tolerance: float) -> None:
-        """Return to the last safe level and stop probing this one for a while."""
-        blocked = self.level
+        """Return to the last safe level and stop probing this one for a while.
+
+        At the floor there is nowhere to back off to, so what gets blocked is
+        the level *above*: a feed complaining at level 2 is not one to offer a
+        third connection to. Blocking level 2 there instead -- which the first
+        version did -- blocked nothing, because the step-up test only ever asks
+        about the level above the current one.
+        """
+        blocked = self.level if self.level > MIN_LEVEL else self.level + 1
         self.level = max(MIN_LEVEL, self.level - 1)
         self._blocked_until[blocked] = now + REPROBE_AFTER_BACKOFF
         self._clean_since = now
         self._bad_windows = 0
         self.history.append({
             "at": round(now, 1), "level": self.level,
-            "why": (f"level {blocked} ran {rate:.3%} throttled against a "
+            "why": (f"level {blocked} blocked: {rate:.3%} throttled against a "
                     f"tolerance of {tolerance:.3%} for "
-                    f"{BAD_WINDOWS_BEFORE_BACKOFF} windows")})
+                    f"{BAD_WINDOWS_BEFORE_BACKOFF} consecutive windows")})
         _LOG.warning("calibration: backing off to level %d; level %d ran "
                      "%.3f%% throttled", self.level, blocked, rate * 100)
 
