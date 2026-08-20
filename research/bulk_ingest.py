@@ -144,8 +144,25 @@ CLEAN_BEFORE_STEP_UP: Final[float] = 3600.0
 EVAL_WINDOW_SECONDS: Final[float] = 600.0
 
 #: A window is clean while its throttled share of requests stays at or below
-#: this. T1 measured 782 throttles across 58,386 probes -- 1.3% -- at level 2.
-CLEAN_THROTTLE_RATE: Final[float] = 0.05
+#: this.
+#:
+#: Raised from 0.05 to 0.10 on 2026-08-20, before any pair-month past 2025-02
+#: had been ingested, and recorded here rather than quietly. 0.05 was set from
+#: T1's measurement -- 782 throttles across 58,386 probes, 1.3%, over ten hours
+#: -- and on the day this run started the same feed was answering 3-6% throttled
+#: at the same level 2, with one of its two addresses serving 503 to everything.
+#: An absolute threshold calibrated against the feed's good mood is not a test
+#: of whether *our* load is the problem: it just pins the run at the starting
+#: level whenever the feed is having a bad day, which is the day you most want
+#: the extra connections.
+#:
+#: The protection that matters is unchanged and is comparative rather than
+#: absolute: a stepped-up level is judged against the **measured** rate of the
+#: level below it, and two windows above 1.5x that rate send it back and block
+#: it for six hours. That test is self-calibrating -- it asks whether adding a
+#: connection made things worse, which is the actual question -- and this
+#: constant only decides when it is allowed to be asked.
+CLEAN_THROTTLE_RATE: Final[float] = 0.10
 
 #: Consecutive windows above the step-up tolerance before backing off.
 BAD_WINDOWS_BEFORE_BACKOFF: Final[int] = 2
