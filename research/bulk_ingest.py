@@ -690,8 +690,12 @@ class Calibrator:
     def __post_init__(self) -> None:
         self._window_started = self.clock()
         self._clean_since = self.clock()
-        self.history.append({"at": 0.0, "level": self.level,
-                             "why": "start; T1's proven-safe level"})
+        why = ("start; T1's proven-safe level" if self.level == MIN_LEVEL
+               else f"resumed at level {self.level}, earned earlier in the run")
+        if self.baselines:
+            why += (f"; baselines carried forward "
+                    f"{ {k: round(v, 4) for k, v in sorted(self.baselines.items())} }")
+        self.history.append({"at": 0.0, "level": self.level, "why": why})
 
     def observe(self, requests: int, throttles: int) -> int:
         """Fold in one chunk's counters and return the level to run next.
@@ -729,21 +733,39 @@ class Calibrator:
         tell "the level is not stepping up because the feed is complaining" from
         "the level is not stepping up because something is stuck".
         """
-        below = self.baselines.get(self.level - 1)
-        tolerance = (max(below * STEP_UP_RATE_FACTOR, below + STEP_UP_RATE_MARGIN)
-                     if self.level > MIN_LEVEL and below is not None
-                     else CLEAN_THROTTLE_RATE)
+        tolerance = self.tolerance_at(self.level)
         _LOG.info("calibration window: level %d, %.3f%% throttled against a "
                   "%.3f%% tolerance, clean for %.0f min of the %.0f needed",
                   self.level, rate * 100, tolerance * 100,
                   (now - self._clean_since) / 60, CLEAN_BEFORE_STEP_UP / 60)
 
+    def tolerance_at(self, level: int) -> float:
+        """The throttle rate a window at ``level`` must stay at or below.
+
+        Two tests, and a window must pass both:
+
+        * **comparative** -- no worse than 1.5x the measured rate of the level
+          below, or two percentage points above it. This is the one that
+          matters, because it asks whether adding a connection made things
+          worse, which is the actual question.
+        * **absolute** -- no worse than :data:`CLEAN_THROTTLE_RATE` whatever the
+          level below was doing. Without this a high baseline licenses a higher
+          one: measured on 2026-08-21, a level-3 window at 8.9% throttled passed
+          as clean on the absolute cap alone and stepped the run up to four
+          connections while one request in eleven was being refused. A feed
+          complaining that much is not one to offer more to, however the level
+          below happened to be behaving.
+        """
+        below = self.baselines.get(level - 1)
+        if level <= MIN_LEVEL or below is None:
+            return CLEAN_THROTTLE_RATE
+        comparative = max(below * STEP_UP_RATE_FACTOR,
+                          below + STEP_UP_RATE_MARGIN)
+        return min(CLEAN_THROTTLE_RATE, comparative)
+
     def _close_window(self, now: float, rate: float) -> None:
         """Decide what one finished window means for the level."""
-        below = self.baselines.get(self.level - 1)
-        stepped_up = self.level > MIN_LEVEL and below is not None
-        tolerance = (max(below * STEP_UP_RATE_FACTOR, below + STEP_UP_RATE_MARGIN)
-                     if stepped_up else CLEAN_THROTTLE_RATE)
+        tolerance = self.tolerance_at(self.level)
 
         if rate > tolerance:
             self._bad_windows += 1
@@ -1021,7 +1043,8 @@ class Driver:
     def __init__(self, params: Params, *, base: pathlib.Path,
                  level: int = MIN_LEVEL, retry_gaps: bool = False,
                  deadline: float | None = None,
-                 stop_file: pathlib.Path | None = None) -> None:
+                 stop_file: pathlib.Path | None = None,
+                 baselines: dict[int, float] | None = None) -> None:
         self.params = params
         self.base = base
         self.retry_gaps = retry_gaps
@@ -1029,7 +1052,8 @@ class Driver:
         self.stop_file = stop_file
         self._stopping = threading.Event()
 
-        self.calibrator = Calibrator(level=level)
+        self.calibrator = Calibrator(level=level,
+                                     baselines=dict(baselines or {}))
         self.feed = HourFeed(
             DukascopyConfig(max_concurrency=MAX_LEVEL, timeout=params.timeout),
             level=level, max_attempts=params.max_attempts,
@@ -1189,8 +1213,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="stop after this many pair-months")
     parser.add_argument("--pairs", type=str, default=None,
                         help="comma-separated subset of the configured pairs")
-    parser.add_argument("--level", type=int, default=MIN_LEVEL,
-                        help=f"starting concurrency level ({MIN_LEVEL}..{MAX_LEVEL})")
+    parser.add_argument("--level", type=int, default=None,
+                        help=("starting concurrency level "
+                              f"({MIN_LEVEL}..{MAX_LEVEL}); defaults to the "
+                              "level the run last earned, or "
+                              f"{MIN_LEVEL} on a fresh run"))
     parser.add_argument("--retry-gaps", action="store_true",
                         help="re-work pair-months that recorded a gap")
     parser.add_argument("--stop-file", type=pathlib.Path, default=None,
@@ -1238,7 +1265,13 @@ def main(argv: list[str] | None = None) -> int:
 
     deadline = (time.monotonic() + args.max_seconds
                 if args.max_seconds else None)
-    driver = Driver(params, base=base, level=args.level,
+    earned, baselines = resume_calibration(params.experiment_dir / SESSIONS_NAME)
+    level = args.level if args.level is not None else (earned or MIN_LEVEL)
+    if args.level is None and earned:
+        _LOG.info("resuming at level %d with baselines %s, earned earlier in "
+                  "the run", level, {k: round(v, 4) for k, v in
+                                     sorted(baselines.items())})
+    driver = Driver(params, base=base, level=level, baselines=baselines,
                     retry_gaps=args.retry_gaps, deadline=deadline,
                     stop_file=args.stop_file)
 
@@ -1253,7 +1286,7 @@ def main(argv: list[str] | None = None) -> int:
     experiment_id = str(_experiment_id(args.config)) + "-run"
     note = (f"bulk ingest session, {len(chunks)} pair-month(s) planned, "
             f"{params.start.isoformat()}..{params.end.isoformat()}, "
-            f"level {args.level}; resumable, checkpointed per "
+            f"level {level}; resumable, checkpointed per "
             f"{CHECKPOINT_EVERY} hours")
     ledger_mod.append_start(
         base, experiment_id=experiment_id, taskcard=_taskcard(args.config),
@@ -1290,6 +1323,51 @@ def main(argv: list[str] | None = None) -> int:
                   json.dumps({k: v for k, v in summary.items()
                               if k != "calibration"}, sort_keys=True))
     return exit_code
+
+
+def resume_calibration(path: pathlib.Path) -> tuple[int | None, dict[int, float]]:
+    """The level and baselines the run had earned, from the last session record.
+
+    The calibration is a property of the **run**, not of the session. Starting
+    every session from level 2 would spend an hour of every restart re-earning
+    what the run already measured; starting at the earned level but discarding
+    the baselines is worse, because the level above it then falls back to the
+    absolute cap and can be stepped into while the feed is visibly complaining.
+    Measured on 2026-08-21: a session resumed that way stepped to four
+    connections off a window running 8.9% throttled.
+
+    Returns:
+        ``(level, baselines)``; ``(None, {})`` when there is nothing to resume.
+    """
+    path = pathlib.Path(path)
+    if not path.exists():
+        return None, {}
+    level: int | None = None
+    baselines: dict[int, float] = {}
+    # Every session, oldest first, so the newest measurement of each level wins
+    # and a level measured only on the first day is still carried. Reading the
+    # last record alone loses exactly the baseline the level above it needs.
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(record, dict):
+            continue
+        calibration = record.get("calibration") or {}
+        if not calibration:
+            continue
+        if calibration.get("final_level"):
+            level = int(calibration["final_level"])
+        for key, value in (calibration.get("baselines") or {}).items():
+            try:
+                baselines[int(key)] = float(value)
+            except (TypeError, ValueError):
+                continue
+    return level, baselines
 
 
 def _append_session(path: pathlib.Path, summary: dict[str, Any]) -> None:

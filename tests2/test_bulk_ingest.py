@@ -24,7 +24,8 @@ from fxlab.ingestion.sources import (AVAILABILITY_EMPTY, AVAILABILITY_MISSING,
 from research.bulk_ingest import (CLOSED_ORIGIN, MAX_LEVEL, MIN_LEVEL,
                                   Calibrator, Chunk, HourFeed, _reaches_the_feed,
                                   load_params, month_starts, plan_chunks,
-                                  read_chunk_log, strip_aborted)
+                                  read_chunk_log, resume_calibration,
+                                  strip_aborted)
 from research.coverage_probe import FeedUnreachable, SessionStopped
 from research.seal import SealBreach
 
@@ -338,6 +339,43 @@ def test_the_calibration_record_carries_the_rates_that_caused_each_move() -> Non
     assert record["final_level"] == 3
     assert record["baselines"]["2"] == pytest.approx(0.01)
     assert len(record["windows"]) == 6
+
+
+def test_a_high_baseline_does_not_license_a_higher_one() -> None:
+    # Measured on 2026-08-21: a level-3 window running 8.9% throttled passed as
+    # clean on the absolute cap alone and stepped the run up to four connections
+    # while one request in eleven was being refused. A feed complaining that much
+    # is not one to offer more to, whatever the level below happened to do.
+    cal = Calibrator(level=3, baselines={2: 0.09}, clock=FakeClock())
+    assert cal.tolerance_at(3) == pytest.approx(0.10)   # absolute cap binds
+    cal = Calibrator(level=3, baselines={2: 0.01}, clock=FakeClock())
+    assert cal.tolerance_at(3) == pytest.approx(0.03)   # comparative binds
+
+
+def test_the_floor_is_judged_absolutely_because_nothing_is_below_it() -> None:
+    cal = Calibrator(clock=FakeClock())
+    assert cal.tolerance_at(MIN_LEVEL) == pytest.approx(0.10)
+
+
+def test_the_calibration_resumes_from_what_the_run_measured(tmp_path) -> None:
+    # The calibration is a property of the run, not the session. Reading only the
+    # last record loses exactly the baseline the level above it is judged against.
+    path = tmp_path / "sessions.jsonl"
+    path.write_text(
+        "\n".join([
+            json.dumps({"calibration": {"final_level": 2,
+                                        "baselines": {"2": 0.0244}}}),
+            json.dumps({"calibration": {"final_level": 3,
+                                        "baselines": {"3": 0.0231}}}),
+        ]),
+        encoding="utf-8")
+    level, baselines = resume_calibration(path)
+    assert level == 3
+    assert baselines == {2: pytest.approx(0.0244), 3: pytest.approx(0.0231)}
+
+
+def test_a_fresh_run_has_nothing_to_resume(tmp_path) -> None:
+    assert resume_calibration(tmp_path / "absent.jsonl") == (None, {})
 
 
 # --------------------------------------------------------------------------- #
