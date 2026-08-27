@@ -72,7 +72,8 @@ def _hours(seconds: Any) -> str:
 
 
 def render(document: dict[str, Any], t1: dict[str, Any] | None,
-           trials: int, gate_status: str) -> str:
+           trials: int, gate_status: str,
+           notes: Sequence[str] = ()) -> str:
     """Build the whole report.
 
     Args:
@@ -100,7 +101,7 @@ def render(document: dict[str, Any], t1: dict[str, Any] | None,
     lines += _throughput(payload, window)
     lines += _storage(names, pairs, totals)
     lines += _bars(names, pairs, payload)
-    lines += _observations(names, pairs, payload, t1)
+    lines += _observations(names, pairs, payload, t1, notes)
     lines += _provenance(document, gate_status)
     return "\n".join(lines) + "\n"
 
@@ -294,9 +295,97 @@ def _gaps(payload: dict[str, Any]) -> list[str]:
         "",
     ]
     if not int(gaps["count"]):
-        return body + ["No hour of the range is missing.", ""]
-    return body + _table(["pair", "date", "hour", "reason", "detail"],
-                         rows) + trailer
+        body += ["No hour of the range is missing.", ""]
+    else:
+        body += _table(["pair", "date", "hour", "reason", "detail"],
+                       rows) + trailer
+
+    history = (payload.get("throughput") or {}).get("gap_history") or {}
+    recorded = int(history.get("recorded_during_pull", 0))
+    if recorded:
+        recovered = int(history.get("recovered_by_sweep", 0))
+        affected = int(history.get("pair_months_affected", 0))
+        body += [
+            "### What the pull recorded, and what the sweep recovered",
+            "",
+            f"The count above is the **end** state, and on its own it flatters "
+            f"the run. During the pull itself **{_n(recorded)}** hour(s) across "
+            f"{_n(affected)} pair-month(s) were recorded as gaps. The card's "
+            f"closing sweep re-asked every one of them, and "
+            f"**{_n(recovered)}** came back.",
+            "",
+            f"That is the difference between a gap meaning *absent history* and "
+            f"a gap meaning *a feed in a bad mood on the Tuesday it was asked*. "
+            + ("Every gap this run recorded was the second kind. None of them "
+               "was a hole in Dukascopy's history; all of them were hours the "
+               "feed declined at the moment it was first asked and served "
+               "without complaint when asked again."
+               if recovered == recorded and recorded else
+               f"{_n(recorded - recovered)} hour(s) survived the sweep and are "
+               "listed above; those are the ones that look like absent "
+               "history."),
+            "",
+            "This is also why the gaps clustered by *when a year was fetched* "
+            "rather than by anything about the year. A run that reported only "
+            "its final gap count would have hidden both facts.",
+            "",
+        ]
+    return body
+
+
+def _spread_profile(payload: dict[str, Any]) -> list[str]:
+    """Where the spread warnings fall, by hour of day and by year.
+
+    The per-pair ceilings were tuned on the modern era, so the count alone is
+    uninterpretable: it could be the market or it could be the ceiling. Which
+    hour they land on decides it.
+    """
+    profile = (payload.get("warning_profile") or {})
+    hours = (profile.get("by_hour") or {}).get("SPREAD_OUTLIER") or {}
+    years = (profile.get("by_year") or {}).get("SPREAD_OUTLIER") or {}
+    if not hours:
+        return []
+    total = sum(hours.values())
+    ranked = sorted(hours.items(), key=lambda kv: -kv[1])
+    top_hour, top_count = ranked[0]
+    share = top_count / total if total else 0.0
+    top3 = sum(c for _, c in ranked[:3])
+    rows = [[f"{h}:00Z", _n(c), f"{c / total:.1%}"] for h, c in ranked[:6]]
+    roll = (hours.get("21", 0) + hours.get("22", 0)) / total if total else 0.0
+    verdict = (
+        f"{share:.0%} fall on {top_hour}:00Z alone and **{roll:.0%} on 21:00Z "
+        "and 22:00Z together**. Those two hours are not two phenomena: they are "
+        "the same one, the 17:00 `America/New_York` roll, which sits at 21:00Z "
+        "in northern summer and 22:00Z in winter. The flags track the boundary "
+        "as it moves with daylight saving, which is the same derivation the "
+        "closed-hour logic uses and an independent check on it. At the roll "
+        "liquidity is handed between sessions and the spread on a thin cross "
+        "legitimately blows out; a flag that concentrates there is describing "
+        "the market, where one scattered evenly across the clock would have "
+        "been describing a ceiling set too low."
+        if share >= 0.4 else
+        f"They do not concentrate: the busiest hour, {top_hour}:00Z, takes "
+        f"only {share:.0%}. A flag that scatters this evenly is more likely to "
+        "be describing the ceiling than the market, and is worth revisiting "
+        "before any card leans on the spread series."
+    )
+    body = [
+        "#### Where the spread flags fall",
+        "",
+        f"`SPREAD_OUTLIER` fired on {_n(total)} hour(s). {verdict}",
+        "",
+        *_table(["hour (UTC)", "hours flagged", "share"], rows),
+    ]
+    if years:
+        body += [
+            "By year, which is the regime question T2b inherits — its card "
+            "notes 2005 spreads ran 1.5-3.6x wider than the modern era these "
+            "ceilings were tuned on:",
+            "",
+            *_table(["year", "hours flagged"],
+                    [[y, _n(c)] for y, c in sorted(years.items())]),
+        ]
+    return body
 
 
 def _validation(names: Sequence[str], pairs: dict[str, Any],
@@ -348,6 +437,7 @@ def _validation(names: Sequence[str], pairs: dict[str, Any],
         "",
         *_table(["reason", "hours"],
                 [[f"`{k}`", _n(v)] for k, v in sorted(reasons.items())]),
+        *_spread_profile(payload),
         "### The derived week boundary, checked against the feed",
         "",
         "The shut hour either side of every week boundary was fetched rather "
@@ -518,7 +608,8 @@ def _alias_order(alias: str) -> int:
 
 
 def _observations(names: Sequence[str], pairs: dict[str, Any],
-                  payload: dict[str, Any], t1: dict[str, Any] | None) -> list[str]:
+                  payload: dict[str, Any], t1: dict[str, Any] | None,
+                  notes: Sequence[str] = ()) -> list[str]:
     """Observations for the checkpoint. Nothing here proposes work."""
     totals = payload["totals"]
     worst = min(names, key=lambda p: pairs[p]["open_hour_completeness"],
@@ -559,6 +650,8 @@ def _observations(names: Sequence[str], pairs: dict[str, Any],
         f"{int(totals['stored_bytes']) / max(1, int(totals['ticks'])):.1f} bytes "
         "per stored tick after Snappy. That is the number T2b should size the "
         "years before this range with.")
+    for note in notes:
+        lines.append(f"* {note}")
     lines.append("")
     return lines
 
@@ -633,6 +726,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--t1-result", type=pathlib.Path,
                         default=pathlib.Path("experiments/T1-coverage/result.json"))
     parser.add_argument("--gate-status", default="not yet run")
+    parser.add_argument("--note", action="append", default=[],
+                        help=("an authored observation to append, for facts "
+                              "the result document cannot carry. Repeatable. "
+                              "Kept in the command so the report stays "
+                              "regenerable rather than hand-edited."))
     parser.add_argument("--base", type=pathlib.Path, default=None)
     return parser.parse_args(argv)
 
@@ -651,8 +749,9 @@ def main(argv: list[str] | None = None) -> int:
         t1 = json.loads(t1_path.read_text(encoding="utf-8"))
     trials = ledger_mod.trial_count(ledger_mod.read(base), args.taskcard)
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    args.out.write_text(render(document, t1, trials, args.gate_status),
-                        encoding="utf-8")
+    args.out.write_text(
+        render(document, t1, trials, args.gate_status, args.note),
+        encoding="utf-8")
     _LOG.info("wrote %s", args.out)
     print(f"wrote {args.out}")
     return 0

@@ -126,6 +126,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         "gaps": {"count": len(gaps), "listed": min(len(gaps), MAX_GAP_ROWS),
                  "rows": gaps[:MAX_GAP_ROWS]},
         "week_boundary": boundary,
+        "warning_profile": _warning_profile(pairs, coverage),
         "throughput": throughput,
         "loader": {"mode": loader.mode,
                    "timeframes_verified": sorted(verify),
@@ -218,6 +219,11 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
               "shards": 0, "shards_missing": 0}
     by_year: dict[str, dict[str, int]] = {}
     warnings: dict[str, int] = {}
+    # Where the spread warnings fall. Per-pair ceilings were tuned on the modern
+    # era, so a flag is only interesting once you know whether the flagged hours
+    # cluster somewhere explicable -- the daily roll, say -- or scatter.
+    warn_hour: dict[str, dict[str, int]] = {}
+    warn_year: dict[str, dict[str, int]] = {}
     errors: dict[str, int] = {}
     gap_rows: list[dict[str, Any]] = []
     days_with_data: set[str] = set()
@@ -293,6 +299,15 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
         for entry in validation.get("warnings", []):
             reason = str(entry.get("reason", "UNKNOWN"))
             warnings[reason] = warnings.get(reason, 0) + 1
+            hour = entry.get("hour")
+            if hour is not None:
+                bucket_h = warn_hour.setdefault(reason, {})
+                key = f"{int(hour):02d}"
+                bucket_h[key] = bucket_h.get(key, 0) + 1
+            date = str(entry.get("date") or "")
+            if len(date) >= 4:
+                bucket_y = warn_year.setdefault(reason, {})
+                bucket_y[date[:4]] = bucket_y.get(date[:4], 0) + 1
         for entry in validation.get("errors", []):
             reason = str(entry.get("reason", "UNKNOWN"))
             errors[reason] = errors.get(reason, 0) + 1
@@ -318,6 +333,10 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
         "open_hour_completeness": (round(accounted / expected["open"], 6)
                                    if expected["open"] else 0.0),
         "warnings": {k: warnings[k] for k in sorted(warnings)},
+        "warnings_by_hour": {k: dict(sorted(warn_hour[k].items()))
+                             for k in sorted(warn_hour)},
+        "warnings_by_year": {k: dict(sorted(warn_year[k].items()))
+                             for k in sorted(warn_year)},
         "errors": {k: errors[k] for k in sorted(errors)},
         "gap_rows": gap_rows,
     }
@@ -396,6 +415,71 @@ def read_bars(loader: Any, pair: str,
 # What the pull cost
 # --------------------------------------------------------------------------- #
 
+def _warning_profile(pairs: Sequence[str],
+                     coverage: dict[str, Any]) -> dict[str, Any]:
+    """Warning counts folded across pairs, by UTC hour and by year.
+
+    A flag that piles onto one hour of the day is telling you about market
+    microstructure; one that scatters evenly is telling you about the ceiling
+    that raised it. Reporting only the total tells you neither.
+    """
+    by_hour: dict[str, dict[str, int]] = {}
+    by_year: dict[str, dict[str, int]] = {}
+    for pair in pairs:
+        for reason, hours in (coverage[pair].get("warnings_by_hour") or {}).items():
+            bucket = by_hour.setdefault(reason, {})
+            for hour, count in hours.items():
+                bucket[hour] = bucket.get(hour, 0) + int(count)
+        for reason, years in (coverage[pair].get("warnings_by_year") or {}).items():
+            bucket = by_year.setdefault(reason, {})
+            for year, count in years.items():
+                bucket[year] = bucket.get(year, 0) + int(count)
+    return {
+        "by_hour": {k: dict(sorted(by_hour[k].items())) for k in sorted(by_hour)},
+        "by_year": {k: dict(sorted(by_year[k].items())) for k in sorted(by_year)},
+    }
+
+
+def _gap_history(path: pathlib.Path,
+                 final: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """What the pull recorded as gaps, and what survived the closing sweep.
+
+    The store's gap count is the *end* state. On its own it flatters the run:
+    an hour the feed refused on a Tuesday and served on a Friday leaves no
+    trace once the sweep has been. The difference between the two is the
+    interesting number, because it says whether a gap meant absent history or
+    only a feed in a bad mood.
+
+    Only records marked ``complete`` are counted. An aborted chunk records
+    every hour it never got to as a gap, then has them stripped as unsettled
+    and re-asked; folding those in would invent gaps that never existed.
+    """
+    worst: dict[str, int] = {}
+    if pathlib.Path(path).exists():
+        for line in pathlib.Path(path).read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(record, dict) or not record.get("complete"):
+                continue
+            key = str(record.get("chunk", ""))
+            gaps = int(record.get("hours_gap", 0))
+            if key and gaps > worst.get(key, 0):
+                worst[key] = gaps
+    recorded = sum(worst.values())
+    remaining = sum(int(r.get("hours_gap", 0)) for r in final.values())
+    return {
+        "recorded_during_pull": recorded,
+        "pair_months_affected": sum(1 for v in worst.values() if v),
+        "remaining_after_sweep": remaining,
+        "recovered_by_sweep": max(0, recorded - remaining),
+    }
+
+
 def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
     """Aggregate the per-chunk and per-session records the driver left behind.
 
@@ -405,6 +489,7 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
     """
     chunks = read_chunk_log(experiment_dir / CHUNKS_NAME)
     sessions = _read_sessions(experiment_dir / SESSIONS_NAME)
+    gap_history = _gap_history(experiment_dir / CHUNKS_NAME, chunks)
 
     by_level: dict[str, dict[str, Any]] = {}
     by_timeframe: dict[str, dict[str, Any]] = {}
@@ -444,6 +529,7 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
     wall = sum(float(s.get("seconds", 0.0)) for s in sessions)
     parked = sum(float(s.get("seconds_parked", 0.0)) for s in sessions)
     return {
+        "gap_history": gap_history,
         "chunks_recorded": len(chunks),
         "sessions": len(sessions),
         "requests": requests,
