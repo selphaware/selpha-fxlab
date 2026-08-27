@@ -1218,6 +1218,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                               f"({MIN_LEVEL}..{MAX_LEVEL}); defaults to the "
                               "level the run last earned, or "
                               f"{MIN_LEVEL} on a fresh run"))
+    parser.add_argument("--carry-calibration-from", type=pathlib.Path,
+                        default=None,
+                        help=("another experiment's sessions.jsonl to inherit "
+                              "the concurrency level and its baselines from, "
+                              "used when a new experiment continues an earlier "
+                              "one against the same feed. This run's own "
+                              "sessions take precedence once it has any."))
     parser.add_argument("--retry-gaps", action="store_true",
                         help="re-work pair-months that recorded a gap")
     parser.add_argument("--stop-file", type=pathlib.Path, default=None,
@@ -1266,8 +1273,27 @@ def main(argv: list[str] | None = None) -> int:
     deadline = (time.monotonic() + args.max_seconds
                 if args.max_seconds else None)
     earned, baselines = resume_calibration(params.experiment_dir / SESSIONS_NAME)
+    carried_from: str | None = None
+    if earned is None and args.carry_calibration_from is not None:
+        # A new experiment against a feed an earlier one already measured. The
+        # alternative is re-earning the ladder from level 2 over several hours,
+        # and -- worse -- probing the level above the floor with no baseline for
+        # it, which falls back to the absolute cap and steps up into a feed that
+        # is visibly complaining. The card for T2b asks for this explicitly.
+        source = args.carry_calibration_from
+        if not source.is_absolute():
+            source = base / source
+        earned, baselines = resume_calibration(source)
+        if earned:
+            carried_from = str(source)
+            _LOG.info("carrying calibration from %s: level %d, baselines %s",
+                      source, earned,
+                      {k: round(v, 4) for k, v in sorted(baselines.items())})
+        else:
+            _LOG.warning("no calibration to carry from %s; starting at level %d",
+                         source, MIN_LEVEL)
     level = args.level if args.level is not None else (earned or MIN_LEVEL)
-    if args.level is None and earned:
+    if args.level is None and earned and carried_from is None:
         _LOG.info("resuming at level %d with baselines %s, earned earlier in "
                   "the run", level, {k: round(v, 4) for k, v in
                                      sorted(baselines.items())})
@@ -1310,6 +1336,8 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         summary = driver.stats.to_dict(driver.feed)
         summary["calibration"] = driver.calibrator.to_dict()
+        if carried_from:
+            summary["calibration_carried_from"] = carried_from
         summary["status"] = status
         summary["ended_at"] = ledger_mod.now_iso()
         summary["chunks_planned"] = len(chunks)

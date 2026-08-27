@@ -1,0 +1,78 @@
+# T2b - backfill of the twelve-pair universe to the start of usable history.
+# See taskcards/T2b.md. The split between the two programs is T2a's, unchanged:
+#
+#   python -m research.bulk_ingest --config <this file>
+#       does the pulling. Resumable, ledgered per session, and NOT the
+#       experiment: ruling D5 says ingestion is never re-run.
+#
+#   python -m research.run --config <this file>
+#       is the experiment. It reads back what the pulling left on disk and
+#       produces result.json, which the research gate re-executes and re-hashes.
+#
+# Mode. A survey, not a scored candidate: `scored = false`. `scoring` mode, as
+# T2a and T1, because that is what puts this config under the gate's sealed-date
+# scan and makes the loader police every date it serves.
+#
+# Seal. Trivially satisfied here -- every date in this range predates the cutoff
+# by a decade -- but the config is still seal-scanned per protocol, and
+# `research.bulk_ingest.load_params` still refuses a sealed date outright. A
+# rule that only runs when it might fail is a rule nobody trusts.
+#
+# Note for whoever edits this next: the scan rejects a config that so much as
+# *names* a sealed date, comments included, and the cutoff is itself sealed. The
+# first draft of this file spelled the cutoff out in this very paragraph and the
+# gate refused it. Refer to it by name, never by value.
+
+[experiment]
+id = "T2b-backfill"
+taskcard = "T2b"
+entry = "research.ingest_summary:run"
+seed = 20260827
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+[experiment.params]
+experiment_dir = "experiments/T2b-backfill"
+out_dir = "data/research"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it, which
+# is also the order pairs are worked within each month. Identical to T2a: the
+# store is one store, and these years extend it rather than sitting beside it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# The card's range, inclusive at both ends. 2005-01-03 is the first usable day
+# T1 established across all twelve pairs; 2014-12-31 abuts T2a's first day.
+# Work proceeds newest month first, so a run cut short leaves the most recent
+# -- and most researched -- history complete.
+start_date = "2005-01-03"
+end_date = "2014-12-31"
+
+# Bars built incrementally as each pair-month lands (pre-reg #6). These append
+# to the same tables T2a filled; build_bars_incremental resamples only the days
+# whose stored ticks changed, so extending a decade backwards does not rewrite
+# the decade already there.
+timeframes = ["1m", "5m", "30m", "1h", "4h", "1d"]
+verify_timeframes = ["1m", "5m", "30m", "1h", "4h", "1d"]
+
+# Feed client tunables, carried from T2a because they were measured there rather
+# than guessed. Twelve attempts over the cooldown schedule span about three
+# minutes, which covers several cycles of the feed's measured availability flap;
+# an hour recorded as a gap after that really did fail while the feed was
+# answering everything else. T2a's closing sweep recovered all 85 of its gaps,
+# which is the evidence that this budget is set about right -- generous enough
+# that a gap means something, not so generous that the run never moves.
+max_attempts = 12
+timeout_seconds = 20.0
+read_timeout_seconds = 60.0
+
+# Three hours of the feed answering nothing before the session stops and
+# reports. T2a rode out 24 outages, the longest 24 minutes, so this bound was
+# never approached; it stays where it is because it is the line between a flap
+# and an outage, not because it was tight.
+outage_budget_seconds = 10800
+
+build_bars = true
