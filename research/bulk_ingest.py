@@ -805,18 +805,31 @@ class Calibrator:
         version did -- blocked nothing, because the step-up test only ever asks
         about the level above the current one.
         """
+        measured = self.level
         blocked = self.level if self.level > MIN_LEVEL else self.level + 1
         self.level = max(MIN_LEVEL, self.level - 1)
         self._blocked_until[blocked] = now + REPROBE_AFTER_BACKOFF
         self._clean_since = now
         self._bad_windows = 0
+        # The rate is always measured at the level the run was *on*. Away from
+        # the floor that is also the level being blocked, so the distinction
+        # does not show. At the floor it does: the run stays at MIN_LEVEL and
+        # blocks the level above, and reporting the floor's throttle rate as
+        # though the blocked level had produced it puts a measurement in the
+        # calibration record that was never taken.
         self.history.append({
             "at": round(now, 1), "level": self.level,
-            "why": (f"level {blocked} blocked: {rate:.3%} throttled against a "
-                    f"tolerance of {tolerance:.3%} for "
-                    f"{BAD_WINDOWS_BEFORE_BACKOFF} consecutive windows")})
-        _LOG.warning("calibration: backing off to level %d; level %d ran "
-                     "%.3f%% throttled", self.level, blocked, rate * 100)
+            "why": (f"level {blocked} blocked: level {measured} ran "
+                    f"{rate:.3%} throttled against a tolerance of "
+                    f"{tolerance:.3%} for {BAD_WINDOWS_BEFORE_BACKOFF} "
+                    "consecutive windows")})
+        if measured == self.level:
+            _LOG.warning("calibration: holding at level %d and blocking level "
+                         "%d; level %d ran %.3f%% throttled",
+                         self.level, blocked, measured, rate * 100)
+        else:
+            _LOG.warning("calibration: backing off to level %d; level %d ran "
+                         "%.3f%% throttled", self.level, measured, rate * 100)
 
     def to_dict(self) -> dict[str, Any]:
         """The calibration record for the report."""
