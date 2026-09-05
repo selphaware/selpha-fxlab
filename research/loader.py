@@ -17,6 +17,16 @@ reasons:
    served. That record is written into the result file, and the research gate
    asserts a scored result touched nothing sealed. An access log the code
    cannot forget to write beats a rule the code is supposed to remember.
+4. **Data-quality exclusions.** Ruling R1 excludes AUDUSD before 2011-01-01
+   (:mod:`research.exclusions`). The same chokepoint that polices the seal
+   polices those windows, with the named reason ``PAIR_EXCLUDED_WINDOW``.
+
+The seal and the exclusions are enforced at one place -- :meth:`check_date` --
+and neither is enforced by trimming. A request that reaches for a forbidden
+date is refused, not quietly narrowed, because a caller that discovers its
+range was shortened behind its back reports a number for a window it did not
+have. A caller that wants the permitted part of a range asks for exactly that,
+via :func:`research.exclusions.clamp_window`, and reports what it dropped.
 """
 
 from __future__ import annotations
@@ -30,6 +40,7 @@ import pyarrow.parquet as pq
 
 from fxlab.ingestion.bars import bars_path, offset_alias
 from fxlab.ingestion.store import read_ticks
+from research.exclusions import PairExcluded, assert_not_excluded
 from research.seal import (MECHANICAL_ALLOWLIST, RESEARCH_DATA_DIR, SealBreach,
                            as_date, assert_not_sealed, is_sealed)
 
@@ -74,6 +85,9 @@ class AccessRecord:
         dates: Every ``YYYY-MM-DD`` served.
         timeframes: Every bar timeframe served.
         files: Every file opened, project-relative where possible.
+        excluded: ``PAIR:YYYY-MM-DD`` for every date a caller clamped away
+            under an exclusion window. Recorded rather than merely skipped, so
+            a result states what R1 cost it instead of quietly omitting it.
     """
 
     mode: str
@@ -83,6 +97,7 @@ class AccessRecord:
     dates: set[str] = dataclasses.field(default_factory=set)
     timeframes: set[str] = dataclasses.field(default_factory=set)
     files: list[str] = dataclasses.field(default_factory=list)
+    excluded: set[str] = dataclasses.field(default_factory=set)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialise deterministically: sets become sorted lists."""
@@ -94,7 +109,12 @@ class AccessRecord:
             "dates": sorted(self.dates),
             "timeframes": sorted(self.timeframes),
             "files": sorted(self.files),
+            "excluded": sorted(self.excluded),
         }
+
+    def excluded_pairs(self) -> list[str]:
+        """Pairs that had at least one date clamped away by an exclusion."""
+        return sorted({entry.split(":", 1)[0] for entry in self.excluded})
 
     def sealed_dates(self) -> list[str]:
         """Dates served that fall inside the seal."""
@@ -168,17 +188,41 @@ class ResearchLoader:
 
     # -- reads ------------------------------------------------------------
 
-    def check_date(self, date: Any, context: str = "") -> str:
+    def check_date(self, date: Any, context: str = "", *,
+                   pair: str | None = None) -> str:
         """Police one date and record it. Returns the ``YYYY-MM-DD`` form.
+
+        Args:
+            date: Anything :func:`research.seal.as_date` accepts.
+            context: What is doing the reading, quoted in any refusal.
+            pair: The pair being read. Supplying it is what brings the
+                exclusion windows of ruling R1 into force; a date-only check
+                cannot know whether AUDUSD 2008 or EURUSD 2008 was asked for.
 
         Raises:
             SealBreach: In scoring mode, for any date at or after the cutoff.
+            PairExcluded: For any pair-date inside an exclusion window. Unlike
+                the seal this applies in both modes -- an exclusion is a
+                statement about the data's quality, and the quarantine is no
+                more entitled to corrupt prices than a scored run is.
         """
         text = as_date(date).isoformat()
         if self.mode == MODE_SCORING:
             assert_not_sealed(text, context or f"{self.mode} loader")
+        if pair is not None:
+            assert_not_excluded(pair, text, context or f"{self.mode} loader")
         self.access.dates.add(text)
         return text
+
+    def note_excluded(self, pair: str, dates: Sequence[str]) -> None:
+        """Record dates a caller clamped away under an exclusion window.
+
+        Called by a caller that asked :func:`research.exclusions.clamp_window`
+        what it was allowed to have. The loader never clamps on its own, so
+        without this the drop would leave no trace anywhere.
+        """
+        for date in dates:
+            self.access.excluded.add(f"{pair}:{as_date(date).isoformat()}")
 
     def load_ticks(self, pair: str, dates: Sequence[str] | None = None) -> Any:
         """Read stored ticks for one pair.
@@ -195,7 +239,8 @@ class ResearchLoader:
         """
         self.access.pairs.add(pair)
         wanted = list(dates) if dates is not None else self._present_dates(pair)
-        checked = [self.check_date(d, f"load_ticks({pair})") for d in wanted]
+        checked = [self.check_date(d, f"load_ticks({pair})", pair=pair)
+                   for d in wanted]
         for date in checked:
             path_dir = self.root / "ticks" / f"pair={pair}" / f"date={date}"
             for path in sorted(path_dir.glob("*.parquet")):
@@ -205,13 +250,27 @@ class ResearchLoader:
                    len(frame), pair, len(checked), self.mode)
         return frame
 
-    def load_bars(self, pair: str, timeframe: str) -> Any:
+    def load_bars(self, pair: str, timeframe: str, *,
+                  start: Any = None, end: Any = None) -> Any:
         """Read a stored bar table for one pair and timeframe.
 
-        In scoring mode the table's own timestamps are policed after reading,
-        so a bar file that silently extends past the cutoff refuses rather than
-        being trimmed. Trimming would hide the fact that sealed data reached
-        the research tree at all.
+        Args:
+            pair: Pair name.
+            timeframe: Any alias :func:`offset_alias` accepts.
+            start: First UTC date to serve, inclusive. ``None`` serves from the
+                start of the table.
+            end: Last UTC date to serve, inclusive. ``None`` serves to the end.
+
+        The window is applied **before** the dates are policed, because a
+        window is the caller stating what it wants rather than the loader
+        deciding what to hide. Every date actually served is then checked
+        against the seal and the exclusion windows and recorded, so a bar file
+        that silently extends past the cutoff refuses rather than being
+        trimmed: trimming would hide the fact that sealed data reached the
+        research tree at all.
+
+        Returns:
+            A pandas DataFrame of the bars inside the window, in table order.
         """
         alias = offset_alias(timeframe)
         self.access.pairs.add(pair)
@@ -221,11 +280,19 @@ class ResearchLoader:
             raise FileNotFoundError(f"no bars at {path}")
         self.access.files.append(self._rel(path))
         frame = pq.read_table(path).to_pandas()
+        if len(frame) and (start is not None or end is not None):
+            days = frame["ts"].dt.date
+            keep = days == days
+            if start is not None:
+                keep &= days >= as_date(start)
+            if end is not None:
+                keep &= days <= as_date(end)
+            frame = frame.loc[keep].reset_index(drop=True)
         if len(frame):
             stamps = frame["ts"]
             dates = sorted({d.isoformat() for d in stamps.dt.date.unique()})
             for date in dates:
-                self.check_date(date, f"load_bars({pair}, {alias})")
+                self.check_date(date, f"load_bars({pair}, {alias})", pair=pair)
         return frame
 
     # -- helpers ----------------------------------------------------------
@@ -275,6 +342,30 @@ def canary(base: pathlib.Path | None = None,
     except Exception as exc:  # noqa: BLE001 - any other failure is not a refusal
         return False, f"raised {type(exc).__name__} instead of SealBreach: {exc}"
     return False, f"served {date} without refusing"
+
+
+def exclusion_canary(base: pathlib.Path | None = None,
+                     pair: str = "AUDUSD",
+                     date: str = "2010-06-15") -> tuple[bool, str]:
+    """Ask a scoring loader for an excluded pair-date and report what happened.
+
+    The seal has :func:`canary` for the same reason: a refusal nobody exercises
+    is a refusal nobody knows is still wired up. This one lets the T3 report
+    state that R1 is enforced by showing the enforcement running, rather than
+    by asserting that the code contains it.
+
+    Returns:
+        ``(refused, detail)`` -- ``refused`` is True only if the loader raised
+        :class:`~research.exclusions.PairExcluded`.
+    """
+    loader = ResearchLoader(MODE_SCORING, base=base)
+    try:
+        loader.load_ticks(pair, [date])
+    except PairExcluded as exc:
+        return True, str(exc)
+    except Exception as exc:  # noqa: BLE001 - anything else is not a refusal
+        return False, f"raised {type(exc).__name__} instead of PairExcluded: {exc}"
+    return False, f"served {pair} {date} without refusing"
 
 
 def sealed_parquet_under(root: pathlib.Path) -> list[str]:

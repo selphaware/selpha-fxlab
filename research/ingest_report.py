@@ -1,10 +1,19 @@
-"""Render the T2a ingestion report from its result document.
+"""Render an ingestion report from its result document.
 
 Generated rather than written by hand, for the reason the result is hashed: a
 number that appears in a report but not in the result document is a number
 nobody can check. Every figure below is read out of ``result.json``; the prose
 around them is parameterised by those figures, so regenerating after a further
 ingest session produces a report that still agrees with itself.
+
+Ruling R6 is what this module now has to satisfy end to end. The first version
+of it hardcoded the string ``T2a`` in six places and rendered T2b's numbers
+under T2a's name; worse, three of its sharpest claims -- the AUDUSD gap split,
+the episode totals and the by-year spread counts -- arrived as authored ``--note``
+prose and were left behind when the store changed underneath them. Everything
+identifying the card now comes from the result document, and everything
+countable comes from the payload. ``--note`` survives for facts a result
+genuinely cannot carry, and a note carrying a number is a bug in the note.
 
 The one external reading is T1's result, used for the completeness comparison
 the card asks for. It is read from ``experiments/T1-coverage/result.json`` and
@@ -22,6 +31,7 @@ import argparse
 import json
 import logging
 import pathlib
+import re
 from typing import Any, Final, Sequence
 
 _LOG: Final[logging.Logger] = logging.getLogger("research.ingest_report")
@@ -73,14 +83,18 @@ def _hours(seconds: Any) -> str:
 
 def render(document: dict[str, Any], t1: dict[str, Any] | None,
            trials: int, gate_status: str,
-           notes: Sequence[str] = ()) -> str:
+           notes: Sequence[str] = (),
+           experiment_dir: str | None = None) -> str:
     """Build the whole report.
 
     Args:
-        document: The T2a result document.
+        document: The result document of the ingestion being reported.
         t1: T1's result document, for the completeness comparison; may be None.
         trials: Ledger trial count for this task card (pre-reg #10).
         gate_status: What the research gate said, quoted in the provenance.
+        notes: Authored observations for facts the result cannot carry.
+        experiment_dir: Project-relative experiment directory, for provenance.
+            Derived from the result's own location when omitted.
 
     Returns:
         The report as Markdown.
@@ -90,19 +104,22 @@ def render(document: dict[str, Any], t1: dict[str, Any] | None,
     totals = payload["totals"]
     pairs = payload["pairs"]
     names = sorted(pairs)
+    card = str(document.get("taskcard") or document.get("experiment_id") or "?")
+    home = experiment_dir or f"experiments/{document.get('experiment_id', '?')}"
     lines: list[str] = []
 
-    lines += _header(document, window, trials)
+    lines += _header(document, window, trials, card)
     lines += _totals(window, totals, payload)
+    lines += _exclusions(payload)
     lines += _per_pair(names, pairs, t1)
     lines += _by_year(names, pairs)
     lines += _gaps(payload)
     lines += _validation(names, pairs, payload)
     lines += _throughput(payload, window)
     lines += _storage(names, pairs, totals)
-    lines += _bars(names, pairs, payload)
+    lines += _bars(names, pairs, payload, totals)
     lines += _observations(names, pairs, payload, t1, notes)
-    lines += _provenance(document, gate_status)
+    lines += _provenance(document, gate_status, home)
     return "\n".join(lines) + "\n"
 
 
@@ -111,19 +128,19 @@ def render(document: dict[str, Any], t1: dict[str, Any] | None,
 # --------------------------------------------------------------------------- #
 
 def _header(document: dict[str, Any], window: dict[str, Any],
-            trials: int) -> list[str]:
+            trials: int, card: str) -> list[str]:
     """Title, provenance line and what this is."""
     return [
-        "# T2a — Bulk ingestion, "
+        f"# {card} — Bulk ingestion, "
         f"{window['start']} → {window['end']}, {window['pairs']} pairs",
         "",
-        f"**Task card:** `taskcards/T2a.md` · **Experiment:** "
+        f"**Task card:** `taskcards/{card}.md` · **Experiment:** "
         f"`{document['experiment_id']}` · **Seed:** {document['seed']} · "
         f"**Result hash:** `{document['result_hash'][:16]}`",
         "",
-        f"**Trials ledgered under T2a:** {trials} (SPEC2 pre-reg #10; the count "
-        "includes the bulk-ingest sessions, which are data collection rather "
-        "than analysis).",
+        f"**Trials ledgered under {card}:** {trials} (SPEC2 pre-reg #10; the "
+        "count includes the bulk-ingest sessions, which are data collection "
+        "rather than analysis).",
         "",
         "This is an **ingestion**, not an analysis. Every number below is read "
         "back off disk — from the sharded manifests, from the tick store's own "
@@ -178,7 +195,7 @@ def _totals(window: dict[str, Any], totals: dict[str, Any],
             ["duplicate ticks dropped", _n(totals["duplicates_dropped"])],
             ["tick Parquet files", _n(totals["stored_files"])],
             ["tick store on disk", _gib(totals["stored_bytes"])],
-            ["bar rows built", _n(totals["bar_rows"])],
+            ["bar rows inside this window", _n(totals["bar_rows"])],
             ["compressed bytes served by the feed",
              _gib(totals["compressed_bytes"])],
         ]),
@@ -188,6 +205,50 @@ def _totals(window: dict[str, Any], totals: dict[str, Any],
         "had at all. Every requested hour has exactly one entry, closed ones "
         "included — a pipeline whose failures are invisible produces a dataset "
         "whose holes are invisible too.",
+        "",
+    ]
+
+
+def _exclusions(payload: dict[str, Any]) -> list[str]:
+    """What a data-quality exclusion removes from this window (R1).
+
+    Stated as a number rather than as absence, because absence is what a pair
+    that was never pulled also looks like. The hours below **are** in the
+    store; research may not read them, and every report that touches the pair
+    has to say so.
+    """
+    block = payload.get("exclusions") or {}
+    rulings = block.get("rulings") or []
+    if not rulings:
+        return []
+    hours = block.get("hours_excluded") or {}
+    bars = block.get("bar_rows_excluded") or {}
+    rows = []
+    for entry in rulings:
+        pair = entry["pair"]
+        counts = hours.get(pair) or {}
+        rows.append([
+            f"`{pair}`", entry["ruling"], entry["window"],
+            _n(counts.get("ok", 0)), _n(counts.get("empty", 0)),
+            _n(counts.get("gap", 0)), _n(counts.get("ticks", 0)),
+            _n(sum((bars.get(pair) or {}).values())),
+        ])
+    detail = []
+    for entry in rulings:
+        detail.append(f"* `{entry['pair']}` {entry['window']} "
+                      f"(ruling {entry['ruling']}): {entry['why']}.")
+    return [
+        "## Data excluded from research (ruling R1)",
+        "",
+        "These hours were ingested, validated and stored. A ruling then put "
+        "them out of reach of research, and `research.loader` refuses them "
+        "with `PAIR_EXCLUDED_WINDOW`. The counts are what the ruling costs "
+        "this window; every other table in this report describes the "
+        "**ingestion**, which did happen, and so still includes them.",
+        "",
+        *_table(["pair", "ruling", "window", "ok hours", "empty", "gap",
+                 "ticks", "bar rows"], rows),
+        *detail,
         "",
     ]
 
@@ -365,6 +426,77 @@ def _gaps(payload: dict[str, Any]) -> list[str]:
                         [[f"`{k}`", _n(v)] for k, v in
                          sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0]))]),
             ]
+        body += _gap_attribution(gaps)
+    return body
+
+
+def _gap_attribution(gaps: dict[str, Any]) -> list[str]:
+    """Which pair each reason belongs to, and what shape the runs have.
+
+    A reason total is not an attribution. "12,998 `CROSSED_QUOTE` in AUDUSD"
+    was written when 12,996 of them were AUDUSD's and two were USDJPY's, and
+    the two extra then reappeared in the next sentence as though they were a
+    separate finding. Both halves are derived here from the same rows.
+    """
+    by_pair = gaps.get("by_reason_pair") or {}
+    episodes = gaps.get("episodes") or []
+    sublabels = gaps.get("by_sublabel") or {}
+    if not by_pair:
+        return []
+
+    rows = []
+    for reason in sorted(by_pair, key=lambda r: (-sum(by_pair[r].values()), r)):
+        counts = by_pair[reason]
+        total = sum(counts.values())
+        worst = max(counts.items(), key=lambda kv: (kv[1], kv[0]))
+        rows.append([
+            f"`{reason}`", _n(total), _n(len(counts)),
+            f"`{worst[0]}` ({_n(worst[1])}, {worst[1] / total:.2%})",
+            ", ".join(f"`{p}` {_n(c)}" for p, c in sorted(counts.items())),
+        ])
+
+    body = [
+        "Which pair each reason belongs to — the attribution, not the total:",
+        "",
+        *_table(["reason", "hours", "pairs", "largest share", "by pair"], rows),
+    ]
+
+    long_runs = [e for e in episodes if int(e["months"]) > 1]
+    if long_runs:
+        body += [
+            "Gaps of one reason in one pair, grouped into contiguous runs of "
+            "affected months. A month with no gap ends a run, so a run here is "
+            "a bounded episode rather than a period average:",
+            "",
+            *_table(["pair", "reason", "from", "to", "months", "hours"],
+                    [[f"`{e['pair']}`", f"`{e['reason']}`", e["first_month"],
+                      e["last_month"], _n(e["months"]), _n(e["hours"])]
+                     for e in sorted(long_runs,
+                                     key=lambda e: (-int(e["hours"]),
+                                                    e["pair"],
+                                                    e["first_month"]))]),
+            f"The remaining {_n(len(episodes) - len(long_runs))} run(s) are a "
+            "single month each.",
+            "",
+        ]
+
+    if sublabels:
+        body += [
+            "Sub-labels, which name what *kind* of rejection a reason token "
+            "covers when the token alone is ambiguous:",
+            "",
+            *_table(["sub-label", "hours", "by pair"],
+                    [[f"`{label}`", _n(sum(counts.values())),
+                      ", ".join(f"`{p}` {_n(c)}"
+                                for p, c in sorted(counts.items()))]
+                     for label, counts in sorted(sublabels.items())]),
+            "`PRE_OPEN_FEED_DATA` is ruling R2. `CLOSED_MARKET_TICK` alone "
+            "covers both a boundary that drifted and a feed that opened early; "
+            "the derivation was checked and is correct on these dates, so this "
+            "is the second, and the sub-label records which without anyone "
+            "having to re-derive it.",
+            "",
+        ]
     return body
 
 
@@ -413,12 +545,20 @@ def _spread_profile(payload: dict[str, Any]) -> list[str]:
     ]
     if years:
         body += [
-            "By year, which is the regime question T2b inherits — its card "
-            "notes 2005 spreads ran 1.5-3.6x wider than the modern era these "
-            "ceilings were tuned on:",
+            "By year:",
             "",
             *_table(["year", "hours flagged"],
                     [[y, _n(c)] for y, c in sorted(years.items())]),
+            "**Ruling R3 applies to this table and forbids the obvious reading "
+            "of it.** A flag fires when an hour's p99.9 spread clears a fixed "
+            "ceiling, and p99.9 over an hour holding a thousand ticks is not "
+            "the same instrument as p99.9 over one holding six thousand. So a "
+            "year with more flags may have had wider spreads, or more ticks, "
+            "and this column cannot tell you which. Comparing spread regimes "
+            "across eras requires a statistic that controls for ticks per hour "
+            "— medians, p90, fixed-sample — and that is T5's work, not a "
+            "conclusion available here.",
+            "",
         ]
     return body
 
@@ -428,11 +568,15 @@ def _validation(names: Sequence[str], pairs: dict[str, Any],
     """Validation anomalies, and the derived-boundary audit."""
     reasons: dict[str, int] = {}
     errors: dict[str, int] = {}
+    rejected: dict[str, int] = {}
     for pair in names:
         for reason, count in pairs[pair]["warnings"].items():
             reasons[reason] = reasons.get(reason, 0) + int(count)
         for reason, count in pairs[pair]["errors"].items():
             errors[reason] = errors.get(reason, 0) + int(count)
+        for reason, count in (pairs[pair].get("flags_on_rejected_hours")
+                              or {}).items():
+            rejected[reason] = rejected.get(reason, 0) + int(count)
 
     boundary = payload["week_boundary"]
     per_pair = [[f"`{p}`",
@@ -462,16 +606,23 @@ def _validation(names: Sequence[str], pairs: dict[str, Any],
         "",
         *_table(["reason", "hours"],
                 [[f"`{k}`", _n(v)] for k, v in sorted(errors.items())]),
-        "### Warnings",
+        "Counted from the rejected hours' own records, so a fetch failure "
+        "appears here with the validation rejections rather than among the "
+        "warnings — it is a reason an hour is missing, whatever filed it.",
+        "",
+        "### Warnings on stored data",
         "",
         "A warning records something worth knowing that is not a reason to "
-        "reject data. `EMPTY_TRADING_HOUR` — the feed serving nothing during an "
-        "hour the derived week calls open — is the holiday-calendar input of "
-        "pre-reg #5, and turning those into a calendar is T3's card, not this "
-        "one's. They are counted here and interpreted nowhere.",
+        "reject data. Every count here is a flag carried by an hour that **is** "
+        "in the store. `EMPTY_TRADING_HOUR` — the feed serving nothing during "
+        "an hour the derived week calls open — is derived from the hour's "
+        "status per ruling R5, so this row and the boundary audit below cannot "
+        "disagree. It is the holiday-calendar input of pre-reg #5, counted here "
+        "and interpreted nowhere.",
         "",
         *_table(["reason", "hours"],
                 [[f"`{k}`", _n(v)] for k, v in sorted(reasons.items())]),
+        *_rejected_flags(rejected),
         *_spread_profile(payload),
         "### The derived week boundary, checked against the feed",
         "",
@@ -484,9 +635,37 @@ def _validation(names: Sequence[str], pairs: dict[str, Any],
         verdict,
         "",
         f"Across the universe, {_n(boundary['derived_open_hours_empty'])} hour(s) "
-        "the derived week calls open were served empty. Those are the "
-        "`EMPTY_TRADING_HOUR` warnings above, and most of them are holidays.",
+        "the derived week calls open were served empty. That is the same "
+        "number as the `EMPTY_TRADING_HOUR` row above, and necessarily so: "
+        "both are the count of hours whose status is `empty` inside the "
+        "trading week. Most of them are holidays, and T3's calendar is what "
+        "decides which.",
         "",
+    ]
+
+
+def _rejected_flags(rejected: dict[str, int]) -> list[str]:
+    """Flags observed on hours whose data was then discarded.
+
+    A separate table on purpose. These hours are not in the store, so a spread
+    flag on one describes data nobody can read — folding them into the warning
+    counts would let a table about the store be moved by hours the store does
+    not contain. This is the one question SPEC2 lets the session warning log
+    answer, because the hour records cannot: a rejected record keeps only the
+    reasons that rejected it.
+    """
+    if not rejected:
+        return []
+    return [
+        "### Flags observed on hours that were then rejected",
+        "",
+        "These hours are **not** in the store. The counts come from the "
+        "ingestion session log rather than the hour records, which is the only "
+        "question that log may be asked (SPEC2 §The canonical manifest "
+        "reading): a rejected record keeps its hard reasons and drops the rest.",
+        "",
+        *_table(["reason", "hours"],
+                [[f"`{k}`", _n(v)] for k, v in sorted(rejected.items())]),
     ]
 
 
@@ -518,20 +697,50 @@ def _throughput(payload: dict[str, Any], window: dict[str, Any]) -> list[str]:
         "Recorded because T2b ingests the same feed for the years before this "
         "range and should budget from a measurement rather than from optimism.",
         "",
-        *_table(["measure", "value"], [
-            ["sessions that finished", _n(tp["sessions"])],
-            ["pair-months completed", _n(tp["chunks_recorded"])],
-            ["requests issued", _n(tp["requests"])],
-            ["throttled responses",
-             f"{_n(tp['throttles'])} ({_pct(tp['throttle_rate'])})"],
-            ["wall clock across sessions", _hours(tp["session_wall_seconds"])],
+        *_table(["measure", "value", "source"], [
+            ["sessions that finished", _n(tp["sessions"]),
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
+            ["pair-months completed", _n(tp["chunks_recorded"]),
+             f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
+            ["requests attributable to the stored chunks",
+             _n(tp["requests"]), f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
+            ["throttled responses on those",
+             f"{_n(tp['throttles'])} ({_pct(tp['throttle_rate'])})",
+             f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
+            ["time inside the ingest pipeline", _hours(tp["ingest_seconds"]),
+             f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
+            ["rate over pipeline time",
+             f"{tp['requests_per_second']:.2f} requests/s",
+             f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
+            ["requests the sessions actually issued",
+             _n(tp.get("session_requests", 0)),
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
+            ["throttled responses on those",
+             f"{_n(tp.get('session_throttles', 0))} "
+             f"({_pct(tp.get('session_throttle_rate', 0))})",
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
+            ["wall clock across sessions", _hours(tp["session_wall_seconds"]),
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
             ["of which parked waiting out the feed",
              f"{_hours(tp['session_parked_seconds'])} "
-             f"({_pct(tp['session_parked_seconds'] / tp['session_wall_seconds']) if tp['session_wall_seconds'] else '—'})"],
-            ["sustained rate", f"{tp['requests_per_second']:.2f} requests/s"],
-            ["time inside the ingest pipeline", _hours(tp["ingest_seconds"])],
-            ["time building bars", _hours(tp["bar_seconds"])],
+             f"({_pct(tp['session_parked_seconds'] / tp['session_wall_seconds']) if tp['session_wall_seconds'] else '—'})",
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
+            ["rate over wall clock",
+             f"{tp.get('session_requests_per_second', 0):.2f} requests/s",
+             f"`{tp.get('wall_source', 'sessions.jsonl')}`"],
+            ["time building bars", _hours(tp["bar_seconds"]),
+             f"`{tp.get('requests_source', 'chunks.jsonl')}`"],
         ]),
+        "**Two request counts, and they are different numbers.** The chunk log "
+        "is keyed by pair-month and rewritten whenever a chunk is re-worked, so "
+        "it reports the requests attributable to the store as it now stands. "
+        "The session log is append-only, so it reports every request the "
+        "process ever issued, including ones for chunks later re-done. Neither "
+        "is wrong and each is the right answer to a different question — but a "
+        "rate that divided one log's numerator by the other log's denominator "
+        "would be the answer to neither, so each rate above stays inside one "
+        "source and the column says which.",
+        "",
         "### Concurrency calibration",
         "",
         "The rule was fixed before the run: start at level 2 — T1's "
@@ -589,7 +798,7 @@ def _storage(names: Sequence[str], pairs: dict[str, Any],
 
 
 def _bars(names: Sequence[str], pairs: dict[str, Any],
-          payload: dict[str, Any]) -> list[str]:
+          payload: dict[str, Any], totals: dict[str, Any]) -> list[str]:
     """Bar tables built, and what building them cost."""
     aliases = sorted({a for p in names for a in pairs[p]["bars"]},
                      key=lambda a: _alias_order(a))
@@ -622,7 +831,12 @@ def _bars(names: Sequence[str], pairs: dict[str, Any],
         "bars rather than re-read from ticks — which is exact, because every "
         "timeframe in the research set tiles UTC days and the bins nest.",
         "",
-        "Rows per pair and timeframe:",
+        "Rows per pair and timeframe, **counted inside this card's window**. A "
+        "bar table is one file per pair covering the whole store, so an "
+        "unbounded count would hand this card every row every other card ever "
+        "built; where ruling R1 excludes part of the window the count stops at "
+        "the exclusion and the *Data excluded* table above carries the "
+        f"remainder ({_n(totals.get('bar_rows_excluded', 0))} row(s)).",
         "",
         *_table(["pair", *[f"`{a}`" for a in aliases]], rows),
         "Build cost, one build per pair-month:",
@@ -683,34 +897,104 @@ def _observations(names: Sequence[str], pairs: dict[str, Any],
     lines.append(
         "* The tick store averages "
         f"{int(totals['stored_bytes']) / max(1, int(totals['ticks'])):.1f} bytes "
-        "per stored tick after Snappy. That is the number T2b should size the "
-        "years before this range with.")
+        "per stored tick after Snappy, which is what a later card should size "
+        "a comparable pull with.")
+    lines += _gap_observations(payload)
+    lines += _exclusion_observations(payload)
     for note in notes:
         lines.append(f"* {note}")
     lines.append("")
     return lines
 
 
-def _provenance(document: dict[str, Any], gate_status: str) -> list[str]:
+def _gap_observations(payload: dict[str, Any]) -> list[str]:
+    """The gap story, attributed from the rows rather than from memory."""
+    gaps = payload.get("gaps") or {}
+    total = int(gaps.get("count", 0))
+    if not total:
+        return []
+    by_pair = gaps.get("by_reason_pair") or {}
+    per_pair: dict[str, int] = {}
+    for counts in by_pair.values():
+        for pair, count in counts.items():
+            per_pair[pair] = per_pair.get(pair, 0) + int(count)
+    worst_pair, worst_count = max(per_pair.items(),
+                                  key=lambda kv: (kv[1], kv[0]))
+    reason_totals = {r: sum(c.values()) for r, c in by_pair.items()}
+    worst_reason, reason_count = max(reason_totals.items(),
+                                     key=lambda kv: (kv[1], kv[0]))
+    in_worst = int((by_pair.get(worst_reason) or {}).get(worst_pair, 0))
+    episodes = [e for e in (gaps.get("episodes") or [])
+                if e["pair"] == worst_pair and e["reason"] == worst_reason
+                and int(e["months"]) > 1]
+    lines = [
+        f"* **The gaps concentrate.** `{worst_pair}` carries {_n(worst_count)} "
+        f"of {_n(total)} surviving gap(s) ({worst_count / total:.2%}), and "
+        f"`{worst_reason}` is {_n(reason_count)} of them across "
+        f"{_n(len(by_pair.get(worst_reason) or {}))} pair(s) — of which "
+        f"{_n(in_worst)} are `{worst_pair}`'s. The reason total and the "
+        "per-pair attribution are different numbers and the table above keeps "
+        "them apart."]
+    if episodes:
+        spans = "; ".join(
+            f"{e['first_month']} → {e['last_month']} "
+            f"({_n(e['months'])} months, {_n(e['hours'])} hours)"
+            for e in sorted(episodes, key=lambda e: e["first_month"]))
+        lines.append(
+            f"* **`{worst_pair}` `{worst_reason}` falls in "
+            f"{_n(len(episodes))} bounded episode(s):** {spans}. The feed "
+            "served those hours and validation refused them, so they are "
+            "neither absent history nor a transient refusal.")
+    return lines
+
+
+def _exclusion_observations(payload: dict[str, Any]) -> list[str]:
+    """State the exclusion wherever the affected pair appears (R1)."""
+    block = payload.get("exclusions") or {}
+    rulings = block.get("rulings") or []
+    if not rulings:
+        return []
+    hours = block.get("hours_excluded") or {}
+    out = []
+    for entry in rulings:
+        pair = entry["pair"]
+        counts = hours.get(pair) or {}
+        stored = int(counts.get("ok", 0))
+        if not stored:
+            continue
+        out.append(
+            f"* **`{pair}` is excluded {entry['window']} (ruling "
+            f"{entry['ruling']}).** {_n(stored)} stored hour(s) and "
+            f"{_n(counts.get('ticks', 0))} tick(s) inside this window are on "
+            "disk and out of reach: `research.loader` refuses them with "
+            "`PAIR_EXCLUDED_WINDOW`. Any cross-pair work spanning that window "
+            "runs on the remaining pairs and has to say so.")
+    return out
+
+
+def _provenance(document: dict[str, Any], gate_status: str,
+                home: str) -> list[str]:
     """Where every number came from."""
     access = document.get("access") or {}
+    excluded = access.get("excluded") or []
     return [
         "## Provenance",
         "",
-        f"* Config: `experiments/T2a-ingestion/config.toml` (sha256 "
+        f"* Config: `{home}/config.toml` (sha256 "
         f"`{str(document['config_sha256'])[:16]}`)",
         "* Manifests: `data/research/manifests/pair=<PAIR>/<YYYY-MM>/manifest.json`"
-        " — one shard per pair-month, one entry per requested hour",
-        "* Progress records: `experiments/T2a-ingestion/chunks.jsonl` and "
-        "`sessions.jsonl`",
-        f"* Result: `experiments/T2a-ingestion/result.json`, hash "
-        f"`{document['result_hash']}`",
+        " — one shard per pair-month, one entry per requested hour. Read the "
+        "canonical way (SPEC2 §The canonical manifest reading): hour records "
+        "and the derived coverage block, never the session warning log.",
+        f"* Progress records: `{home}/chunks.jsonl` and `{home}/sessions.jsonl`",
+        f"* Result: `{home}/result.json`, hash `{document['result_hash']}`",
         f"* Loader mode `{document['mode']}`, scored `{document['scored']}`, "
         f"re-run class `{document['rerun_class']}`. The loader served "
         f"{len(access.get('files', []))} bar file(s) across "
         f"{len(access.get('pairs', []))} pair(s) and "
         f"{len(access.get('dates', []))} date(s); sealed dates served: "
-        f"{document['payload']['loader']['sealed_dates_served'] or 'none'}.",
+        f"{document['payload']['loader']['sealed_dates_served'] or 'none'}; "
+        f"dates withheld by an exclusion window: {_n(len(excluded))}.",
         f"* Research gate: {gate_status}",
         "",
     ]
@@ -750,14 +1034,26 @@ def _t1_data_fraction(t1: dict[str, Any] | None,
 # CLI
 # --------------------------------------------------------------------------- #
 
+def _rel_dir(path: pathlib.Path, base: pathlib.Path) -> str:
+    """Project-relative POSIX directory, absolute where that is impossible."""
+    try:
+        return path.resolve().relative_to(base).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse the command line."""
     parser = argparse.ArgumentParser(
         prog="python -m research.ingest_report",
-        description="Render the T2a ingestion report from its result document.")
+        description="Render an ingestion report from its result document.")
     parser.add_argument("--result", required=True, type=pathlib.Path)
     parser.add_argument("--out", required=True, type=pathlib.Path)
-    parser.add_argument("--taskcard", default="T2a")
+    parser.add_argument("--taskcard", default=None,
+                        help=("fallback task card for the ledger trial count. "
+                              "The result document's own `taskcard` wins when "
+                              "it has one, so a report cannot be rendered "
+                              "under a card the experiment did not declare."))
     parser.add_argument("--t1-result", type=pathlib.Path,
                         default=pathlib.Path("experiments/T1-coverage/result.json"))
     parser.add_argument("--gate-status", default="not yet run")
@@ -765,9 +1061,35 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help=("an authored observation to append, for facts "
                               "the result document cannot carry. Repeatable. "
                               "Kept in the command so the report stays "
-                              "regenerable rather than hand-edited."))
+                              "regenerable rather than hand-edited. May not "
+                              "contain a count -- see ruling R6."))
     parser.add_argument("--base", type=pathlib.Path, default=None)
     return parser.parse_args(argv)
+
+
+#: A quantity written into prose: a thousands-separated number, or a run of
+#: three or more digits that is not a year and not part of a ``YYYY-MM`` date.
+_COUNT_IN_PROSE: Final[re.Pattern[str]] = re.compile(
+    r"\d{1,3}(?:,\d{3})+|(?<![\d-])(?!19\d\d|20\d\d)\d{3,}")
+
+
+def check_note(note: str) -> None:
+    """Refuse an authored note that carries a number (ruling R6).
+
+    The three wrong figures the T3 audit found were all of this shape: a count
+    typed into a bullet, correct when written and silently stale afterwards. A
+    note is for a fact the result document cannot carry; a *number* it cannot
+    carry is a gap in the payload, and the fix is to put it there.
+
+    Raises:
+        ValueError: When the note contains a count.
+    """
+    found = _COUNT_IN_PROSE.findall(note)
+    if found:
+        raise ValueError(
+            f"note carries the number(s) {found[:3]}: {note[:80]!r}. Ruling R6 "
+            "keeps counts out of authored prose -- derive it from the payload, "
+            "or add it to the payload so it can be derived.")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -778,14 +1100,21 @@ def main(argv: list[str] | None = None) -> int:
     from research import ledger as ledger_mod
 
     document = json.loads(args.result.read_text(encoding="utf-8"))
+    for note in args.note:
+        check_note(note)
     t1 = None
     t1_path = args.t1_result if args.t1_result.is_absolute() else base / args.t1_result
     if t1_path.is_file():
         t1 = json.loads(t1_path.read_text(encoding="utf-8"))
-    trials = ledger_mod.trial_count(ledger_mod.read(base), args.taskcard)
+    # The card the report names is the card the result was run under, not one
+    # named on the command line. `--taskcard` remains only for a ledger count
+    # that has to be taken under a different card than the result declares.
+    card = str(document.get("taskcard") or args.taskcard)
+    trials = ledger_mod.trial_count(ledger_mod.read(base), card)
+    home = _rel_dir(args.result.resolve().parent, base)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(
-        render(document, t1, trials, args.gate_status, args.note),
+        render(document, t1, trials, args.gate_status, args.note, home),
         encoding="utf-8")
     _LOG.info("wrote %s", args.out)
     print(f"wrote {args.out}")

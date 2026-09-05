@@ -32,6 +32,8 @@ from fxlab.ingestion.manifest import (MANIFEST_NAME, STATUS_CLOSED,
 from fxlab.ingestion.sessions import is_market_open
 from research.bulk_ingest import (CHUNKS_NAME, MANIFEST_DIRNAME,
                                   SESSIONS_NAME, TIMEFRAMES, read_chunk_log)
+from research.exclusions import (clamp_window, is_excluded,
+                                 summarise as summarise_exclusions)
 from research.loader import project_root
 from research.seal import as_date, is_sealed
 
@@ -47,6 +49,11 @@ MAX_GAP_ROWS: Final[int] = 2000
 #: T3's material, counted here and interpreted nowhere.
 PER_PAIR_WARNINGS: Final[tuple[str, ...]] = (
     "EMPTY_TRADING_HOUR", "TICK_COUNT_OUTLIER", "SPREAD_CEILING")
+
+#: Ruling R2's sub-label for the JPY Sunday 21:00Z rejections: the derived week
+#: boundary was checked and is right, so these are the feed publishing before
+#: the week opened rather than the boundary drifting.
+PRE_OPEN_FEED_DATA: Final[str] = "PRE_OPEN_FEED_DATA"
 
 
 def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
@@ -79,7 +86,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
                 for pair in pairs}
     for pair in pairs:
         coverage[pair]["storage"] = tick_footprint(base, pair, start, end)
-        coverage[pair]["bars"] = read_bars(loader, pair, verify)
+        coverage[pair]["bars"] = read_bars(loader, pair, verify, start, end)
 
     gaps = sorted(
         (row for pair in pairs for row in coverage[pair].pop("gap_rows")),
@@ -98,8 +105,15 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
                                  for p in pairs)
     totals["stored_files"] = sum(int(coverage[p]["storage"]["files"])
                                  for p in pairs)
+    # Bars this card's window accounts for, not bars on disk. The bar tables
+    # are one file per pair spanning the whole store, so an unbounded count
+    # hands every card the total of every card that ever ran -- which is how
+    # both ingestion reports came to claim the same 112,321,350 rows.
     totals["bar_rows"] = sum(int(row["rows"]) for p in pairs
                              for row in coverage[p]["bars"].values())
+    totals["bar_rows_excluded"] = sum(int(row["rows_excluded"] or 0)
+                                      for p in pairs
+                                      for row in coverage[p]["bars"].values())
 
     boundary = {
         "derived_closed_hours_fetched": sum(
@@ -125,8 +139,18 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         "pairs": coverage,
         "gaps": {"count": len(gaps), "listed": min(len(gaps), MAX_GAP_ROWS),
                  "by_reason": _gap_reasons(gaps),
+                 "by_reason_pair": _gap_reason_pairs(gaps),
+                 "by_sublabel": _gap_sublabels(gaps),
+                 "episodes": _gap_episodes(gaps),
                  "rows": gaps[:MAX_GAP_ROWS]},
         "week_boundary": boundary,
+        "exclusions": {
+            "rulings": summarise_exclusions(pairs),
+            "dates_dropped": sorted(loader.access.excluded),
+            "pairs_affected": loader.access.excluded_pairs(),
+            "hours_excluded": _excluded_hours(coverage, pairs),
+            "bar_rows_excluded": _excluded_bar_rows(coverage, pairs),
+        },
         "warning_profile": _warning_profile(pairs, coverage),
         "throughput": throughput,
         "loader": {"mode": loader.mode,
@@ -226,6 +250,13 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
     warn_hour: dict[str, dict[str, int]] = {}
     warn_year: dict[str, dict[str, int]] = {}
     errors: dict[str, int] = {}
+    # Flags observed on hours the pipeline then rejected. Counted apart from
+    # `warnings` because they describe data that is not in the store, and a
+    # table that mixes the two answers neither question.
+    rejected_flags: dict[str, int] = {}
+    # What ruling R1 removes from this pair's window, by the status the hour
+    # already carried, plus the ticks that go with it.
+    excluded_hours: dict[str, int] = {}
     gap_rows: list[dict[str, Any]] = []
     days_with_data: set[str] = set()
     first_ts: str | None = None
@@ -261,6 +292,13 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
                     boundary["closed_but_traded"] += 1
             if market_open and status == STATUS_EMPTY:
                 boundary["open_but_empty"] += 1
+            # Ruling R1's cost, counted where every other hour is counted.
+            # A pair-window exclusion that shows up only as absence is
+            # indistinguishable from data that was never pulled.
+            if is_excluded(pair, slot[0]):
+                excluded_hours[status] = excluded_hours.get(status, 0) + 1
+                excluded_hours["ticks"] = (excluded_hours.get("ticks", 0)
+                                           + ticks)
             dupes = int(record.get("duplicates_dropped", 0))
             totals["hours_recorded"] += 1
             bucket["hours_recorded"] += 1
@@ -293,25 +331,54 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
                     "hour": int(record.get("hour", -1)),
                     "reasons": sorted({str(i.get("reason"))
                                        for i in record.get("issues", [])}),
+                    "sublabels": _sublabels(record, market_open),
                     "detail": _first_detail(record.get("issues", [])),
                 })
 
-        validation = document.get("validation") or {}
-        for entry in validation.get("warnings", []):
-            reason = str(entry.get("reason", "UNKNOWN"))
+            # Flags, read the one canonical way (SPEC2 §The canonical manifest
+            # reading). The record is the store's own statement about itself:
+            # `upsert` replaces it whole, so it cannot go stale, while the
+            # shard's `validation.warnings` list is an append log of what one
+            # session happened to observe. Reading the log instead is what put
+            # three different numbers for one quantity into T2b's report.
+            _tally(record, status, market_open,
+                   warnings, errors, warn_hour, warn_year)
+
+        # `EMPTY_TRADING_HOUR` (R5) and `TICK_COUNT_OUTLIER` never reach a
+        # record's `issues[]` -- the first is filed against an hour that stores
+        # none, the second is a whole-day verdict with no hour to attach to.
+        # Both are still derivable from the records, which is what R5 requires:
+        # the empty hours are a status, and the day flags are recomputed from
+        # the records by `Manifest.to_dict` on every write.
+        for day in ((document.get("coverage") or {}).get("by_day") or []):
+            if not day.get("tick_count_outlier"):
+                continue
+            reason = "TICK_COUNT_OUTLIER"
             warnings[reason] = warnings.get(reason, 0) + 1
-            hour = entry.get("hour")
-            if hour is not None:
-                bucket_h = warn_hour.setdefault(reason, {})
-                key = f"{int(hour):02d}"
-                bucket_h[key] = bucket_h.get(key, 0) + 1
-            date = str(entry.get("date") or "")
+            date = str(day.get("date") or "")
             if len(date) >= 4:
                 bucket_y = warn_year.setdefault(reason, {})
                 bucket_y[date[:4]] = bucket_y.get(date[:4], 0) + 1
-        for entry in validation.get("errors", []):
+
+        # The one question the session log may be asked: was a flag ever
+        # *observed* on an hour whose data the pipeline then threw away? The
+        # record cannot answer it -- a rejected hour keeps only its hard
+        # reasons -- and the difference matters, because a spread flag on an
+        # hour that is not in the store says nothing about the store.
+        settled = {(str(r.get("date")), int(r.get("hour", -1))):
+                   str(r.get("status", "")) for r in document.get("hours", [])}
+        for entry in ((document.get("validation") or {}).get("warnings") or []):
+            hour = entry.get("hour")
+            if hour is None:
+                continue          # a whole-day flag has no hour to reject
+            key = (str(entry.get("date")), int(hour))
+            # Only a `gap` means the data is absent. An `empty` hour is an
+            # answer and a `closed` one is the calendar; neither is a rejection,
+            # and counting them here would answer a different question loudly.
+            if settled.get(key) != STATUS_GAP:
+                continue
             reason = str(entry.get("reason", "UNKNOWN"))
-            errors[reason] = errors.get(reason, 0) + 1
+            rejected_flags[reason] = rejected_flags.get(reason, 0) + 1
 
     for year, bucket in by_year.items():
         bucket["days_with_data"] = sum(1 for d in days_with_data
@@ -339,6 +406,9 @@ def read_pair(base: pathlib.Path, pair: str, start: dt.date, end: dt.date,
         "warnings_by_year": {k: dict(sorted(warn_year[k].items()))
                              for k in sorted(warn_year)},
         "errors": {k: errors[k] for k in sorted(errors)},
+        "flags_on_rejected_hours": {k: rejected_flags[k]
+                                    for k in sorted(rejected_flags)},
+        "excluded_hours": {k: excluded_hours[k] for k in sorted(excluded_hours)},
         "gap_rows": gap_rows,
     }
 
@@ -350,6 +420,61 @@ def _first_detail(issues: Sequence[dict[str, Any]]) -> str:
         if detail:
             return detail[:240]
     return ""
+
+
+def _tally(record: dict[str, Any], status: str, market_open: bool,
+           warnings: dict[str, int], errors: dict[str, int],
+           warn_hour: dict[str, dict[str, int]],
+           warn_year: dict[str, dict[str, int]]) -> None:
+    """File one hour's flags under the canonical reading.
+
+    A stored hour's soft flags are warnings *about the store*; a rejected
+    hour's flags are the reasons it is not in the store. Splitting them by the
+    record's own status is what makes each table answer one question. An empty
+    hour inside the trading week is ``EMPTY_TRADING_HOUR`` by definition of its
+    status, which is R5 -- derived here rather than looked up in a warning list
+    that the audit found 1,183 hours short of the statuses.
+    """
+    date = str(record.get("date") or "")
+    hour = record.get("hour")
+
+    def file_under(reason: str) -> None:
+        warnings[reason] = warnings.get(reason, 0) + 1
+        if hour is not None:
+            bucket = warn_hour.setdefault(reason, {})
+            key = f"{int(hour):02d}"
+            bucket[key] = bucket.get(key, 0) + 1
+        if len(date) >= 4:
+            bucket_y = warn_year.setdefault(reason, {})
+            bucket_y[date[:4]] = bucket_y.get(date[:4], 0) + 1
+
+    reasons = [str(i.get("reason", "UNKNOWN"))
+               for i in (record.get("issues") or [])]
+    if status == STATUS_OK:
+        for reason in reasons:
+            file_under(reason)
+    elif status == STATUS_GAP:
+        for reason in reasons:
+            errors[reason] = errors.get(reason, 0) + 1
+    elif status == STATUS_EMPTY and market_open:
+        file_under("EMPTY_TRADING_HOUR")
+
+
+def _sublabels(record: dict[str, Any], market_open: bool) -> list[str]:
+    """Sub-labels naming what *kind* of rejection an hour is (R2).
+
+    ``CLOSED_MARKET_TICK`` alone says the feed published ticks in an hour the
+    derived week calls shut, which covers both a boundary that drifted and a
+    feed that opened early. R2 settled which one this store has -- the
+    derivation was checked and is correct, so the feed published before the
+    week opened -- and names the class ``PRE_OPEN_FEED_DATA`` so a later card
+    can count it without re-deriving the finding.
+    """
+    reasons = {str(i.get("reason", "")) for i in (record.get("issues") or [])}
+    out: list[str] = []
+    if "CLOSED_MARKET_TICK" in reasons and not market_open:
+        out.append(PRE_OPEN_FEED_DATA)
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -390,44 +515,208 @@ def tick_footprint(base: pathlib.Path, pair: str,
     return {"files": files, "bytes": total, "days": days}
 
 
-def read_bars(loader: Any, pair: str,
-              timeframes: Sequence[str]) -> dict[str, dict[str, Any]]:
+def read_bars(loader: Any, pair: str, timeframes: Sequence[str],
+              start: dt.date, end: dt.date) -> dict[str, dict[str, Any]]:
     """Read each bar table through the loader and report what it holds.
 
     Going through the loader rather than opening the Parquet is the point: it
-    polices every date it serves against the seal and records them, so the
-    result's own access log is the evidence that the stored bars stop where the
-    research window stops.
+    polices every date it serves against the seal and the exclusion windows and
+    records them, so the result's own access log is the evidence that the
+    stored bars stop where the research window stops.
+
+    Bounded by the experiment's window, for the same reason
+    :func:`tick_footprint` is. The bar tables are one file per pair covering
+    the whole store, so an unbounded read reports each card the other card's
+    rows as though it had built them -- which is exactly what put an identical
+    112,321,350 into both ingestion reports.
+
+    Where ruling R1 excludes part of the window, the read is clamped to the
+    permitted part and the dropped dates are recorded on the loader. Clamping
+    here rather than inside the loader keeps the drop visible: the caller that
+    narrowed the range is the one that has to say so.
     """
+    from fxlab.ingestion.bars import bars_path
+
     out: dict[str, dict[str, Any]] = {}
+    window = clamp_window(pair, start, end)
+    excluded_from = None if window is None else (
+        start if window[0] > as_date(start) else None)
     for timeframe in timeframes:
         alias = offset_alias(timeframe)
+        path = bars_path(pathlib.Path(loader.root), pair, alias)
+        size = int(path.stat().st_size) if path.is_file() else 0
+        if window is None:
+            out[alias] = {"rows": 0, "rows_excluded": None, "first": None,
+                          "last": None, "present": path.is_file(),
+                          "bytes": size, "sealed": False,
+                          "window_start": None, "window_end": None}
+            continue
         try:
-            frame = loader.load_bars(pair, alias)
+            frame = loader.load_bars(pair, alias,
+                                     start=window[0], end=window[1])
         except FileNotFoundError:
-            out[alias] = {"rows": 0, "first": None, "last": None,
-                          "present": False, "bytes": 0}
+            out[alias] = {"rows": 0, "rows_excluded": 0, "first": None,
+                          "last": None, "present": False, "bytes": 0,
+                          "sealed": False,
+                          "window_start": window[0].isoformat(),
+                          "window_end": window[1].isoformat()}
             continue
         rows = int(len(frame))
         first = last = None
         if rows:
             first = frame["ts"].iloc[0].isoformat()
             last = frame["ts"].iloc[-1].isoformat()
-        from fxlab.ingestion.bars import bars_path
-
-        path = bars_path(pathlib.Path(loader.root), pair, alias)
+        dropped = 0
+        if excluded_from is not None:
+            dropped = _bar_rows_between(path, as_date(start),
+                                        window[0] - dt.timedelta(days=1))
         out[alias] = {
-            "rows": rows, "first": first, "last": last, "present": True,
-            "bytes": int(path.stat().st_size) if path.is_file() else 0,
+            "rows": rows, "rows_excluded": dropped,
+            "first": first, "last": last, "present": True,
+            "bytes": size,
             "sealed": bool(last and is_sealed(last[:10])),
+            "window_start": window[0].isoformat(),
+            "window_end": window[1].isoformat(),
         }
         del frame
+    if window is not None and excluded_from is not None:
+        loader.note_excluded(pair, _dates_between(
+            as_date(start), window[0] - dt.timedelta(days=1)))
+    elif window is None:
+        loader.note_excluded(pair, _dates_between(as_date(start), as_date(end)))
+    return out
+
+
+def _bar_rows_between(path: pathlib.Path, start: dt.date,
+                      end: dt.date) -> int:
+    """Bar rows in ``path`` whose UTC date falls in ``[start, end]``.
+
+    Read straight off the Parquet rather than through the loader, because the
+    whole point is to count what the loader is forbidden to serve. Only the
+    ``ts`` column is read, and only a count leaves this function -- no price
+    from an excluded window reaches a caller.
+    """
+    if not path.is_file():
+        return 0
+    import pyarrow.compute as pc
+    import pyarrow.parquet as pq
+
+    column = pq.read_table(path, columns=["ts"])["ts"]
+    if not len(column):
+        return 0
+    days = pc.cast(column, "date32")
+    inside = pc.and_(pc.greater_equal(days, pa_date(start)),
+                     pc.less_equal(days, pa_date(end)))
+    return int(pc.sum(inside).as_py() or 0)
+
+
+def pa_date(value: dt.date) -> Any:
+    """``value`` as a pyarrow date32 scalar, for comparison against a column."""
+    import pyarrow as pa
+
+    return pa.scalar(value, type=pa.date32())
+
+
+def _dates_between(start: dt.date, end: dt.date) -> list[str]:
+    """Every ``YYYY-MM-DD`` from ``start`` to ``end`` inclusive."""
+    out: list[str] = []
+    day = start
+    while day <= end:
+        out.append(day.isoformat())
+        day += dt.timedelta(days=1)
     return out
 
 
 # --------------------------------------------------------------------------- #
 # What the pull cost
 # --------------------------------------------------------------------------- #
+
+def _excluded_hours(coverage: dict[str, Any],
+                    pairs: Sequence[str]) -> dict[str, dict[str, int]]:
+    """Per pair, the hours ruling R1 removes from this window."""
+    return {p: coverage[p]["excluded_hours"] for p in pairs
+            if coverage[p].get("excluded_hours")}
+
+
+def _excluded_bar_rows(coverage: dict[str, Any],
+                       pairs: Sequence[str]) -> dict[str, dict[str, int]]:
+    """Per pair and timeframe, the bar rows ruling R1 removes."""
+    out: dict[str, dict[str, int]] = {}
+    for pair in pairs:
+        rows = {alias: int(entry["rows_excluded"])
+                for alias, entry in coverage[pair]["bars"].items()
+                if entry.get("rows_excluded")}
+        if rows:
+            out[pair] = dict(sorted(rows.items()))
+    return out
+
+
+def _gap_reason_pairs(gaps: Sequence[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    """Surviving gaps by reason and then by pair.
+
+    The count by reason alone is what let a report say "12,998 CROSSED_QUOTE in
+    AUDUSD" when 12,996 of them were AUDUSD's and two were USDJPY's. Splitting
+    the total by pair here means no prose has to attribute it by hand.
+    """
+    out: dict[str, dict[str, int]] = {}
+    for row in gaps:
+        for reason in row.get("reasons") or ["UNSPECIFIED"]:
+            bucket = out.setdefault(str(reason), {})
+            pair = str(row["pair"])
+            bucket[pair] = bucket.get(pair, 0) + 1
+    return {k: dict(sorted(out[k].items())) for k in sorted(out)}
+
+
+def _gap_sublabels(gaps: Sequence[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    """Surviving gaps by sub-label (R2) and then by pair."""
+    out: dict[str, dict[str, int]] = {}
+    for row in gaps:
+        for label in row.get("sublabels") or ():
+            bucket = out.setdefault(str(label), {})
+            pair = str(row["pair"])
+            bucket[pair] = bucket.get(pair, 0) + 1
+    return {k: dict(sorted(out[k].items())) for k in sorted(out)}
+
+
+def _gap_episodes(gaps: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Contiguous runs of affected months, per pair and reason.
+
+    A gap table with thirteen thousand rows says nothing about shape. What the
+    T2b review actually needed was *how many bounded episodes*, *when*, and
+    *how many hours in each* -- three numbers that were typed into prose and
+    were wrong by one. Deriving them from the rows makes them re-derivable, and
+    "contiguous months" is the whole rule: a month with no gap ends an episode.
+    """
+    by_key: dict[tuple[str, str], dict[str, int]] = {}
+    for row in gaps:
+        month = str(row["date"])[:7]
+        for reason in row.get("reasons") or ["UNSPECIFIED"]:
+            bucket = by_key.setdefault((str(row["pair"]), str(reason)), {})
+            bucket[month] = bucket.get(month, 0) + 1
+
+    def ordinal(month: str) -> int:
+        return int(month[:4]) * 12 + int(month[5:7])
+
+    out: list[dict[str, Any]] = []
+    for (pair, reason), months in sorted(by_key.items()):
+        run: list[str] = []
+        for month in sorted(months):
+            if run and ordinal(month) != ordinal(run[-1]) + 1:
+                out.append(_episode(pair, reason, run, months))
+                run = []
+            run.append(month)
+        if run:
+            out.append(_episode(pair, reason, run, months))
+    return out
+
+
+def _episode(pair: str, reason: str, run: Sequence[str],
+             months: dict[str, int]) -> dict[str, Any]:
+    """One contiguous episode, as a JSON-plain row."""
+    return {"pair": pair, "reason": reason, "first_month": run[0],
+            "last_month": run[-1], "months": len(run),
+            "hours": sum(months[m] for m in run)}
+
 
 def _gap_reasons(gaps: Sequence[dict[str, Any]]) -> dict[str, int]:
     """How many surviving gaps carry each reason token.
@@ -557,6 +846,16 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
 
     wall = sum(float(s.get("seconds", 0.0)) for s in sessions)
     parked = sum(float(s.get("seconds_parked", 0.0)) for s in sessions)
+    # Two counts of the same word, and they are not the same number. The
+    # chunk log is keyed by pair-month and re-written when a chunk is
+    # re-worked, so it reports the requests attributable to the store as it
+    # now stands. The session log is append-only, so it reports every request
+    # the process ever issued -- including ones for chunks later re-done, and
+    # excluding nothing. T2b's sessions counted 776,734 against the chunk
+    # log's 704,768; T2a's ran the other way. Neither is wrong; a table that
+    # divides one by the other without saying so is.
+    session_requests = sum(int(s.get("requests", 0)) for s in sessions)
+    session_throttles = sum(int(s.get("throttles", 0)) for s in sessions)
     return {
         "gap_history": gap_history,
         "chunks_recorded": len(chunks),
@@ -564,11 +863,22 @@ def read_throughput(experiment_dir: pathlib.Path) -> dict[str, Any]:
         "requests": requests,
         "throttles": throttles,
         "throttle_rate": round(throttles / requests, 5) if requests else 0.0,
+        "requests_source": CHUNKS_NAME,
+        "session_requests": session_requests,
+        "session_throttles": session_throttles,
+        "session_throttle_rate": (round(session_throttles / session_requests, 5)
+                                  if session_requests else 0.0),
+        "wall_source": SESSIONS_NAME,
         "ingest_seconds": round(ingest_seconds, 1),
         "bar_seconds": round(bar_seconds, 1),
         "session_wall_seconds": round(wall, 1),
         "session_parked_seconds": round(parked, 1),
-        "requests_per_second": (round(requests / wall, 3) if wall else 0.0),
+        # Both rates, each from a single source, so neither divides one log's
+        # numerator by another log's denominator.
+        "requests_per_second": (round(requests / ingest_seconds, 3)
+                                if ingest_seconds else 0.0),
+        "session_requests_per_second": (round(session_requests / wall, 3)
+                                        if wall else 0.0),
         "by_level": {k: by_level[k] for k in sorted(by_level)},
         "bars_by_timeframe": {k: by_timeframe[k] for k in sorted(by_timeframe)},
         "calibration": [s.get("calibration") for s in sessions

@@ -1,8 +1,8 @@
 # T2a — Bulk ingestion, 2015-01-01 → 2025-02-28, 12 pairs
 
-**Task card:** `taskcards/T2a.md` · **Experiment:** `T2a-ingestion` · **Seed:** 20260820 · **Result hash:** `809d51df0a26f585`
+**Task card:** `taskcards/T2a.md` · **Experiment:** `T2a-ingestion` · **Seed:** 20260820 · **Result hash:** `8a1f1ad775dcb7f3`
 
-**Trials ledgered under T2a:** 16 (SPEC2 pre-reg #10; the count includes the bulk-ingest sessions, which are data collection rather than analysis).
+**Trials ledgered under T2a:** 18 (SPEC2 pre-reg #10; the count includes the bulk-ingest sessions, which are data collection rather than analysis).
 
 This is an **ingestion**, not an analysis. Every number below is read back off disk — from the sharded manifests, from the tick store's own directory listings, and from the bar tables through the research loader. No strategy content appears anywhere in it, the experiment is not scorable and it carries no scorecard.
 
@@ -30,10 +30,20 @@ Two things are worth stating before the numbers, because they decide what the nu
 | duplicate ticks dropped | 0 |
 | tick Parquet files | 760,195 |
 | tick store on disk | 37.65 GiB |
-| bar rows built | 112,321,350 |
+| bar rows inside this window | 57,040,344 |
 | compressed bytes served by the feed | 14.23 GiB |
 
 An hour is `ok` when it decoded, validated and stored; `empty` when the feed served a zero-byte body during an hour the derived week calls open; `closed` when the week was shut; and a `gap` when it could not be had at all. Every requested hour has exactly one entry, closed ones included — a pipeline whose failures are invisible produces a dataset whose holes are invisible too.
+
+## Data excluded from research (ruling R1)
+
+These hours were ingested, validated and stored. A ruling then put them out of reach of research, and `research.loader` refuses them with `PAIR_EXCLUDED_WINDOW`. The counts are what the ruling costs this window; every other table in this report describes the **ingestion**, which did happen, and so still includes them.
+
+| pair | ruling | window | ok hours | empty | gap | ticks | bar rows |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `AUDUSD` | R1 | before 2011-01-01 | 0 | 0 | 0 | 0 | 0 |
+
+* `AUDUSD` before 2011-01-01 (ruling R1): crossed-quote corruption in two bounded episodes, 2007-04 to 2008-09 and 2009-04 to 2010-10, rejected most of four years and left what survived a biased sample of the window rather than merely a thin one.
 
 ## Per-pair coverage
 
@@ -101,44 +111,48 @@ A hard validation failure rejects the hour, which is recorded as a gap carrying 
 
 _none_
 
-### Warnings
+Counted from the rejected hours' own records, so a fetch failure appears here with the validation rejections rather than among the warnings — it is a reason an hour is missing, whatever filed it.
 
-A warning records something worth knowing that is not a reason to reject data. `EMPTY_TRADING_HOUR` — the feed serving nothing during an hour the derived week calls open — is the holiday-calendar input of pre-reg #5, and turning those into a calendar is T3's card, not this one's. They are counted here and interpreted nowhere.
+### Warnings on stored data
+
+A warning records something worth knowing that is not a reason to reject data. Every count here is a flag carried by an hour that **is** in the store. `EMPTY_TRADING_HOUR` — the feed serving nothing during an hour the derived week calls open — is derived from the hour's status per ruling R5, so this row and the boundary audit below cannot disagree. It is the holiday-calendar input of pre-reg #5, counted here and interpreted nowhere.
 
 | reason | hours |
 | --- | --- |
-| `EMPTY_TRADING_HOUR` | 3,345 |
-| `SPREAD_OUTLIER` | 2,319 |
+| `EMPTY_TRADING_HOUR` | 3,557 |
+| `SPREAD_OUTLIER` | 2,412 |
 | `TICK_COUNT_OUTLIER` | 27 |
 
 #### Where the spread flags fall
 
-`SPREAD_OUTLIER` fired on 2,319 hour(s). 53% fall on 21:00Z alone and **78% on 21:00Z and 22:00Z together**. Those two hours are not two phenomena: they are the same one, the 17:00 `America/New_York` roll, which sits at 21:00Z in northern summer and 22:00Z in winter. The flags track the boundary as it moves with daylight saving, which is the same derivation the closed-hour logic uses and an independent check on it. At the roll liquidity is handed between sessions and the spread on a thin cross legitimately blows out; a flag that concentrates there is describing the market, where one scattered evenly across the clock would have been describing a ceiling set too low.
+`SPREAD_OUTLIER` fired on 2,412 hour(s). 53% fall on 21:00Z alone and **79% on 21:00Z and 22:00Z together**. Those two hours are not two phenomena: they are the same one, the 17:00 `America/New_York` roll, which sits at 21:00Z in northern summer and 22:00Z in winter. The flags track the boundary as it moves with daylight saving, which is the same derivation the closed-hour logic uses and an independent check on it. At the roll liquidity is handed between sessions and the spread on a thin cross legitimately blows out; a flag that concentrates there is describing the market, where one scattered evenly across the clock would have been describing a ceiling set too low.
 
 | hour (UTC) | hours flagged | share |
 | --- | --- | --- |
-| 21:00Z | 1,221 | 52.7% |
-| 22:00Z | 598 | 25.8% |
-| 20:00Z | 80 | 3.4% |
-| 23:00Z | 78 | 3.4% |
-| 00:00Z | 43 | 1.9% |
-| 07:00Z | 36 | 1.6% |
+| 21:00Z | 1,269 | 52.6% |
+| 22:00Z | 630 | 26.1% |
+| 23:00Z | 84 | 3.5% |
+| 20:00Z | 83 | 3.4% |
+| 00:00Z | 43 | 1.8% |
+| 07:00Z | 36 | 1.5% |
 
-By year, which is the regime question T2b inherits — its card notes 2005 spreads ran 1.5-3.6x wider than the modern era these ceilings were tuned on:
+By year:
 
 | year | hours flagged |
 | --- | --- |
-| 2015 | 125 |
+| 2015 | 128 |
 | 2016 | 118 |
-| 2017 | 101 |
-| 2018 | 83 |
-| 2019 | 91 |
-| 2020 | 211 |
-| 2021 | 173 |
-| 2022 | 523 |
+| 2017 | 102 |
+| 2018 | 101 |
+| 2019 | 98 |
+| 2020 | 236 |
+| 2021 | 189 |
+| 2022 | 526 |
 | 2023 | 460 |
-| 2024 | 360 |
-| 2025 | 74 |
+| 2024 | 377 |
+| 2025 | 77 |
+
+**Ruling R3 applies to this table and forbids the obvious reading of it.** A flag fires when an hour's p99.9 spread clears a fixed ceiling, and p99.9 over an hour holding a thousand ticks is not the same instrument as p99.9 over one holding six thousand. So a year with more flags may have had wider spreads, or more ticks, and this column cannot tell you which. Comparing spread regimes across eras requires a statistic that controls for ticks per hour — medians, p90, fixed-sample — and that is T5's work, not a conclusion available here.
 
 ### The derived week boundary, checked against the feed
 
@@ -161,23 +175,28 @@ The shut hour either side of every week boundary was fetched rather than assumed
 
 The derivation and the feed agree: no hour the derived week called shut came back carrying ticks.
 
-Across the universe, 3,557 hour(s) the derived week calls open were served empty. Those are the `EMPTY_TRADING_HOUR` warnings above, and most of them are holidays.
+Across the universe, 3,557 hour(s) the derived week calls open were served empty. That is the same number as the `EMPTY_TRADING_HOUR` row above, and necessarily so: both are the count of hours whose status is `empty` inside the trading week. Most of them are holidays, and T3's calendar is what decides which.
 
 ## Throughput, and what it cost
 
 Recorded because T2b ingests the same feed for the years before this range and should budget from a measurement rather than from optimism.
 
-| measure | value |
-| --- | --- |
-| sessions that finished | 8 |
-| pair-months completed | 1,464 |
-| requests issued | 735,237 |
-| throttled responses | 16,832 (2.29%) |
-| wall clock across sessions | 148.4 h |
-| of which parked waiting out the feed | 34.5 h (23.22%) |
-| sustained rate | 1.38 requests/s |
-| time inside the ingest pipeline | 133.5 h |
-| time building bars | 8.0 h |
+| measure | value | source |
+| --- | --- | --- |
+| sessions that finished | 8 | `sessions.jsonl` |
+| pair-months completed | 1,464 | `chunks.jsonl` |
+| requests attributable to the stored chunks | 735,237 | `chunks.jsonl` |
+| throttled responses on those | 16,832 (2.29%) | `chunks.jsonl` |
+| time inside the ingest pipeline | 133.5 h | `chunks.jsonl` |
+| rate over pipeline time | 1.53 requests/s | `chunks.jsonl` |
+| requests the sessions actually issued | 662,598 | `sessions.jsonl` |
+| throttled responses on those | 19,946 (3.01%) | `sessions.jsonl` |
+| wall clock across sessions | 148.4 h | `sessions.jsonl` |
+| of which parked waiting out the feed | 34.5 h (23.22%) | `sessions.jsonl` |
+| rate over wall clock | 1.24 requests/s | `sessions.jsonl` |
+| time building bars | 8.0 h | `chunks.jsonl` |
+
+**Two request counts, and they are different numbers.** The chunk log is keyed by pair-month and rewritten whenever a chunk is re-worked, so it reports the requests attributable to the store as it now stands. The session log is append-only, so it reports every request the process ever issued, including ones for chunks later re-done. Neither is wrong and each is the right answer to a different question — but a rate that divided one log's numerator by the other log's denominator would be the answer to neither, so each rate above stays inside one source and the column says which.
 
 ### Concurrency calibration
 
@@ -287,22 +306,22 @@ Total tick store: **37.65 GiB** across 760,195 files — one Parquet per ingeste
 
 Bars are built incrementally (SPEC2 prerequisite P0-B, landed for this card). Only the days whose stored ticks changed since the last build are resampled, and the coarser timeframes are rolled up from the 1m bars rather than re-read from ticks — which is exact, because every timeframe in the research set tiles UTC days and the bins nest.
 
-Rows per pair and timeframe:
+Rows per pair and timeframe, **counted inside this card's window**. A bar table is one file per pair covering the whole store, so an unbounded count would hand this card every row every other card ever built; where ruling R1 excludes part of the window the count stops at the exclusion and the *Data excluded* table above carries the remainder (0 row(s)).
 
 | pair | `1min` | `5min` | `30min` | `1h` | `4h` | `1D` |
 | --- | --- | --- | --- | --- | --- | --- |
-| `AUDJPY` | 7,542,135 | 1,509,919 | 251,709 | 125,863 | 32,527 | 6,305 |
-| `AUDUSD` | 6,648,806 | 1,341,466 | 223,842 | 111,974 | 30,341 | 6,201 |
-| `EURCHF` | 7,517,235 | 1,509,341 | 251,699 | 125,862 | 32,528 | 6,306 |
-| `EURGBP` | 7,534,805 | 1,509,815 | 251,706 | 125,860 | 32,527 | 6,306 |
-| `EURJPY` | 7,511,606 | 1,504,878 | 250,985 | 125,525 | 32,457 | 6,298 |
-| `EURUSD` | 7,534,190 | 1,510,036 | 251,717 | 125,868 | 32,529 | 6,307 |
-| `GBPJPY` | 7,539,956 | 1,509,465 | 251,702 | 125,861 | 32,526 | 6,305 |
-| `GBPUSD` | 7,538,071 | 1,509,911 | 251,704 | 125,859 | 32,526 | 6,305 |
-| `NZDUSD` | 7,522,487 | 1,509,190 | 251,627 | 125,824 | 32,518 | 6,302 |
-| `USDCAD` | 7,530,253 | 1,509,733 | 251,697 | 125,858 | 32,526 | 6,306 |
-| `USDCHF` | 7,514,354 | 1,509,542 | 251,696 | 125,861 | 32,527 | 6,306 |
-| `USDJPY` | 7,498,446 | 1,505,357 | 250,995 | 125,525 | 32,457 | 6,298 |
+| `AUDJPY` | 3,792,694 | 759,906 | 126,690 | 63,350 | 16,373 | 3,176 |
+| `AUDUSD` | 3,784,661 | 759,950 | 126,694 | 63,351 | 16,374 | 3,177 |
+| `EURCHF` | 3,771,823 | 759,310 | 126,675 | 63,346 | 16,374 | 3,177 |
+| `EURGBP` | 3,785,985 | 759,814 | 126,694 | 63,350 | 16,374 | 3,177 |
+| `EURJPY` | 3,791,028 | 759,554 | 126,691 | 63,352 | 16,375 | 3,178 |
+| `EURUSD` | 3,787,603 | 760,051 | 126,701 | 63,354 | 16,375 | 3,178 |
+| `GBPJPY` | 3,790,450 | 759,460 | 126,688 | 63,350 | 16,373 | 3,176 |
+| `GBPUSD` | 3,789,760 | 759,924 | 126,692 | 63,349 | 16,373 | 3,176 |
+| `NZDUSD` | 3,778,192 | 759,635 | 126,678 | 63,345 | 16,371 | 3,174 |
+| `USDCAD` | 3,783,426 | 759,808 | 126,691 | 63,350 | 16,374 | 3,177 |
+| `USDCHF` | 3,765,977 | 759,492 | 126,675 | 63,346 | 16,374 | 3,177 |
+| `USDJPY` | 3,786,755 | 760,019 | 126,697 | 63,352 | 16,375 | 3,178 |
 
 Build cost, one build per pair-month:
 
@@ -333,18 +352,18 @@ Recorded for the checkpoint review. Per the card, an observation worth chasing b
 * The least complete pair is `AUDJPY` at 100.00% of the open hours the derived week contains. T1 found no missing region in this range and predicted near-complete coverage; that prediction is what this column tests.
 * **No duplicate ticks at all.** De-duplication is on the whole record, so two ticks sharing a millisecond but differing in price or volume are both kept; the feed served none that were identical.
 * 3,557 hour(s) the derived week calls open were served empty. Those are candidate holidays and are pre-reg #5's raw material; T3 turns them into a calendar, and until it does an empty open hour stays a warning rather than a `closed`.
-* The tick store averages 12.3 bytes per stored tick after Snappy. That is the number T2b should size the years before this range with.
-* **The wall clock above understates the run.** The session table is built from `sessions.jsonl`, which only a session that finishes writes to. On 2026-08-22 at 09:40Z the host lost power mid-chunk, and roughly 18 hours of work — 215 pair-months, 646,558,661 ticks, all at level 4 — died without a session record. Those pair-months are in the store and in `chunks.jsonl`, so every coverage number here counts them and the "time inside the ingest pipeline" row includes them; only the session wall clock misses them. **T2b should budget from roughly 166 hours, not 148.**
-* **Level 4 was reachable and never holdable.** Across T2a and T2b the calibrator probed the card's ceiling thirty times and backed off thirty times. Several back-offs landed within a percentage point of 10% throttled, and level 3 failed repeatedly at the same figure, suggesting the feed expresses its limit as roughly one refusal in ten regardless of which level crosses it. The aggregate still favours concurrency — level 4 sustained 1.82 requests/s against level 3's 1.56 and level 2's 1.20 — so the ceiling earned its place; it simply could not be held. Retreating paid clearly once, on 2026-08-23, where level 3 running 20% throttled completed one pair-month in 90 minutes and level 2 completed ten in the next two hours.
-* **The spread flags are an independent check on the week boundary.** 78% of `SPREAD_OUTLIER` hours fall on 21:00Z or 22:00Z — the same 17:00 `America/New_York` roll in its summer and winter positions — which is the boundary the closed-hour logic derives. Two unrelated parts of the pipeline agree about where the FX day ends, and neither was told the answer.
-* **Storage is the window's, not the store's.** `data/research/` is shared with T2b, which fills 2005-2014 into the same tree. The footprint walk is bounded by this experiment's window, so the figures above are what T2a added.
+* The tick store averages 12.3 bytes per stored tick after Snappy, which is what a later card should size a comparable pull with.
+* **The wall clock understates the run.** `sessions.jsonl` is written only by a session that finishes. On 2026-08-22 the host lost power mid-chunk and that session died without writing its record, so its pair-months are in the store and in `chunks.jsonl` — every coverage number counts them, and the pipeline-time row includes them — while the session wall clock misses them entirely. A later pull should budget from the chunk-sourced rows, not the session-sourced ones.
+* **Level 4 was reachable and never holdable.** The calibrator probed the card ceiling and backed off from it every time. Several back-offs and several level-3 failures landed at much the same throttle rate, which is what a feed expressing its limit as a fixed refusal *share* rather than a fixed rate would look like. The aggregate still favoured concurrency — the level table above ranks them — so the ceiling earned its place; it simply could not be held.
+* **The spread flags are an independent check on the week boundary.** The hours they concentrate on are the 17:00 `America/New_York` roll in its summer and winter positions, which is the boundary the closed-hour logic derives. Two unrelated parts of the pipeline agree about where the FX day ends, and neither was told the answer.
+* **Storage is the window, not the store.** `data/research/` is shared between the ingestion cards. The footprint walk and the bar-row count are both bounded by this experiment window, so the figures above are what this card added rather than what is on disk.
 
 ## Provenance
 
 * Config: `experiments/T2a-ingestion/config.toml` (sha256 `322897c574d51acc`)
-* Manifests: `data/research/manifests/pair=<PAIR>/<YYYY-MM>/manifest.json` — one shard per pair-month, one entry per requested hour
-* Progress records: `experiments/T2a-ingestion/chunks.jsonl` and `sessions.jsonl`
-* Result: `experiments/T2a-ingestion/result.json`, hash `809d51df0a26f585fcec8f5e71614f4a91f0729f243ad0dcc94fcb5a21cc18fe`
-* Loader mode `scoring`, scored `False`, re-run class `full`. The loader served 72 bar file(s) across 12 pair(s) and 6307 date(s); sealed dates served: none.
+* Manifests: `data/research/manifests/pair=<PAIR>/<YYYY-MM>/manifest.json` — one shard per pair-month, one entry per requested hour. Read the canonical way (SPEC2 §The canonical manifest reading): hour records and the derived coverage block, never the session warning log.
+* Progress records: `experiments/T2a-ingestion/chunks.jsonl` and `experiments/T2a-ingestion/sessions.jsonl`
+* Result: `experiments/T2a-ingestion/result.json`, hash `8a1f1ad775dcb7f3e8d25adfe94cf86f8107c40f36a36107e8675fd4066a8200`
+* Loader mode `scoring`, scored `False`, re-run class `full`. The loader served 72 bar file(s) across 12 pair(s) and 3178 date(s); sealed dates served: none; dates withheld by an exclusion window: 0.
 * Research gate: exit 0 (full, 2026-09-05)
 

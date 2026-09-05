@@ -1,0 +1,104 @@
+# T3 - data quality, holiday calendar and cross-venue check. See taskcards/T3.md.
+#
+# Four programs read this file, and the split is the same one T2a made for the
+# same reason: the expensive work is not the experiment.
+#
+#   python -m research.validate_store --config <this file>
+#       re-opens all 1.5M stored hours and checks them against their manifest
+#       entries. Hours of wall clock, resumable, checkpointed per pair-month to
+#       validation.jsonl. Ruling D5: this is never re-run by the gate.
+#
+#   python -m research.crosscheck_oanda --config <this file>
+#       samples hours per pair per year and compares the stored Dukascopy mid
+#       against OANDA's H1 mid. Network-bound, resumable, checkpointed to
+#       oanda.jsonl. Also never re-run by the gate -- a judge that needed a
+#       third-party API to be up would be judging the API.
+#
+#   python -m research.calendar_build --config <this file>
+#       derives config/calendar.toml from the manifests. Deterministic and
+#       cheap; the experiment re-derives it and refuses to agree with a
+#       calendar that does not match, so the committed file cannot drift away
+#       from the data that justified it.
+#
+#   python -m research.run --config <this file>
+#       is the experiment. It reads all three back, re-derives everything
+#       derivable, and produces result.json. That is what the research gate
+#       re-executes and re-hashes.
+#
+# Mode. A data survey, not a scored candidate: `scored = false`, so no
+# scorecard exists and none can be demanded. `scoring` mode, following T1 and
+# T2, because that is what puts this config under the gate's sealed-date scan
+# and what makes the loader police every date it serves -- including ruling
+# R1's exclusion window, which this card is the first to enforce.
+#
+# Seal. The window ends on the last research day. No date at or after the
+# cutoff appears in this file or in any request any of the four programs makes;
+# the OANDA sampler refuses one outright rather than trusting the sample.
+
+[experiment]
+id = "T3-quality"
+taskcard = "T3"
+entry = "research.quality:run"
+seed = 20260905
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+[experiment.params]
+experiment_dir = "experiments/T3-quality"
+data_dir = "data/research"
+calendar_path = "config/calendar.toml"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# The whole store, both ingestion cards' windows joined. T3 validates what is
+# there rather than what any one card put there.
+start_date = "2005-01-03"
+end_date = "2025-02-28"
+
+# The ingestion experiments this card reconciles against (Step 0.6). Named
+# rather than globbed: a reconciliation whose inputs move is not one.
+reconcile = ["T2a-ingestion", "T2b-backfill"]
+
+# --------------------------------------------------------------------------- #
+# Step 2 - the holiday calendar (pre-reg #5, ruling R5)
+# --------------------------------------------------------------------------- #
+
+# A candidate holiday is a date on which EVERY pair the loader may read was
+# served empty for at least this many open hours. Twelve pairs agreeing that
+# nothing traded is a market event; one pair agreeing with itself is a data
+# fact, and the card wants those reported separately rather than folded in.
+#
+# Six hours, not one: a single empty hour is thin liquidity, and a single empty
+# hour on all twelve is a feed hiccup. Six is a quarter of a day and is the
+# shortest span that cannot be either.
+calendar_min_empty_hours = 6
+
+# A date where SOME but not all pairs were empty is a partial holiday -- a
+# currency's own national day, mostly. Recorded separately, and only where at
+# least this many pairs agree, so one pair's outage is not a holiday.
+calendar_min_pairs_partial = 3
+
+# --------------------------------------------------------------------------- #
+# Step 3 - the OANDA cross-check (pre-reg #7)
+# --------------------------------------------------------------------------- #
+
+# Hours sampled per pair per year. The card's floor is 24; this takes one date
+# a month and three session hours on each, so the sample spans every month and
+# all three trading sessions rather than clustering wherever the sampler
+# started.
+crosscheck_dates_per_year = 12
+crosscheck_hours = [1, 9, 15]
+
+# Pre-reg #7, pinned: 1.0 pip on hourly mids. Not tunable here -- the value is
+# in the config so the scorecard can carry it, and the gate scans for drift.
+crosscheck_threshold_pips = 1.0
+
+# Pre-reg #4's window, in America/New_York, derived to UTC per date rather than
+# hardcoded. Any hour inside it is exempt from the threshold.
+crosscheck_roll_start_hour_ny = 16
+crosscheck_roll_end_hour_ny = 18
