@@ -233,6 +233,102 @@ quarantined live week; not scorable, not a research finding. It reproduced the
 Phase 1 coverage report session by session, which is the only available
 evidence that the research loader does not reshape what it serves.
 
+### M2 checkpoint rulings, R1-R6 (approved in chat 2026-09-05)
+
+Fixed at the M2 checkpoint that closed T2a/T2b and opened T3, before any T3
+result existed. Recorded here by `taskcards/T3.md`, which states them verbatim.
+They bind every card downstream in the same way §Pre-registered decisions does.
+
+**R1 — AUDUSD before 2011-01-01 is EXCLUDED from research.** The crossed-quote
+corruption of the two episodes 2007-04→2008-09 and 2009-04→2010-10 is **not**
+recovered, and the hour-level `CROSSED_QUOTE` rejection rule is unchanged. The
+research loader refuses an AUDUSD request dated before 2011-01-01 with the named
+reason `PAIR_EXCLUDED_WINDOW`. The exclusion is stated on every report and
+scorecard that touches AUDUSD. A cross-pair analysis spanning pre-2011 runs on
+**eleven** pairs there, and says so.
+
+**R2 — JPY pre-open hours stay rejected.** The 16 USDJPY/EURJPY Sunday 21:00Z
+northern-winter hours keep `CLOSED_MARKET_TICK`. They gain the sub-label
+`PRE_OPEN_FEED_DATA` in the gap table so the class is nameable. The derived week
+boundary rule itself is untouched.
+
+**R3 — Spread-regime comparisons across eras must control for ticks per hour.**
+Medians, p90 and fixed-sample statistics only; never a raw `SPREAD_OUTLIER`
+count. A p99.9 taken over a thousand-tick hour and one taken over six thousand
+are not the same instrument, so their counts are not comparable across eras. A
+T5 requirement, recorded here because T3's spread tables must already be framed
+that way.
+
+**R4 — Tick counts are not a volume or activity proxy** until a T4 card has
+characterised the density series. No report and no scorecard may use them as one
+before then.
+
+**R5 — The holiday calendar derives from manifest `status == "empty"`,** never
+from the `EMPTY_TRADING_HOUR` warning list. The T3 audit measured the warning
+list 1,183 hours short of the empty-status hours across the store (6,117 empty,
+4,934 warned) — see the canonical-reading ruling below for why.
+
+**R6 — No hand-written numbers in reports.** Every figure in every report is
+derived at render time from the manifests, the ledger or `result.json`. A number
+typed into prose is a number that stops being true the moment the store changes,
+and the T3 audit found three that had.
+
+### The canonical manifest reading (recorded by T3 Step 0.4)
+
+Not a checkpoint ruling — a declaration the T3 card instructed Step 0.4 to make
+after root-causing the disagreement its audit found. It settles which of the two
+copies of a validation flag a report may read.
+
+A manifest shard carries validation flags in **two** places, and they disagree:
+
+* `hours[*].issues[]` — filed on the hour record itself, and replaced wholesale
+  whenever `Manifest.upsert` replaces that record;
+* `validation.warnings[]` — a flat list appended to as a session observes each
+  flag, pruned by `strip_aborted`, and reloaded across sessions.
+
+Measured across the whole store: 3,009 `SPREAD_OUTLIER` hours appear in both,
+**27 in the warning list only**, **160 in the records only**. The two causes are
+distinct, and both are structural rather than corruption:
+
+* the **27** are hours whose *hard* rejection discarded the data. In
+  `pipeline._process_hour`, a rejected hour's record carries only the hard
+  reasons while its soft flags are still appended to the shard warning list. So
+  the warning list counts spread flags on hours that are **not in the store**;
+* the **160** are hours carried forward on resume. The record travels with its
+  `issues[]` through `_already_stored`; the shard warning list is only appended
+  to by the session that actually fetched the hour, and `strip_aborted` can
+  prune entries from it. So the warning list under-counts hours that **are** in
+  the store. The same mechanism is why 1,183 empty hours carry no
+  `EMPTY_TRADING_HOUR` warning, which is what R5 responds to.
+
+`EMPTY_TRADING_HOUR` and `TICK_COUNT_OUTLIER` never appear in `issues[]` at all:
+the first is appended straight to the warning list for an hour that stores no
+issues, the second is a whole-day derived flag with no single hour to attach to.
+
+**The ruling.** The canonical statement about the store is the hour records —
+`hours[]` — together with the derived `coverage` block, which
+`Manifest.to_dict` recomputes from `hours[]` on every write and is therefore a
+pure function of them. Concretely:
+
+| quantity | canonical source |
+|---|---|
+| any hour status count | `hours[*].status` |
+| `SPREAD_OUTLIER` on stored data | `hours[*].issues[]` where `status == "ok"` |
+| hard rejection reasons | `hours[*].issues[]` where `status == "gap"` |
+| empty trading hours / the holiday calendar | `hours[*].status == "empty"` (R5) |
+| `TICK_COUNT_OUTLIER` | `coverage.by_day[*].tick_count_outlier` |
+
+`validation.warnings[]` is **an ingestion-session log**, kept for provenance —
+it is the only record that a flag was ever *observed*, including on hours whose
+data was then discarded, and that is the one question it may be asked. No report
+figure derives from it. Reports state flag counts on stored data separately from
+flags observed on rejected hours, because those are different claims.
+
+Nothing above changes the manifest format. Annotating the shards themselves — so
+a shard states its own exclusions and reconciles its own two lists — would be a
+format change, and per the T3 card that is a checkpoint decision. It is
+proposed, not made.
+
 ## Task roadmap (each = one task card, one bounded loop, one review)
 
 * **T1 — Coverage survey.** Measure Dukascopy coverage per pair per year,
