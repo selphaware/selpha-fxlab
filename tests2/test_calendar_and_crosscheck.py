@@ -352,3 +352,72 @@ def test_the_density_cut_buckets_by_tick_count() -> None:
     assert cc.density_bucket(3000) == "3k-10k"
     assert cc.density_bucket(10_000) == ">=10k"
     assert cc.density_bucket(10_000_000) == ">=10k"
+
+
+# --------------------------------------------------------------------------- #
+# Reading the calendar back: pre-reg #5's closing clause
+# --------------------------------------------------------------------------- #
+
+def _write_calendar(tmp_path, full, partial=None, *, window=("2005-01-03",
+                                                             "2025-02-28")):
+    """A committed calendar file to read back."""
+    lines = ["[calendar]",
+             f'window_start = "{window[0]}"',
+             f'window_end = "{window[1]}"',
+             "min_empty_hours = 6",
+             "min_pairs_partial = 3",
+             "[calendar.full]"]
+    lines += [f'"{d}" = "{name}"' for d, name in full.items()]
+    lines.append("[calendar.partial]")
+    for date, pairs in (partial or {}).items():
+        lines.append(f'"{date}" = [{", ".join(chr(34) + p + chr(34) for p in pairs)}]')
+    path = tmp_path / "calendar.toml"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def test_an_absent_calendar_raises_rather_than_reading_empty(tmp_path) -> None:
+    """"No holidays" and "no calendar" are different claims."""
+    with pytest.raises(FileNotFoundError):
+        cal.load_calendar(tmp_path / "nothing.toml")
+
+
+def test_a_full_holiday_shuts_every_pair(tmp_path) -> None:
+    """Which is what makes it a full holiday."""
+    path = _write_calendar(tmp_path, {"2019-12-25": "Christmas Day"})
+    calendar = cal.load_calendar(path)
+    assert calendar.is_holiday("2019-12-25") is True
+    assert calendar.is_holiday("2019-12-25", "EURUSD") is True
+
+
+def test_a_partial_holiday_shuts_only_the_pairs_it_names(tmp_path) -> None:
+    """Treating it as market-wide would shut pairs that were trading."""
+    path = _write_calendar(tmp_path, {},
+                           {"2019-01-02": ["USDJPY", "EURJPY"]})
+    calendar = cal.load_calendar(path)
+    assert calendar.is_holiday("2019-01-02") is False
+    assert calendar.is_holiday("2019-01-02", "USDJPY") is True
+    assert calendar.is_holiday("2019-01-02", "EURUSD") is False
+
+
+def test_an_ordinary_day_is_not_a_holiday(tmp_path) -> None:
+    """The baseline the other three are measured against."""
+    path = _write_calendar(tmp_path, {"2019-12-25": "Christmas Day"})
+    assert cal.load_calendar(path).is_holiday("2019-06-12") is False
+
+
+def test_an_empty_hour_on_a_calendar_date_becomes_closed(tmp_path) -> None:
+    """Pre-reg #5's closing clause, as a function."""
+    path = _write_calendar(tmp_path, {"2019-12-25": "Christmas Day"})
+    calendar = cal.load_calendar(path)
+    assert calendar.classify_empty_hour("2019-12-25") == "closed"
+    assert calendar.classify_empty_hour("2019-06-12") == "warning"
+
+
+def test_a_date_outside_the_window_stays_a_warning(tmp_path) -> None:
+    """Unexamined is not the same as examined and found ordinary."""
+    path = _write_calendar(tmp_path, {"2019-12-25": "Christmas Day"},
+                           window=("2020-01-01", "2025-02-28"))
+    calendar = cal.load_calendar(path)
+    assert calendar.covers("2019-12-25") is False
+    assert calendar.classify_empty_hour("2019-12-25") == "warning"

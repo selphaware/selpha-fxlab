@@ -1,13 +1,14 @@
 # HANDOFF2.md — Phase 2 research loop, unattended run
 
-Written 2026-08-23 for a ~1 week unattended stretch. If you are reading this
-because the session died, this file plus the checkpoints on disk are enough to
-restart without losing work.
+Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T3
+closed. If you are reading this because the session died, this file plus the
+checkpoints on disk are enough to restart without losing work.
 
-## State: both ingestion cards are done
+## State: ingestion and data quality are done
 
-Nothing is running. T2a and T2b are complete, gated and pushed; the loop stopped
-there because T2b's card says to. **Do not begin T3 without a checkpoint.**
+Nothing is running. T2a, T2b and T3 are complete, gated and pushed; the loop
+stopped there because T3's card says to. **Do not begin T4 without a
+checkpoint.**
 
 | | T2a | T2b |
 |---|---|---|
@@ -21,16 +22,47 @@ there because T2b's card says to. **Do not begin T3 without a checkpoint.**
 | research gate | exit 0 (full) | exit 0 (full) |
 
 Together: **2005-01-03 to 2025-02-28, twelve pairs, 1,495,740 hours,
-5.35 billion ticks, zero duplicates, 61.96 GiB.**
+5.35 billion ticks, zero duplicates, 61.96 GiB.** T3 re-opened every one of
+those hours offline and found **zero** disagreements with the manifests, and
+reconciled manifests against results against the file listing across all 252
+pair-years with zero mismatches. The store is what it says it is.
 
-T2b's 13,015 gaps are almost entirely one pair: 12,998 CROSSED_QUOTE in AUDUSD
-across 2007-04..2008-09 and 2009-04..2010-10. The feed served those hours and
-the pipeline refused them. `reports/T2b_backfill.md` has the analysis, including
+T2b's 13,015 gaps are almost entirely one pair: 12,996 CROSSED_QUOTE in AUDUSD
+across 2007-04..2008-09 and 2009-04..2010-10, plus 2 in USDJPY, 16
+CLOSED_MARKET_TICK and 1 FETCH_ERROR. The feed served those hours and the
+pipeline refused them. `reports/T2b_backfill.md` has the analysis, including
 why the decoder was ruled out first.
 
-**Anyone using AUDUSD before 2011 must read that section.** Its per-year
-completeness is 51%, 50%, 56% and 36% for 2007-2010 while every other pair is
-100.00% in every year.
+**AUDUSD before 2011-01-01 is now excluded from research** by ruling R1. The
+loader refuses it with `PAIR_EXCLUDED_WINDOW`; `research/exclusions.py` is the
+one definition. Cross-pair work spanning that window runs on eleven pairs and
+must say so.
+
+## What T3 established, and what it left
+
+`reports/T3_data_quality.md` is the full record. The four things worth carrying
+forward:
+
+* **The store validates clean.** Schema, row counts, `ask >= bid > 0`, UTC
+  monotonicity, hour boundaries and the derived FX week: 1,495,740 hours, zero
+  failures. Bars match stored hours as sets for all twelve pairs.
+* **The holiday calendar exists and is thin before 2013, for a reason that
+  matters more than the calendar.** `config/calendar.toml` carries 19 full and
+  3 partial holidays, all derived from hour statuses per ruling R5. It is
+  near-empty in the early years because the feed *quoted straight through* days
+  the whole market was shut — so those bars carry prices nobody traded at, and
+  no emptiness exists to derive a holiday from. Read the year-by-year table
+  before trusting an early-era holiday bar. `research.calendar_build.Calendar`
+  is how to query it.
+* **1,327 sampled hours are blocked by pre-reg #7** — beyond the pinned 1.0 pip
+  threshold against OANDA, outside the roll window. They are blocked per hour,
+  not per pair-year. The diagnosis is quote density, not feed accuracy: hours
+  under 500 ticks disagree 81% of the time, hours holding 3k-10k disagree 5.7%,
+  and the by-year median falls from 2.7 pip in 2005 to 0.15 in 2024. A
+  checkpoint decides what to do with them; the threshold is pinned and was
+  applied as pinned.
+* **312 dates of unexplained empty hours** are handed to T4 as data facts, not
+  holidays. They concentrate in 2007-2010 and include the known JPY hole.
 
 ## Open questions left for a checkpoint
 
@@ -64,6 +96,24 @@ Everything it does is checkpointed. Nothing is held only in memory:
 | `experiments/ledger.jsonl` | start/end per run, append-only | start written *before* the run |
 | `data/research/manifests/pair=<P>/<YYYY-MM>/manifest.json` | per pair-month hour records | rewritten atomically every 50 hours |
 | `data/research/ticks/…`, `data/research/bars/…` | the store | every file written via tmp + `os.replace` |
+| `experiments/T3-quality/validation.jsonl` | one record per re-validated pair-month | appended and fsynced per record |
+| `experiments/T3-quality/oanda.jsonl` | one record per cross-checked pair-date | appended and fsynced per record |
+| `experiments/T3-quality/oanda_availability.jsonl` | OANDA's history reach, one record per pair | written once |
+
+T3's two long passes resume the same way the ingestion does — re-run the
+command and it skips what is already checkpointed:
+
+```
+python -m research.validate_store  --config experiments\T3-quality\config.toml
+python -m research.crosscheck_oanda --config experiments\T3-quality\config.toml
+```
+
+Neither is re-run by the gate (ruling D5): the experiment entry point reads
+both back. A judge that needed a third-party API to be reachable would be
+judging the API. **Nothing in an experiment directory may be a bare `.json`
+except `result.json`** — the gate treats every one as a result document to be
+ledgered and re-hashed, which is how the availability checkpoint failed the
+gate before it became `.jsonl`.
 
 ## How to restart it
 

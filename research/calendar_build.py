@@ -387,6 +387,103 @@ def render_toml(document: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+# --------------------------------------------------------------------------- #
+# Reading the calendar back
+# --------------------------------------------------------------------------- #
+
+class Calendar:
+    """The committed calendar, queryable.
+
+    Pre-registered decision #5 ends with a consequence: *after T3,
+    ``EMPTY_TRADING_HOUR`` on a calendar date is ``closed``, not a warning.*
+    That clause needs somebody to be able to ask, so this is the asking. A
+    calendar nobody can query is a text file.
+
+    Note what this does **not** do: it does not rewrite the manifests. The
+    stored hours keep the status the ingestion gave them, because rewriting a
+    decade of shards to relabel a few hundred hours would destroy the record of
+    what the feed actually served and invalidate two hashed results to change
+    nothing a consumer cannot work out for itself. The reclassification happens
+    where the data is read, not where it is stored.
+    """
+
+    __slots__ = ("full", "partial", "window", "rules")
+
+    def __init__(self, full: dict[str, str], partial: dict[str, list[str]],
+                 window: tuple[str, str], rules: dict[str, int]) -> None:
+        self.full = full
+        self.partial = partial
+        self.window = window
+        self.rules = rules
+
+    def is_holiday(self, date: object, pair: str | None = None) -> bool:
+        """True when the market was shut on ``date``.
+
+        Args:
+            date: Anything :func:`research.seal.as_date` accepts.
+            pair: When given, a partial holiday counts only for the pairs it
+                actually shut. Without it, only full holidays count -- a
+                partial holiday is by definition not a market-wide closure and
+                treating it as one would shut eleven pairs that were trading.
+        """
+        text = as_date(date).isoformat()
+        if text in self.full:
+            return True
+        if pair is None:
+            return False
+        return pair in self.partial.get(text, ())
+
+    def covers(self, date: object) -> bool:
+        """True when ``date`` is inside the window the calendar was derived on.
+
+        A date outside it is not "not a holiday" -- it is unexamined, and the
+        difference matters at both ends: before the window nothing was
+        measured, and after it the seal begins.
+        """
+        return self.window[0] <= as_date(date).isoformat() <= self.window[1]
+
+    def classify_empty_hour(self, date: object,
+                            pair: str | None = None) -> str:
+        """``"closed"`` on a calendar date, ``"warning"`` otherwise.
+
+        Pre-reg #5's closing clause, as a function. An empty hour outside the
+        derivation window stays a warning, because the calendar has nothing to
+        say about it.
+        """
+        if self.covers(date) and self.is_holiday(date, pair):
+            return "closed"
+        return "warning"
+
+
+def load_calendar(path: pathlib.Path) -> Calendar:
+    """Read the committed calendar from TOML.
+
+    Raises:
+        FileNotFoundError: If the calendar has not been built. Deliberately not
+            an empty calendar: "no holidays" and "no calendar" are different
+            claims, and silently returning the first for the second would make
+            every holiday check quietly pass.
+    """
+    import tomllib
+
+    path = pathlib.Path(path)
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"no calendar at {path}; run `python -m research.calendar_build` "
+            "-- an absent calendar is not an empty one")
+    block = (tomllib.loads(path.read_text(encoding="utf-8"))
+             .get("calendar") or {})
+    return Calendar(
+        full={str(k): str(v) for k, v in (block.get("full") or {}).items()},
+        partial={str(k): [str(p) for p in v]
+                 for k, v in (block.get("partial") or {}).items()},
+        window=(str(block.get("window_start", "")),
+                str(block.get("window_end", ""))),
+        rules={"min_empty_hours": int(block.get("min_empty_hours", 0)),
+               "min_pairs_partial": int(block.get("min_pairs_partial", 0))},
+    )
+
+
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse the command line."""
     parser = argparse.ArgumentParser(
