@@ -4,11 +4,56 @@ Written 2026-08-23 for a ~1 week unattended stretch. If you are reading this
 because the session died, this file plus the checkpoints on disk are enough to
 restart without losing work.
 
-## What is running
+## State: both ingestion cards are done
 
-`python -m research.bulk_ingest --config experiments/T2a-ingestion/config.toml`
-under the pinned interpreter, in the background, working task card **T2a**
-(bulk ingestion, 2015-01-01 → 2025-02-28, twelve pairs, newest month first).
+Nothing is running. T2a and T2b are complete, gated and pushed; the loop stopped
+there because T2b's card says to. **Do not begin T3 without a checkpoint.**
+
+| | T2a | T2b |
+|---|---|---|
+| window | 2015-01-01 … 2025-02-28 | 2005-01-03 … 2014-12-31 |
+| pair-months | 1,464 / 1,464 | 1,440 / 1,440 |
+| hours stored | 760,195 | 735,545 |
+| ticks | 3,298,569,754 | 2,049,194,460 |
+| duplicates | 0 | 0 |
+| surviving gaps | 0 | 13,015 |
+| store added | 37.65 GiB | 24.31 GiB |
+| research gate | exit 0 (full) | exit 0 (full) |
+
+Together: **2005-01-03 to 2025-02-28, twelve pairs, 1,495,740 hours,
+5.35 billion ticks, zero duplicates, 61.96 GiB.**
+
+T2b's 13,015 gaps are almost entirely one pair: 12,998 CROSSED_QUOTE in AUDUSD
+across 2007-04..2008-09 and 2009-04..2010-10. The feed served those hours and
+the pipeline refused them. `reports/T2b_backfill.md` has the analysis, including
+why the decoder was ruled out first.
+
+**Anyone using AUDUSD before 2011 must read that section.** Its per-year
+completeness is 51%, 50%, 56% and 36% for 2007-2010 while every other pair is
+100.00% in every year.
+
+## Open questions left for a checkpoint
+
+* Hour-level rejection is expensive against tick-level corruption: one crossed
+  tick discards an hour of good quotes, which is what cost AUDUSD those years.
+  Dropping and counting the bad ticks, as duplicates already are, would have
+  kept them. That is a validation-rule change and was out of scope unattended.
+* The week boundary and the feed disagree on 16 JPY hours at 21:00Z on Sundays,
+  2011-03-06 and 2012-01-01..02-26. The derivation was verified correct. Only
+  detectable in northern winter, so its true extent is unknown.
+* The spread ceilings fired zero times in 2005 and 2006, against the card's
+  expectation. "The flag did not fire" is not "the spreads were not wide" --
+  p99.9 over a thousand-tick hour is a weak instrument. T5's regime question
+  inherits this unanswered.
+* Tick density follows neither age nor volatility: 2022 (6,200/h) and 2016
+  (5,946) top the store, 2008 the crisis year is fourth, and 2005-2006 are the
+  sparsest at 976 and 1,070.
+
+## What was running
+
+`python -m research.bulk_ingest --config experiments/<card>/config.toml` under
+the pinned interpreter. Both cards are finished, but the machinery below is what
+a future ingestion card would reuse.
 
 Everything it does is checkpointed. Nothing is held only in memory:
 
@@ -40,18 +85,23 @@ those hours. This happened once already — see commit `9406719`, which also
 records the checks worth repeating (no leftover `*.tmp`, every manifest shard
 parses, settled hours re-read with matching row counts and timestamps).
 
-## The standing plan
+## The closing sequence, for the next ingestion card
 
-1. **T2a** to completion, milestone commit + push at each completed calendar
-   year.
-2. **T2a closing sequence**, per `taskcards/T2a.md`: `--retry-gaps` sweep to
-   re-ask every recorded gap, regenerate `experiments/T2a-ingestion/result.json`
-   via `python -m research.run`, write `reports/T2a_ingestion.md`, research gate
-   exit 0 on `experiments/T2a-ingestion`, commit and push.
-3. **T2b** — and only if `taskcards/T2b.md`'s hard start condition is satisfied:
-   T2a's closing sequence fully complete, and nothing parked or blocked. If T2a
-   ends in any other state, T2b does not start.
-4. Stop. Do not begin T3.
+Both cards ran the same one and it is worth repeating verbatim:
+
+1. work the plan, milestone commit + push at each completed calendar year;
+2. `--retry-gaps` sweep, which re-asks every recorded gap. This is not a
+   formality: it is the only thing that separates a transient refusal from a
+   deterministic one, because the first clears on the second ask and the second
+   does not. T2a recovered 85 of 85; T2b recovered 111 of 112 fetch errors and
+   none of its 13,014 validation rejections, which is exactly the information
+   the gap table needs to carry;
+3. `python -m research.run --config <cfg>` to regenerate the result;
+4. `python -m research.ingest_report ...` for the report. Facts the result
+   cannot carry go in via repeatable `--note` flags so the report stays
+   regenerable rather than hand-edited;
+5. research gate exit 0 on the experiment directory;
+6. commit and push.
 
 ## Park conditions
 
