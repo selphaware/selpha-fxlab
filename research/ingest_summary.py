@@ -78,7 +78,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
     coverage = {pair: read_pair(base, pair, start, end, expected, calendar)
                 for pair in pairs}
     for pair in pairs:
-        coverage[pair]["storage"] = tick_footprint(base, pair)
+        coverage[pair]["storage"] = tick_footprint(base, pair, start, end)
         coverage[pair]["bars"] = read_bars(loader, pair, verify)
 
     gaps = sorted(
@@ -124,6 +124,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         "totals": totals,
         "pairs": coverage,
         "gaps": {"count": len(gaps), "listed": min(len(gaps), MAX_GAP_ROWS),
+                 "by_reason": _gap_reasons(gaps),
                  "rows": gaps[:MAX_GAP_ROWS]},
         "week_boundary": boundary,
         "warning_profile": _warning_profile(pairs, coverage),
@@ -355,17 +356,30 @@ def _first_detail(issues: Sequence[dict[str, Any]]) -> str:
 # The store itself
 # --------------------------------------------------------------------------- #
 
-def tick_footprint(base: pathlib.Path, pair: str) -> dict[str, Any]:
-    """Bytes and files one pair's ticks occupy, by directory listing."""
+def tick_footprint(base: pathlib.Path, pair: str,
+                   start: dt.date | None = None,
+                   end: dt.date | None = None) -> dict[str, Any]:
+    """Bytes and files one pair's ticks occupy, by directory listing.
+
+    Bounded by the experiment's window when one is given. The store is shared:
+    T2a filled 2015-2025 into the same tree that T2b fills 2005-2014, so a walk
+    that counted every ``date=`` partition would report each card the whole
+    store as though it were its own. A card asked for the storage it *added*.
+    """
     root = base / "ticks" / f"pair={pair}"
     files = 0
     total = 0
     days = 0
+    lo = start.isoformat() if start else None
+    hi = end.isoformat() if end else None
     if not root.is_dir():
         return {"files": 0, "bytes": 0, "days": 0, "bytes_per_tick": 0.0}
     with os.scandir(root) as day_dirs:
         for day_dir in day_dirs:
             if not day_dir.is_dir():
+                continue
+            date = day_dir.name.partition("=")[2]
+            if (lo is not None and date < lo) or (hi is not None and date > hi):
                 continue
             days += 1
             with os.scandir(day_dir.path) as entries:
@@ -414,6 +428,21 @@ def read_bars(loader: Any, pair: str,
 # --------------------------------------------------------------------------- #
 # What the pull cost
 # --------------------------------------------------------------------------- #
+
+def _gap_reasons(gaps: Sequence[dict[str, Any]]) -> dict[str, int]:
+    """How many surviving gaps carry each reason token.
+
+    The count alone cannot say what a gap *is*. An hour the feed never served
+    and an hour it served with a crossed quote are both gaps, and they mean
+    opposite things: the first is absent history, the second is history the
+    pipeline refused. Reporting the split is what lets the report say which.
+    """
+    out: dict[str, int] = {}
+    for row in gaps:
+        for reason in (row.get("reasons") or ["UNKNOWN"]):
+            out[str(reason)] = out.get(str(reason), 0) + 1
+    return dict(sorted(out.items(), key=lambda kv: (-kv[1], kv[0])))
+
 
 def _warning_profile(pairs: Sequence[str],
                      coverage: dict[str, Any]) -> dict[str, Any]:

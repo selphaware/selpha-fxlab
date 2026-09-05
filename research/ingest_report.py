@@ -305,6 +305,36 @@ def _gaps(payload: dict[str, Any]) -> list[str]:
     if recorded:
         recovered = int(history.get("recovered_by_sweep", 0))
         affected = int(history.get("pair_months_affected", 0))
+        # What the survivors *are* decides what this section may claim. An
+        # hour the feed never served is absent history; an hour it served and
+        # validation refused is the opposite -- history the pipeline declined
+        # to store. Only the reason split tells them apart, so the wording is
+        # derived from it rather than assumed.
+        reasons = dict(gaps.get("by_reason") or {})
+        fetchish = sum(v for k, v in reasons.items()
+                       if k in {"FETCH_ERROR", "EMPTY_BODY", "UNKNOWN"})
+        refused = sum(reasons.values()) - fetchish
+        if recovered == recorded and recorded:
+            verdict = ("Every gap this run recorded was the second kind. None "
+                       "of them was a hole in Dukascopy's history; all of them "
+                       "were hours the feed declined at the moment it was "
+                       "first asked and served without complaint when asked "
+                       "again.")
+        elif refused and refused >= fetchish:
+            verdict = (
+                f"{_n(recorded - recovered)} hour(s) survived, and they are "
+                f"not the first kind either: **{_n(refused)}** of them carry a "
+                "validation reason rather than a fetch failure. The feed "
+                "served those hours; this pipeline refused them. They are "
+                "neither absent history nor a feed in a bad mood, but data "
+                "that arrived and did not pass — which is why the reason "
+                "token, not the count, is the part worth reading."
+                + (f" The remaining {_n(fetchish)} could not be had at all."
+                   if fetchish else ""))
+        else:
+            verdict = (f"{_n(recorded - recovered)} hour(s) survived the sweep "
+                       "and are listed above; those are the ones that look "
+                       "like absent history.")
         body += [
             "### What the pull recorded, and what the sweep recovered",
             "",
@@ -316,20 +346,25 @@ def _gaps(payload: dict[str, Any]) -> list[str]:
             "",
             f"That is the difference between a gap meaning *absent history* and "
             f"a gap meaning *a feed in a bad mood on the Tuesday it was asked*. "
-            + ("Every gap this run recorded was the second kind. None of them "
-               "was a hole in Dukascopy's history; all of them were hours the "
-               "feed declined at the moment it was first asked and served "
-               "without complaint when asked again."
-               if recovered == recorded and recorded else
-               f"{_n(recorded - recovered)} hour(s) survived the sweep and are "
-               "listed above; those are the ones that look like absent "
-               "history."),
+            + verdict,
             "",
-            "This is also why the gaps clustered by *when a year was fetched* "
-            "rather than by anything about the year. A run that reported only "
-            "its final gap count would have hidden both facts.",
+            "Re-asking every gap is what makes the distinction available at "
+            "all: a transient refusal clears on the second ask and a "
+            "deterministic one does not. A run that reported only its final "
+            "gap count would have hidden which kind it had.",
             "",
         ]
+        if reasons:
+            body += [
+                "Surviving gaps by reason:",
+                "",
+                # The result document is serialised with sorted keys so its
+                # hash is stable, which discards any ordering the summary
+                # chose. Rank here, where it survives into the page.
+                *_table(["reason", "hours"],
+                        [[f"`{k}`", _n(v)] for k, v in
+                         sorted(reasons.items(), key=lambda kv: (-kv[1], kv[0]))]),
+            ]
     return body
 
 
