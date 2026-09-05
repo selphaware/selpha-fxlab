@@ -1,0 +1,12 @@
+{"available": true, "first_candle": "2004-05-31T20:00:00+00:00", "first_date": "2004-05-31", "host": "https://api-fxpractice.oanda.com", "pair": "AUDJPY"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "AUDUSD"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "EURCHF"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "EURGBP"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "EURJPY"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "EURUSD"}
+{"available": true, "first_candle": "2003-01-02T20:00:00+00:00", "first_date": "2003-01-02", "host": "https://api-fxpractice.oanda.com", "pair": "GBPJPY"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "GBPUSD"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "NZDUSD"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "USDCAD"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "USDCHF"}
+{"available": true, "first_candle": "2003-01-01T20:00:00+00:00", "first_date": "2003-01-01", "host": "https://api-fxpractice.oanda.com", "pair": "USDJPY"}

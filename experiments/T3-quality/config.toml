@@ -88,11 +88,14 @@ calendar_min_pairs_partial = 3
 # --------------------------------------------------------------------------- #
 
 # Hours sampled per pair per year. The card's floor is 24; this takes one date
-# a month and three session hours on each, so the sample spans every month and
-# all three trading sessions rather than clustering wherever the sampler
-# started.
+# a month and four hours on each, so the sample spans every month rather than
+# clustering wherever the sampler started. The hours are Asia (01Z), Europe
+# (09Z), US (15Z) and the daily roll (21Z). The roll hour is exempt from the
+# threshold by pre-reg #7 and is sampled anyway: an exemption that is never
+# exercised is an exemption nobody has tested, and the roll is the one hour
+# where the two venues have most reason to disagree.
 crosscheck_dates_per_year = 12
-crosscheck_hours = [1, 9, 15]
+crosscheck_hours = [1, 9, 15, 21]
 
 # Pre-reg #7, pinned: 1.0 pip on hourly mids. Not tunable here -- the value is
 # in the config so the scorecard can carry it, and the gate scans for drift.
