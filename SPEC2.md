@@ -371,6 +371,55 @@ emptiness there to derive a holiday from and the bars carry prices nobody
 traded at. A calendar that can only find the holidays the feed left empty
 cannot be the eligibility rule; the static list can, and is.
 
+### M4 checkpoint decisions, D1-D4 (approved in chat 2026-09-06)
+
+Fixed at the M4 checkpoint that closed T4 and opened T5, before any T5 result
+existed. Recorded here by `taskcards/T5.md`, which states them verbatim. They
+bind every card downstream in the same way §Pre-registered decisions does.
+D2 in particular is a **pre-registration**: it fixes a test set before the
+costs that will judge it have been computed, which is the only order in which
+that test set means anything.
+
+**D1 — T4 is the universe-character baseline.** Nothing was promoted or
+dropped. All twelve pairs of pre-reg #9 remain in the universe, ruling R1's
+AUDUSD window remains the only exclusion, and no horizon has been retired. T4
+produced evidence, and pre-reg #3 puts the decisions the evidence informs in
+chat: this is that decision, and it is to change nothing yet.
+
+**D2 — the 11 T4 reversion cells are T5's formal cost-geometry TEST SET.** The
+9 `5m` cells (`EURGBP`, `AUDJPY`, `GBPUSD`, `NZDUSD`, `AUDUSD`, `EURJPY`,
+`GBPJPY`, `EURUSD`, `USDCAD`) and the 2 `30m` cells (`NZDUSD`, `USDCAD`) are
+the cells whose q=4 variance ratio survived Benjamini-Hochberg at FDR 0.05
+inside T4's 300-test family. They are named here, before T5 computes a cost,
+so that they cannot be re-selected once the costs are visible. Every one of
+them gets a verdict; **no new cell may be added from T4's FLAT set**, and none
+may be dropped from the set after its arithmetic is seen. A cell whose implied
+edge clears the 1.5× bar earns a T7 card; the rest are CLOSED with the
+arithmetic recorded, which is a different and more useful outcome than being
+forgotten.
+
+**D3 — T7 planning inherits four OVERLAYS, not entries.** An overlay modifies
+a trade a rule was going to make anyway; an entry makes new trades. The
+distinction is the point, because an overlay that fails costs a filter and an
+entry that fails costs a strategy:
+
+* **vol-conditional sizing** — position scaled against forecast volatility,
+  which is what T4's one never-flipping regularity supports;
+* **session restriction as an execution constraint** — trade only inside the
+  pair's own cheapest-spread band. Never as a signal claim: the two look
+  identical in a backtest and differ completely in what they assert, and only
+  the execution reading survives being wrong about the signal;
+* **regime-conditional entry** only where the regime difference is large and
+  stable, with terciles **re-estimated inside each training window** — a
+  boundary fitted on the whole decade is a boundary fitted to the test set;
+* **roll-window avoidance** — pre-reg #4, now evidence-backed by T4's roll
+  table and re-quantified against cost by T5.
+
+**D4 — T6 (cross-pair structure) is the primary remaining hypothesis source on
+price data alone.** The external-data question — rates and carry, positioning,
+the macro calendar — is **banked for a later checkpoint** and is not a T5 or T6
+concern. Neither card may originate it.
+
 ## Task roadmap (each = one task card, one bounded loop, one review)
 
 * **T1 — Coverage survey.** Measure Dukascopy coverage per pair per year,
