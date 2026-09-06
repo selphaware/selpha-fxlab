@@ -1,0 +1,181 @@
+# T5 - EDA battery II, cost geometry. See taskcards/T5.md.
+#
+# One program, like T4 and for the same reason: everything here is a
+# deterministic pass over the stored bars plus a deterministic call into the
+# Phase 1 cost model, so the experiment computes every number it reports and
+# the gate recomputes every one of them on every run.
+#
+#   python -m research.run --config <this file>
+#       the experiment. Reads bars through the research loader, prices every
+#       move through fxlab.costs.IBCostModel at the pre-registered ladder, and
+#       writes result.json.
+#
+#   python -m research.cost_geometry_report --result <result.json> --out <report>
+#       renders reports/T5_cost_geometry.md and every figure under reports/T5/,
+#       each beside the CSV it was drawn from. Ruling R6: the report has no
+#       authored numbers -- every figure in it is derived here, at render time,
+#       from the result document.
+#
+# Mode. `scoring`, `scored = false`. This card produces analytical bounds and a
+# map, not a scorecard, and none can be demanded of it: nothing here is
+# backtested and no candidate is advanced or killed. `scoring` mode rather than
+# `mechanical` because that is what puts this config under the gate's
+# sealed-date scan and makes the loader police every date it serves --
+# including ruling R1's AUDUSD window, which the full-history era section would
+# otherwise walk straight into.
+#
+# Seal. The window ends on the last research day. No date at or after the
+# cutoff appears in this file or in any read it makes.
+
+[experiment]
+id = "T5-cost-geometry"
+taskcard = "T5"
+entry = "research.cost_geometry:run"
+seed = 20260906
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+# --------------------------------------------------------------------------- #
+# The cost model - one model, one set of parameters, every candidate
+# --------------------------------------------------------------------------- #
+#
+# SPEC2's cost rule, in its standard place. These are the Phase 1 IB tier-1
+# parameters and the values `config/backtest_example.toml` already carries;
+# they are declared here rather than defaulted in code so that the result
+# document records what priced it and a later card cannot quietly price
+# against a different model. `cost_multiplier` is the base of the ladder: the
+# experiment builds one model per rung (1.0 / 1.2 / 1.5 / 2.0) from these
+# numbers and this value is the rung the per-bar costs are measured at.
+#
+# The USD 2.00 minimum is the one place the quote currency matters, and SPEC2
+# prerequisite P0-A is exactly that gap. Every cost this card reports is a
+# ratio of two quote-currency quantities and so is currency-free; the floor is
+# the exception, and `reference_units` below is deliberately far above the size
+# at which it binds for any pair in the universe. The experiment measures that
+# rather than assuming it and records the count.
+[experiment.costs]
+commission_rate = 2e-05
+commission_min = 2.0
+cost_multiplier = 1.0
+
+[experiment.params]
+experiment_dir = "experiments/T5-cost-geometry"
+data_dir = "data/research"
+crosscheck_classes_path = "config/crosscheck.toml"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# --------------------------------------------------------------------------- #
+# Windows
+# --------------------------------------------------------------------------- #
+
+# The card's primary window, the same one T4 used, so the cost geometry and the
+# character it is being compared against are measured over the same decade.
+start_date = "2015-01-01"
+end_date = "2025-02-28"
+
+# The era section reaches back to the start of the store, on two horizons only.
+# AUDUSD starts in 2011 there by ruling R1, and the loader refuses it rather
+# than trusting this file to remember.
+history_start = "2005-01-03"
+history_timeframes = ["1h", "1d"]
+
+# The horizon ladder of pre-reg #6, in the order the report reads them.
+timeframes = ["5m", "30m", "1h", "4h", "1d"]
+
+# Session, spread and density statistics are computed on the hourly series, as
+# T4's were: the roll window is two hours wide and the session map moves with
+# three separate daylight-saving rules, so hourly is the coarsest grain that
+# resolves both.
+session_timeframe = "1h"
+
+# Pre-reg #4's window, in America/New_York, derived to UTC per bar rather than
+# hardcoded: 17:00 New York is 21:00Z in summer and 22:00Z in winter.
+roll_start_hour_ny = 16
+roll_end_hour_ny = 18
+
+# --------------------------------------------------------------------------- #
+# Sizing
+# --------------------------------------------------------------------------- #
+
+# The notional every round trip is priced at, in units of the base currency.
+# One million is the size `config/backtest_example.toml` uses and is far above
+# the point where the USD 2.00 per-order minimum binds for any pair in the
+# universe -- which is the whole reason it is this number and not a smaller
+# one. At a size where the floor bound, the commission on the eight
+# non-USD-quoted pairs would be wrong until P0-A lands, and no table here could
+# be read. The experiment measures the floor-binding count and reports it.
+reference_units = 1000000
+
+# Volatility regimes: terciles of the standard deviation of the previous 20
+# returns, computed strictly before the return being labelled. T4's window, so
+# the regimes in the two reports are the same regimes.
+vol_window = 20
+
+# The variance-ratio aggregation the multi-lag edge bound is taken at. Four,
+# because that is the rung T4's fingerprint and its false-discovery correction
+# were computed on, and a bound taken at a different q would be a bound on a
+# different claim from the one D2 pre-registered.
+vr_horizon = 4
+
+# --------------------------------------------------------------------------- #
+# The D2 test set - pre-registered at the M4 checkpoint
+# --------------------------------------------------------------------------- #
+#
+# SPEC2 §M4 checkpoint decisions, D2. These are the eleven T4 cells whose q=4
+# variance ratio survived Benjamini-Hochberg at FDR 0.05 inside a 300-test
+# family, all eleven mean-reverting and all eleven holding their sign on
+# rolling two-year windows. They are listed here, in the config, before any
+# cost was computed, because a test set chosen after the costs are visible is
+# not a test set. The experiment verdicts every one and may add none: a cell
+# from T4's FLAT set appearing in this list would be a change to a
+# pre-registration, which is a checkpoint decision and not a loop's.
+
+[[experiment.params.test_set]]
+pair = "EURGBP"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "AUDJPY"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "GBPUSD"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "NZDUSD"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "AUDUSD"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "EURJPY"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "GBPJPY"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "EURUSD"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "USDCAD"
+horizon = "5m"
+
+[[experiment.params.test_set]]
+pair = "NZDUSD"
+horizon = "30m"
+
+[[experiment.params.test_set]]
+pair = "USDCAD"
+horizon = "30m"

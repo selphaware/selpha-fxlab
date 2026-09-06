@@ -1296,7 +1296,8 @@ def rank_stability(cells: dict[str, dict[str, Any]], pairs: Sequence[str],
 # The entry point
 # --------------------------------------------------------------------------- #
 
-def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
+def run(*, params: dict[str, Any], seed: int, loader: Any,
+        costs: dict[str, Any] | None = None) -> dict[str, Any]:
     """The T4 experiment. Evidence and hypotheses; no decisions.
 
     Args:

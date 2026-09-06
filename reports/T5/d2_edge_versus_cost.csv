@@ -1,0 +1,12 @@
+pair,horizon,lag1_edge_bp,vr_edge_bp,cost_bp_p50,verdict,verdict_from_variant,verdict_from_route
+EURGBP,5m,0.16445,1.89936,2.18065,SURVIVES,session london_ny_overlap,variance_ratio_bound
+AUDJPY,5m,0.18685,2.42381,1.92351,SURVIVES,all hours,variance_ratio_bound
+GBPUSD,5m,0.13984,1.86879,1.62846,SURVIVES,session london_ny_overlap,variance_ratio_bound
+NZDUSD,5m,0.12805,2.04301,3.11256,CLOSED,session london,variance_ratio_bound
+AUDUSD,5m,0.13067,1.94736,2.68533,CLOSED,session london,variance_ratio_bound
+EURJPY,5m,0.12723,1.67496,1.42474,SURVIVES,session london_ny_overlap,variance_ratio_bound
+GBPJPY,5m,0.12973,1.93436,2.22374,PARKED,all hours,variance_ratio_bound
+EURUSD,5m,0.08966,1.35986,0.98455,SURVIVES,all hours,variance_ratio_bound
+USDCAD,5m,0.08229,1.24788,1.88274,CLOSED,all hours,variance_ratio_bound
+NZDUSD,30m,0.27777,4.0841,3.12376,SURVIVES,session london,variance_ratio_bound
+USDCAD,30m,0.13846,2.37304,1.8902,SURVIVES,session london_ny_overlap,variance_ratio_bound

@@ -59,7 +59,8 @@ _LOG: Final[logging.Logger] = logging.getLogger("research.quality")
 MAX_MISMATCH_ROWS: Final[int] = 50
 
 
-def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
+def run(*, params: dict[str, Any], seed: int, loader: Any,
+        costs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Read the store four ways. The T3 experiment entry point.
 
     Args:

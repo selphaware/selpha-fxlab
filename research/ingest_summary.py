@@ -56,7 +56,8 @@ PER_PAIR_WARNINGS: Final[tuple[str, ...]] = (
 PRE_OPEN_FEED_DATA: Final[str] = "PRE_OPEN_FEED_DATA"
 
 
-def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
+def run(*, params: dict[str, Any], seed: int, loader: Any,
+        costs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Summarise the stored research window. The T2a experiment entry point.
 
     Args:

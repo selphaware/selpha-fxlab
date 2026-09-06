@@ -401,7 +401,8 @@ def annotate_holes(hole_list: list[dict[str, Any]],
 # The entry point
 # --------------------------------------------------------------------------- #
 
-def run(params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
+def run(params: dict[str, Any], seed: int, loader: Any,
+        costs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Summarise Dukascopy coverage per pair from the recorded probes.
 
     Args:

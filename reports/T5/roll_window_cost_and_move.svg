@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="The roll window against the rest of the day (hourly bars)">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">The roll window against the rest of the day (hourly bars)</text>
+<line class="grid" x1="78" y1="314.958" x2="854" y2="314.958" />
+<text class="axis" x="70" y="318.958" text-anchor="end">0.50</text>
+<line class="grid" x1="78" y1="198.697" x2="854" y2="198.697" />
+<text class="axis" x="70" y="202.697" text-anchor="end">1.00</text>
+<line class="grid" x1="78" y1="82.435" x2="854" y2="82.435" />
+<text class="axis" x="70" y="86.435" text-anchor="end">1.50</text>
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="352" text-anchor="end" transform="rotate(-45 119.571 352)">AUDJPY</text>
+<line class="grid" x1="182.558" y1="40" x2="182.558" y2="346" />
+<text class="axis" x="182.558" y="352" text-anchor="end" transform="rotate(-45 182.558 352)">AUDUSD</text>
+<line class="grid" x1="245.545" y1="40" x2="245.545" y2="346" />
+<text class="axis" x="245.545" y="352" text-anchor="end" transform="rotate(-45 245.545 352)">EURCHF</text>
+<line class="grid" x1="308.532" y1="40" x2="308.532" y2="346" />
+<text class="axis" x="308.532" y="352" text-anchor="end" transform="rotate(-45 308.532 352)">EURGBP</text>
+<line class="grid" x1="371.519" y1="40" x2="371.519" y2="346" />
+<text class="axis" x="371.519" y="352" text-anchor="end" transform="rotate(-45 371.519 352)">EURJPY</text>
+<line class="grid" x1="434.506" y1="40" x2="434.506" y2="346" />
+<text class="axis" x="434.506" y="352" text-anchor="end" transform="rotate(-45 434.506 352)">EURUSD</text>
+<line class="grid" x1="497.494" y1="40" x2="497.494" y2="346" />
+<text class="axis" x="497.494" y="352" text-anchor="end" transform="rotate(-45 497.494 352)">GBPJPY</text>
+<line class="grid" x1="560.481" y1="40" x2="560.481" y2="346" />
+<text class="axis" x="560.481" y="352" text-anchor="end" transform="rotate(-45 560.481 352)">GBPUSD</text>
+<line class="grid" x1="623.468" y1="40" x2="623.468" y2="346" />
+<text class="axis" x="623.468" y="352" text-anchor="end" transform="rotate(-45 623.468 352)">NZDUSD</text>
+<line class="grid" x1="686.455" y1="40" x2="686.455" y2="346" />
+<text class="axis" x="686.455" y="352" text-anchor="end" transform="rotate(-45 686.455 352)">USDCAD</text>
+<line class="grid" x1="749.442" y1="40" x2="749.442" y2="346" />
+<text class="axis" x="749.442" y="352" text-anchor="end" transform="rotate(-45 749.442 352)">USDCHF</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="352" text-anchor="end" transform="rotate(-45 812.429 352)">USDJPY</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">pair</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">ratio, inside / outside</text>
+<line class="ref" x1="78" y1="198.697" x2="854" y2="198.697" />
+<text class="axis" x="850" y="194.697" text-anchor="end">no difference</text>
+<polyline class="series" stroke="#c0603a" points="119.571,56.393 182.558,132.893 245.545,94.527 308.532,102.432 371.519,98.479 434.506,126.15 497.494,95.224 560.481,112.896 623.468,108.71 686.455,138.938 749.442,99.875 812.429,108.013" />
+<polyline class="series" stroke="#4b8b5a" points="119.571,305.425 182.558,324.492 245.545,287.753 308.532,308.215 371.519,314.028 434.506,329.607 497.494,306.355 560.481,327.282 623.468,300.309 686.455,291.473 749.442,310.308 812.429,309.145" />
+<rect x="78" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="92" y="392">round-trip cost</text>
+<rect x="199" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="213" y="392">median |move|</text>
+</svg>

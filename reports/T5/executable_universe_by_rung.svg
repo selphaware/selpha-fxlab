@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Horizon-by-session cells whose median move clears their median cost">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Horizon-by-session cells whose median move clears their median cost</text>
+<line class="grid" x1="78" y1="238.536" x2="854" y2="238.536" />
+<text class="axis" x="70" y="242.536" text-anchor="end">10</text>
+<line class="grid" x1="78" y1="86.75" x2="854" y2="86.75" />
+<text class="axis" x="70" y="90.75" text-anchor="end">15</text>
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">1.0</text>
+<line class="grid" x1="350.524" y1="40" x2="350.524" y2="346" />
+<text class="axis" x="350.524" y="362" text-anchor="middle">1.2</text>
+<line class="grid" x1="581.476" y1="40" x2="581.476" y2="346" />
+<text class="axis" x="581.476" y="362" text-anchor="middle">1.5</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">2.0</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">cost multiplier</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">cells</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,56.393 350.524,56.393 581.476,117.107 812.429,208.179" />
+<polyline class="series" stroke="#c0603a" points="119.571,86.75 350.524,177.821 581.476,208.179 812.429,238.536" />
+<polyline class="series" stroke="#4b8b5a" points="119.571,177.821 350.524,268.893 581.476,299.25 812.429,329.607" />
+<polyline class="series" stroke="#8d5aa8" points="119.571,177.821 350.524,177.821 581.476,238.536 812.429,329.607" />
+<polyline class="series" stroke="#b08b28" points="119.571,56.393 350.524,56.393 581.476,147.464 812.429,177.821" />
+<polyline class="series" stroke="#3f8f97" points="119.571,56.393 350.524,56.393 581.476,117.107 812.429,177.821" />
+<polyline class="series" stroke="#a8496a" points="119.571,86.75 350.524,177.821 581.476,177.821 812.429,238.536" />
+<polyline class="series" stroke="#6b7f3a" points="119.571,117.107 350.524,147.464 581.476,177.821 812.429,177.821" />
+<polyline class="series" stroke="#7a6bbf" points="119.571,117.107 350.524,177.821 581.476,238.536 812.429,268.893" />
+<polyline class="series" stroke="#9a6b3f" points="119.571,117.107 350.524,208.179 581.476,208.179 812.429,268.893" />
+<polyline class="series" stroke="#4a8fbf" points="119.571,177.821 350.524,177.821 581.476,208.179 812.429,268.893" />
+<polyline class="series" stroke="#8f4a4a" points="119.571,56.393 350.524,56.393 581.476,56.393 812.429,147.464" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">AUDJPY</text>
+<rect x="139.6" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="153.6" y="392">AUDUSD</text>
+<rect x="201.2" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="215.2" y="392">EURCHF</text>
+<rect x="262.8" y="384" width="10" height="10" fill="#8d5aa8" />
+<text class="axis" x="276.8" y="392">EURGBP</text>
+<rect x="324.4" y="384" width="10" height="10" fill="#b08b28" />
+<text class="axis" x="338.4" y="392">EURJPY</text>
+<rect x="386" y="384" width="10" height="10" fill="#3f8f97" />
+<text class="axis" x="400" y="392">EURUSD</text>
+<rect x="447.6" y="384" width="10" height="10" fill="#a8496a" />
+<text class="axis" x="461.6" y="392">GBPJPY</text>
+<rect x="509.2" y="384" width="10" height="10" fill="#6b7f3a" />
+<text class="axis" x="523.2" y="392">GBPUSD</text>
+<rect x="570.8" y="384" width="10" height="10" fill="#7a6bbf" />
+<text class="axis" x="584.8" y="392">NZDUSD</text>
+<rect x="632.4" y="384" width="10" height="10" fill="#9a6b3f" />
+<text class="axis" x="646.4" y="392">USDCAD</text>
+<rect x="694" y="384" width="10" height="10" fill="#4a8fbf" />
+<text class="axis" x="708" y="392">USDCHF</text>
+<rect x="755.6" y="384" width="10" height="10" fill="#8f4a4a" />
+<text class="axis" x="769.6" y="392">USDJPY</text>
+</svg>

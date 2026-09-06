@@ -52,8 +52,8 @@ def _stats(spreads: Any) -> dict[str, Any]:
     }
 
 
-def run(params: dict[str, Any], seed: int,
-        loader: ResearchLoader) -> dict[str, Any]:
+def run(params: dict[str, Any], seed: int, loader: ResearchLoader,
+        costs: dict[str, Any] | None = None) -> dict[str, Any]:
     """Compute mean and percentile spread by session for one pair.
 
     Args:

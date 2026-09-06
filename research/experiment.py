@@ -307,7 +307,13 @@ def execute(config: ExperimentConfig, base: pathlib.Path) -> dict[str, Any]:
     """
     func = resolve_entry(config.entry)
     loader = build_loader(config, base)
-    payload = func(params=dict(config.params), seed=config.seed, loader=loader)
+    # ``costs`` is handed over rather than left for the entry point to find,
+    # because SPEC2's cost rule is one model with one set of parameters for
+    # every candidate, *declared in the experiment config*. An entry point that
+    # read them from anywhere else would be a second declaration, and an entry
+    # point that defaulted them would be a third.
+    payload = func(params=dict(config.params), seed=config.seed, loader=loader,
+                   costs=dict(config.costs))
     if not isinstance(payload, dict):
         raise ExperimentError(
             BAD_EXPERIMENT_CONFIG,

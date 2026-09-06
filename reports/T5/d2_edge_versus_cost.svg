@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="The D2 test set: implied edge against the round trip">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">The D2 test set: implied edge against the round trip</text>
+<line class="grid" x1="78" y1="315.968" x2="854" y2="315.968" />
+<text class="axis" x="70" y="319.968" text-anchor="end">-1.00</text>
+<line class="grid" x1="78" y1="235.41" x2="854" y2="235.41" />
+<text class="axis" x="70" y="239.41" text-anchor="end">-0.50</text>
+<line class="grid" x1="78" y1="154.851" x2="854" y2="154.851" />
+<text class="axis" x="70" y="158.851" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="74.292" x2="854" y2="74.292" />
+<text class="axis" x="70" y="78.292" text-anchor="end">0.50</text>
+<line class="zero" x1="78" y1="154.851" x2="854" y2="154.851" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="352" text-anchor="end" transform="rotate(-45 119.571 352)">EURGBP 5m</text>
+<line class="grid" x1="188.857" y1="40" x2="188.857" y2="346" />
+<text class="axis" x="188.857" y="352" text-anchor="end" transform="rotate(-45 188.857 352)">AUDJPY 5m</text>
+<line class="grid" x1="258.143" y1="40" x2="258.143" y2="346" />
+<text class="axis" x="258.143" y="352" text-anchor="end" transform="rotate(-45 258.143 352)">GBPUSD 5m</text>
+<line class="grid" x1="327.429" y1="40" x2="327.429" y2="346" />
+<text class="axis" x="327.429" y="352" text-anchor="end" transform="rotate(-45 327.429 352)">NZDUSD 5m</text>
+<line class="grid" x1="396.714" y1="40" x2="396.714" y2="346" />
+<text class="axis" x="396.714" y="352" text-anchor="end" transform="rotate(-45 396.714 352)">AUDUSD 5m</text>
+<line class="grid" x1="466" y1="40" x2="466" y2="346" />
+<text class="axis" x="466" y="352" text-anchor="end" transform="rotate(-45 466 352)">EURJPY 5m</text>
+<line class="grid" x1="535.286" y1="40" x2="535.286" y2="346" />
+<text class="axis" x="535.286" y="352" text-anchor="end" transform="rotate(-45 535.286 352)">GBPJPY 5m</text>
+<line class="grid" x1="604.571" y1="40" x2="604.571" y2="346" />
+<text class="axis" x="604.571" y="352" text-anchor="end" transform="rotate(-45 604.571 352)">EURUSD 5m</text>
+<line class="grid" x1="673.857" y1="40" x2="673.857" y2="346" />
+<text class="axis" x="673.857" y="352" text-anchor="end" transform="rotate(-45 673.857 352)">USDCAD 5m</text>
+<line class="grid" x1="743.143" y1="40" x2="743.143" y2="346" />
+<text class="axis" x="743.143" y="352" text-anchor="end" transform="rotate(-45 743.143 352)">NZDUSD 30m</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="352" text-anchor="end" transform="rotate(-45 812.429 352)">USDCAD 30m</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">cell</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">log10 basis points</text>
+<circle class="dot" cx="119.571" cy="281.161" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="188.857" cy="272.226" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="258.143" cy="292.504" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="327.429" cy="298.667" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="396.714" cy="297.25" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="466" cy="299.117" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="535.286" cy="297.755" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="604.571" cy="323.605" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="673.857" cy="329.607" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="743.143" cy="244.483" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="293.198" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="119.571" cy="109.963" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="188.857" cy="92.902" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="258.143" cy="111.098" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="327.429" cy="104.861" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="396.714" cy="108.216" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="466" cy="118.76" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="535.286" cy="108.685" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="604.571" cy="133.343" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="673.857" cy="139.356" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="743.143" cy="56.393" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="812.429" cy="94.383" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="119.571" cy="100.299" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="188.857" cy="109.078" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="258.143" cy="120.73" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="327.429" cy="75.401" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="396.714" cy="85.732" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="466" cy="130.082" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="535.286" cy="98.93" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="604.571" cy="155.94" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="673.857" cy="110.578" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="743.143" cy="75.15" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="110.301" r="2.4" fill="#c0603a" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">|rho(1)| x sd</text>
+<rect x="185.8" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="199.8" y="392">variance-ratio bound</text>
+<rect x="339.8" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="353.8" y="392">round trip at 1.5x</text>
+</svg>
