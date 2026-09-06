@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Unexplained empty dates by year and class">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Unexplained empty dates by year and class</text>
+<line class="grid" x1="78" y1="329.607" x2="854" y2="329.607" />
+<text class="axis" x="70" y="333.607" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="266.069" x2="854" y2="266.069" />
+<text class="axis" x="70" y="270.069" text-anchor="end">20</text>
+<line class="grid" x1="78" y1="202.531" x2="854" y2="202.531" />
+<text class="axis" x="70" y="206.531" text-anchor="end">40</text>
+<line class="grid" x1="78" y1="138.993" x2="854" y2="138.993" />
+<text class="axis" x="70" y="142.993" text-anchor="end">60</text>
+<line class="grid" x1="78" y1="75.454" x2="854" y2="75.454" />
+<text class="axis" x="70" y="79.454" text-anchor="end">80</text>
+<line class="zero" x1="78" y1="329.607" x2="854" y2="329.607" />
+<line class="grid" x1="138.817" y1="40" x2="138.817" y2="346" />
+<text class="axis" x="138.817" y="362" text-anchor="middle">2005</text>
+<line class="grid" x1="177.31" y1="40" x2="177.31" y2="346" />
+<text class="axis" x="177.31" y="362" text-anchor="middle">2007</text>
+<line class="grid" x1="215.802" y1="40" x2="215.802" y2="346" />
+<text class="axis" x="215.802" y="362" text-anchor="middle">2008</text>
+<line class="grid" x1="254.294" y1="40" x2="254.294" y2="346" />
+<text class="axis" x="254.294" y="362" text-anchor="middle">2009</text>
+<line class="grid" x1="292.786" y1="40" x2="292.786" y2="346" />
+<text class="axis" x="292.786" y="362" text-anchor="middle">2010</text>
+<line class="grid" x1="331.278" y1="40" x2="331.278" y2="346" />
+<text class="axis" x="331.278" y="362" text-anchor="middle">2011</text>
+<line class="grid" x1="369.77" y1="40" x2="369.77" y2="346" />
+<text class="axis" x="369.77" y="362" text-anchor="middle">2012</text>
+<line class="grid" x1="408.262" y1="40" x2="408.262" y2="346" />
+<text class="axis" x="408.262" y="362" text-anchor="middle">2013</text>
+<line class="grid" x1="446.754" y1="40" x2="446.754" y2="346" />
+<text class="axis" x="446.754" y="362" text-anchor="middle">2014</text>
+<line class="grid" x1="485.246" y1="40" x2="485.246" y2="346" />
+<text class="axis" x="485.246" y="362" text-anchor="middle">2015</text>
+<line class="grid" x1="523.738" y1="40" x2="523.738" y2="346" />
+<text class="axis" x="523.738" y="362" text-anchor="middle">2016</text>
+<line class="grid" x1="562.23" y1="40" x2="562.23" y2="346" />
+<text class="axis" x="562.23" y="362" text-anchor="middle">2017</text>
+<line class="grid" x1="600.722" y1="40" x2="600.722" y2="346" />
+<text class="axis" x="600.722" y="362" text-anchor="middle">2018</text>
+<line class="grid" x1="639.214" y1="40" x2="639.214" y2="346" />
+<text class="axis" x="639.214" y="362" text-anchor="middle">2019</text>
+<line class="grid" x1="677.706" y1="40" x2="677.706" y2="346" />
+<text class="axis" x="677.706" y="362" text-anchor="middle">2020</text>
+<line class="grid" x1="716.198" y1="40" x2="716.198" y2="346" />
+<text class="axis" x="716.198" y="362" text-anchor="middle">2022</text>
+<line class="grid" x1="754.69" y1="40" x2="754.69" y2="346" />
+<text class="axis" x="754.69" y="362" text-anchor="middle">2023</text>
+<line class="grid" x1="793.183" y1="40" x2="793.183" y2="346" />
+<text class="axis" x="793.183" y="362" text-anchor="middle">2024</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">year</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">dates</text>
+<rect x="144.591" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="159.988" y="81.808" width="4.908" height="247.799" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="165.762" y="316.9" width="4.908" height="12.708" fill="#c0603a" fill-opacity="0.85" />
+<rect x="171.536" y="323.253" width="4.908" height="6.354" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="177.31" y="323.253" width="4.908" height="6.354" fill="#8d5aa8" fill-opacity="0.85" />
+<rect x="198.48" y="113.577" width="4.908" height="216.03" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="204.254" y="320.076" width="4.908" height="9.531" fill="#c0603a" fill-opacity="0.85" />
+<rect x="210.028" y="323.253" width="4.908" height="6.354" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="215.802" y="323.253" width="4.908" height="6.354" fill="#8d5aa8" fill-opacity="0.85" />
+<rect x="227.349" y="326.43" width="4.908" height="3.177" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="236.972" y="154.877" width="4.908" height="174.73" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="242.746" y="316.9" width="4.908" height="12.708" fill="#c0603a" fill-opacity="0.85" />
+<rect x="248.52" y="323.253" width="4.908" height="6.354" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="254.294" y="301.015" width="4.908" height="28.592" fill="#8d5aa8" fill-opacity="0.85" />
+<rect x="265.841" y="323.253" width="4.908" height="6.354" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="275.464" y="218.415" width="4.908" height="111.192" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="281.238" y="323.253" width="4.908" height="6.354" fill="#c0603a" fill-opacity="0.85" />
+<rect x="287.012" y="326.43" width="4.908" height="3.177" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="292.786" y="326.43" width="4.908" height="3.177" fill="#8d5aa8" fill-opacity="0.85" />
+<rect x="319.73" y="313.723" width="4.908" height="15.885" fill="#c0603a" fill-opacity="0.85" />
+<rect x="358.222" y="304.192" width="4.908" height="25.415" fill="#c0603a" fill-opacity="0.85" />
+<rect x="381.317" y="316.9" width="4.908" height="12.708" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="414.036" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="452.528" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="491.02" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="512.19" y="326.43" width="4.908" height="3.177" fill="#c0603a" fill-opacity="0.85" />
+<rect x="550.683" y="320.076" width="4.908" height="9.531" fill="#c0603a" fill-opacity="0.85" />
+<rect x="606.496" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="627.667" y="326.43" width="4.908" height="3.177" fill="#c0603a" fill-opacity="0.85" />
+<rect x="644.988" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="650.762" y="326.43" width="4.908" height="3.177" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="683.48" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="704.651" y="323.253" width="4.908" height="6.354" fill="#c0603a" fill-opacity="0.85" />
+<rect x="727.746" y="326.43" width="4.908" height="3.177" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="743.143" y="320.076" width="4.908" height="9.531" fill="#c0603a" fill-opacity="0.85" />
+<rect x="766.238" y="326.43" width="4.908" height="3.177" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="798.956" y="326.43" width="4.908" height="3.177" fill="#b08b28" fill-opacity="0.85" />
+<rect x="804.73" y="326.43" width="4.908" height="3.177" fill="#3f8f97" fill-opacity="0.85" />
+<rect x="78" y="384" width="10" height="10" fill="#b08b28" />
+<text class="axis" x="92" y="392">feed artefact</text>
+<rect x="185.8" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="199.8" y="392">r1 artefact</text>
+<rect x="280.4" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="294.4" y="392">week boundary</text>
+<rect x="388.2" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="402.2" y="392">calendar holiday</text>
+<rect x="515.8" y="384" width="10" height="10" fill="#8d5aa8" />
+<text class="axis" x="529.8" y="392">currency holiday</text>
+<rect x="643.4" y="384" width="10" height="10" fill="#3f8f97" />
+<text class="axis" x="657.4" y="392">unknown</text>
+</svg>

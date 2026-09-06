@@ -132,7 +132,8 @@ def chi2_sf(stat: float, df: int) -> float:
 # --------------------------------------------------------------------------- #
 
 def gap_aware_log_returns(prices: np.ndarray, stamps_ns: np.ndarray,
-                          step_ns: int) -> tuple[np.ndarray, np.ndarray]:
+                          step_ns: int, max_gap_ns: int | None = None
+                          ) -> tuple[np.ndarray, np.ndarray]:
     """Log returns between consecutive bars, with gapped pairs dropped.
 
     A bar table has holes in it -- every weekend, every holiday, every hour the
@@ -146,6 +147,12 @@ def gap_aware_log_returns(prices: np.ndarray, stamps_ns: np.ndarray,
         prices: Bar prices, strictly positive, in table order.
         stamps_ns: Bar open times as int64 epoch nanoseconds, same order.
         step_ns: The timeframe's own step, in nanoseconds.
+        max_gap_ns: When given, a pair is kept for any gap between ``step_ns``
+            and this bound rather than only for an exact step. The daily
+            horizon needs it and only the daily horizon does: Friday to Monday
+            **is** the standard daily return, so requiring exact adjacency
+            there would throw away every Monday, while an intraday horizon has
+            no reading under which a 65-hour move is a 5-minute one.
 
     Returns:
         ``(returns, kept)`` where ``kept`` is the boolean mask over the
@@ -157,7 +164,10 @@ def gap_aware_log_returns(prices: np.ndarray, stamps_ns: np.ndarray,
     if price.size < 2:
         return np.zeros(0, dtype="float64"), np.zeros(0, dtype=bool)
     deltas = np.diff(stamps)
-    kept = deltas == int(step_ns)
+    if max_gap_ns is None:
+        kept = deltas == int(step_ns)
+    else:
+        kept = (deltas >= int(step_ns)) & (deltas <= int(max_gap_ns))
     logp = np.log(price)
     returns = np.diff(logp)[kept]
     return returns.astype("float64", copy=False), kept
@@ -248,10 +258,19 @@ def tail_profile(x: np.ndarray) -> dict[str, Any]:
         out[f"tail_ratio_{label}"] = (empirical / (gaussian * sd)
                                       if sd > 0 else None)
     for sigmas in (4.0, 6.0):
-        observed = float(np.mean(absolute > sigmas * sd)) if sd > 0 else None
+        count = int(np.count_nonzero(absolute > sigmas * sd)) if sd > 0 else 0
+        observed = float(count / n) if sd > 0 else None
         expected = 2.0 * norm_sf(sigmas)
+        out[f"count_beyond_{int(sigmas)}sd"] = count
         out[f"share_beyond_{int(sigmas)}sd"] = observed
+        # The count matters as well as the ratio, and past four sigma it
+        # matters more. A Gaussian puts 1.5 thousandths of an observation
+        # beyond six sigma in a 759,000-point sample, so *any* observation
+        # there divides into a six-figure ratio -- a number that is arithmetically
+        # correct, reads as a typo, and crowds every other column out of the
+        # table it lands in.
         out[f"gaussian_share_beyond_{int(sigmas)}sd"] = expected
+        out[f"gaussian_count_beyond_{int(sigmas)}sd"] = expected * n
         out[f"excess_beyond_{int(sigmas)}sd"] = (
             observed / expected if observed is not None and expected > 0
             else None)
@@ -261,6 +280,205 @@ def tail_profile(x: np.ndarray) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # Memory
 # --------------------------------------------------------------------------- #
+
+def segments_of(index: np.ndarray) -> list[tuple[int, int]]:
+    """Maximal runs of consecutive integers in ``index``, as ``[start, stop)``.
+
+    A bar table has holes, so the surviving returns are not one series but a
+    handful of contiguous runs. Every memory estimator below is computed inside
+    a run and pooled across runs, never across a hole, because a lag-1 pair
+    that straddles a weekend is not a lag-1 pair. The holes are rare -- under a
+    tenth of a percent of consecutive pairs in this store -- and the estimators
+    still have to be right rather than nearly right, because "the difference is
+    small" is a claim about the data and "the estimator is correct" is a claim
+    about the code.
+    """
+    values = np.asarray(index, dtype="int64")
+    if values.size == 0:
+        return []
+    breaks = np.nonzero(np.diff(values) != 1)[0] + 1
+    edges = [0, *breaks.tolist(), values.size]
+    return [(edges[i], edges[i + 1]) for i in range(len(edges) - 1)
+            if edges[i + 1] > edges[i]]
+
+
+def lag_pairs(x: np.ndarray, spans: Sequence[tuple[int, int]], lag: int
+              ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """All ``(x_t, x_{t+lag})`` pairs lying inside one span.
+
+    Returns:
+        ``(earlier, later, positions)`` where ``positions`` indexes the later
+        element in ``x``, so a caller can select pairs by a per-observation
+        label -- which is how every regime-conditional statistic in this
+        battery is built.
+    """
+    values = np.asarray(x, dtype="float64")
+    if lag < 1:
+        raise ValueError(f"lag must be >= 1, got {lag}")
+    earlier: list[np.ndarray] = []
+    later: list[np.ndarray] = []
+    positions: list[np.ndarray] = []
+    for start, stop in spans:
+        if stop - start <= lag:
+            continue
+        earlier.append(values[start:stop - lag])
+        later.append(values[start + lag:stop])
+        positions.append(np.arange(start + lag, stop, dtype="int64"))
+    if not earlier:
+        empty_f = np.zeros(0, dtype="float64")
+        return empty_f, empty_f, np.zeros(0, dtype="int64")
+    return (np.concatenate(earlier), np.concatenate(later),
+            np.concatenate(positions))
+
+
+def autocorr_at(x: np.ndarray, spans: Sequence[tuple[int, int]], lag: int,
+                select: np.ndarray | None = None) -> dict[str, Any]:
+    """Lag-``lag`` autocorrelation over pairs inside spans, optionally selected.
+
+    The pairwise Pearson form rather than the single-denominator one, because
+    it is the form that still means something when pairs are being selected: a
+    regime-conditional autocorrelation is the correlation of the pairs the
+    regime picks out, and there is no shared denominator to divide them by.
+    """
+    earlier, later, positions = lag_pairs(x, spans, lag)
+    if select is not None and positions.size:
+        mask = np.asarray(select, dtype=bool)[positions]
+        earlier, later = earlier[mask], later[mask]
+    n = int(earlier.size)
+    rho = pearson(earlier, later) if n >= MIN_SAMPLE else None
+    z = (rho * math.sqrt(n) if rho is not None and n > 1 else None)
+    return {"lag": int(lag), "n": n, "rho": rho, "z": z,
+            "p_value": norm_two_sided(z) if z is not None else None}
+
+
+def forward_continuation(x: np.ndarray, spans: Sequence[tuple[int, int]],
+                         horizon: int,
+                         select: np.ndarray | None = None) -> dict[str, Any]:
+    """Correlation between one return and the next ``horizon`` summed.
+
+    The trend-versus-reversion question asked directly, and the one memory
+    statistic that survives being conditioned on a regime: the variance ratio
+    needs a contiguous overlapping window and cannot be restricted to the bars
+    a regime label picks out, while this can. Positive means moves continue,
+    negative means they give back.
+    """
+    values = np.asarray(x, dtype="float64")
+    if horizon < 1:
+        raise ValueError(f"horizon must be >= 1, got {horizon}")
+    current: list[np.ndarray] = []
+    ahead: list[np.ndarray] = []
+    positions: list[np.ndarray] = []
+    for start, stop in spans:
+        length = stop - start
+        if length <= horizon:
+            continue
+        window = values[start:stop]
+        cumulative = np.concatenate(([0.0], np.cumsum(window)))
+        forward = cumulative[horizon + 1:] - cumulative[1:-horizon]
+        current.append(window[:forward.size])
+        ahead.append(forward)
+        positions.append(np.arange(start, start + forward.size, dtype="int64"))
+    if not current:
+        return {"horizon": int(horizon), "n": 0, "rho": None, "z": None,
+                "p_value": None}
+    now = np.concatenate(current)
+    then = np.concatenate(ahead)
+    if select is not None:
+        mask = np.asarray(select, dtype=bool)[np.concatenate(positions)]
+        now, then = now[mask], then[mask]
+    n = int(now.size)
+    rho = pearson(now, then) if n >= MIN_SAMPLE else None
+    # The overlapping windows make neighbouring observations dependent, which
+    # inflates a naive t statistic by roughly sqrt(horizon). Deflating by it is
+    # the standard Newey-West-flavoured correction and is stated rather than
+    # hidden, because the alternative is a z of 200 that means nothing.
+    z = (rho * math.sqrt(n / horizon) if rho is not None and n > horizon
+         else None)
+    return {"horizon": int(horizon), "n": n, "rho": rho, "z": z,
+            "p_value": norm_two_sided(z) if z is not None else None}
+
+
+def sign_persistence_at(x: np.ndarray, spans: Sequence[tuple[int, int]],
+                        select: np.ndarray | None = None) -> dict[str, Any]:
+    """How often a return keeps the previous return's sign, inside spans."""
+    earlier, later, positions = lag_pairs(x, spans, 1)
+    if select is not None and positions.size:
+        mask = np.asarray(select, dtype=bool)[positions]
+        earlier, later = earlier[mask], later[mask]
+    keep = (earlier != 0.0) & (later != 0.0)
+    earlier, later = earlier[keep], later[keep]
+    n = int(earlier.size)
+    if n < MIN_SAMPLE:
+        return {"n": n, "p_same": None, "z": None, "p_value": None}
+    same = np.sign(earlier) == np.sign(later)
+    p_same = float(same.mean())
+    z = (p_same - 0.5) / math.sqrt(0.25 / n)
+    return {"n": n, "p_same": p_same, "z": float(z),
+            "p_value": norm_two_sided(z)}
+
+
+def variance_ratio_segments(x: np.ndarray, spans: Sequence[tuple[int, int]],
+                            q: int) -> dict[str, Any]:
+    """Lo-MacKinlay variance ratio over a series broken into contiguous spans.
+
+    The single-span case is exactly :func:`variance_ratio`: the unbiasing
+    denominator ``m = q K (1 - q/N)`` reduces to Lo and MacKinlay's when
+    ``K = N - q + 1``, and the fourth-moment sums reduce likewise. With holes,
+    every q-period sum lies inside one span, so a 32-bar window never spans a
+    weekend -- which at ``q = 32`` on 5-minute bars would otherwise be a few
+    percent of the windows.
+    """
+    values = np.asarray(x, dtype="float64")
+    total = int(values.size)
+    if q < 2 or total < max(MIN_SAMPLE, 2 * q):
+        return {"q": int(q), "n": total, "vr": None, "z": None,
+                "p_value": None, "se": None}
+    mu = float(values.mean())
+    centred = values - mu
+    var_1 = float(np.dot(centred, centred) / (total - 1))
+    if var_1 <= 0.0:
+        return {"q": int(q), "n": total, "vr": None, "z": None,
+                "p_value": None, "se": None}
+
+    windows = 0
+    squared_sum = 0.0
+    for start, stop in spans:
+        length = stop - start
+        if length < q:
+            continue
+        window = values[start:stop]
+        cumulative = np.concatenate(([0.0], np.cumsum(window)))
+        sums = cumulative[q:] - cumulative[:-q]
+        deviations = sums - q * mu
+        squared_sum += float(np.dot(deviations, deviations))
+        windows += int(sums.size)
+    m = q * windows * (1.0 - q / total)
+    if windows == 0 or m <= 0.0:
+        return {"q": int(q), "n": total, "vr": None, "z": None,
+                "p_value": None, "se": None}
+    vr = (squared_sum / m) / var_1
+
+    squares = centred ** 2
+    denominator = float(squares.sum()) ** 2
+    if denominator <= 0.0:
+        return {"q": int(q), "n": total, "vr": float(vr), "z": None,
+                "p_value": None, "se": None}
+    theta = 0.0
+    for j in range(1, q):
+        numerator = 0.0
+        for start, stop in spans:
+            if stop - start <= j:
+                continue
+            block = squares[start:stop]
+            numerator += float(np.dot(block[j:], block[:-j]))
+        theta += ((2.0 * (q - j)) / q) ** 2 * (numerator / denominator)
+    if theta <= 0.0:
+        return {"q": int(q), "n": total, "vr": float(vr), "z": None,
+                "p_value": None, "se": None}
+    z = (vr - 1.0) / math.sqrt(theta)
+    return {"q": int(q), "n": total, "vr": float(vr), "z": float(z),
+            "p_value": norm_two_sided(z), "se": math.sqrt(theta)}
+
 
 def acf(x: np.ndarray, nlags: int) -> list[float]:
     """Sample autocorrelation at lags ``1..nlags``.

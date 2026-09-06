@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Cross-check agreement and blindness, by year (ruling R7)">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Cross-check agreement and blindness, by year (ruling R7)</text>
+<line class="grid" x1="78" y1="329.607" x2="854" y2="329.607" />
+<text class="axis" x="70" y="333.607" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="193" x2="854" y2="193" />
+<text class="axis" x="70" y="197" text-anchor="end">0.50</text>
+<line class="grid" x1="78" y1="56.393" x2="854" y2="56.393" />
+<text class="axis" x="70" y="60.393" text-anchor="end">1.00</text>
+<line class="zero" x1="78" y1="329.607" x2="854" y2="329.607" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">2005</text>
+<line class="grid" x1="154.214" y1="40" x2="154.214" y2="346" />
+<text class="axis" x="154.214" y="362" text-anchor="middle">2006</text>
+<line class="grid" x1="188.857" y1="40" x2="188.857" y2="346" />
+<text class="axis" x="188.857" y="362" text-anchor="middle">2007</text>
+<line class="grid" x1="223.5" y1="40" x2="223.5" y2="346" />
+<text class="axis" x="223.5" y="362" text-anchor="middle">2008</text>
+<line class="grid" x1="258.143" y1="40" x2="258.143" y2="346" />
+<text class="axis" x="258.143" y="362" text-anchor="middle">2009</text>
+<line class="grid" x1="292.786" y1="40" x2="292.786" y2="346" />
+<text class="axis" x="292.786" y="362" text-anchor="middle">2010</text>
+<line class="grid" x1="327.429" y1="40" x2="327.429" y2="346" />
+<text class="axis" x="327.429" y="362" text-anchor="middle">2011</text>
+<line class="grid" x1="362.071" y1="40" x2="362.071" y2="346" />
+<text class="axis" x="362.071" y="362" text-anchor="middle">2012</text>
+<line class="grid" x1="396.714" y1="40" x2="396.714" y2="346" />
+<text class="axis" x="396.714" y="362" text-anchor="middle">2013</text>
+<line class="grid" x1="431.357" y1="40" x2="431.357" y2="346" />
+<text class="axis" x="431.357" y="362" text-anchor="middle">2014</text>
+<line class="grid" x1="466" y1="40" x2="466" y2="346" />
+<text class="axis" x="466" y="362" text-anchor="middle">2015</text>
+<line class="grid" x1="500.643" y1="40" x2="500.643" y2="346" />
+<text class="axis" x="500.643" y="362" text-anchor="middle">2016</text>
+<line class="grid" x1="535.286" y1="40" x2="535.286" y2="346" />
+<text class="axis" x="535.286" y="362" text-anchor="middle">2017</text>
+<line class="grid" x1="569.929" y1="40" x2="569.929" y2="346" />
+<text class="axis" x="569.929" y="362" text-anchor="middle">2018</text>
+<line class="grid" x1="604.571" y1="40" x2="604.571" y2="346" />
+<text class="axis" x="604.571" y="362" text-anchor="middle">2019</text>
+<line class="grid" x1="639.214" y1="40" x2="639.214" y2="346" />
+<text class="axis" x="639.214" y="362" text-anchor="middle">2020</text>
+<line class="grid" x1="673.857" y1="40" x2="673.857" y2="346" />
+<text class="axis" x="673.857" y="362" text-anchor="middle">2021</text>
+<line class="grid" x1="708.5" y1="40" x2="708.5" y2="346" />
+<text class="axis" x="708.5" y="362" text-anchor="middle">2022</text>
+<line class="grid" x1="743.143" y1="40" x2="743.143" y2="346" />
+<text class="axis" x="743.143" y="362" text-anchor="middle">2023</text>
+<line class="grid" x1="777.786" y1="40" x2="777.786" y2="346" />
+<text class="axis" x="777.786" y="362" text-anchor="middle">2024</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">2025</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">year</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">share of sampled hours</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,180.241 154.214,142.073 188.857,123.849 223.5,138.986 258.143,102.867 292.786,73.687 327.429,63.988 362.071,60.245 396.714,60.218 431.357,58.278 466,63.988 500.643,61.475 535.286,58.278 569.929,57.021 604.571,57.65 639.214,56.393 673.857,56.393 708.5,58.305 743.143,60.819 777.786,61.447 812.429,65.873" />
+<circle class="dot" cx="119.571" cy="180.241" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="154.214" cy="142.073" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="188.857" cy="123.849" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="223.5" cy="138.986" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="258.143" cy="102.867" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="292.786" cy="73.687" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="327.429" cy="63.988" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="362.071" cy="60.245" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="396.714" cy="60.218" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="431.357" cy="58.278" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="466" cy="63.988" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="500.643" cy="61.475" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="535.286" cy="58.278" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="569.929" cy="57.021" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="604.571" cy="57.65" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="639.214" cy="56.393" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="673.857" cy="56.393" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="708.5" cy="58.305" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="743.143" cy="60.819" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="777.786" cy="61.447" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="65.873" r="2.4" fill="#2f6f9f" />
+<polyline class="series" stroke="#c0603a" stroke-dasharray="5 3" points="119.571,159.886 154.214,137.811 188.857,277.177 223.5,323.405 258.143,325.454 292.786,328.924 327.429,329.607 362.071,326.438 396.714,328.35 431.357,329.607 466,329.607 500.643,329.607 535.286,329.607 569.929,328.979 604.571,329.607 639.214,329.607 673.857,329.607 708.5,329.607 743.143,329.607 777.786,329.607 812.429,329.607" />
+<circle class="dot" cx="119.571" cy="159.886" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="154.214" cy="137.811" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="188.857" cy="277.177" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="223.5" cy="323.405" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="258.143" cy="325.454" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="292.786" cy="328.924" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="327.429" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="362.071" cy="326.438" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="396.714" cy="328.35" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="431.357" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="466" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="500.643" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="535.286" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="569.929" cy="328.979" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="604.571" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="639.214" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="673.857" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="708.5" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="743.143" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="777.786" cy="329.607" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="329.607" r="2.4" fill="#c0603a" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">agreement among verifiable hours</text>
+<rect x="311.2" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="325.2" y="392">unverifiable share</text>
+</svg>

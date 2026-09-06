@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Lag-1 return autocorrelation by volatility regime, 5-minute bars">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Lag-1 return autocorrelation by volatility regime, 5-minute bars</text>
+<line class="grid" x1="78" y1="281.755" x2="854" y2="281.755" />
+<text class="axis" x="70" y="285.755" text-anchor="end">-0.05</text>
+<line class="grid" x1="78" y1="185.521" x2="854" y2="185.521" />
+<text class="axis" x="70" y="189.521" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="89.286" x2="854" y2="89.286" />
+<text class="axis" x="70" y="93.286" text-anchor="end">0.05</text>
+<line class="zero" x1="78" y1="185.521" x2="854" y2="185.521" />
+<line class="grid" x1="148.44" y1="40" x2="148.44" y2="346" />
+<text class="axis" x="148.44" y="352" text-anchor="end" transform="rotate(-45 148.44 352)">AUDJPY</text>
+<line class="grid" x1="206.179" y1="40" x2="206.179" y2="346" />
+<text class="axis" x="206.179" y="352" text-anchor="end" transform="rotate(-45 206.179 352)">AUDUSD</text>
+<line class="grid" x1="263.917" y1="40" x2="263.917" y2="346" />
+<text class="axis" x="263.917" y="352" text-anchor="end" transform="rotate(-45 263.917 352)">EURCHF</text>
+<line class="grid" x1="321.655" y1="40" x2="321.655" y2="346" />
+<text class="axis" x="321.655" y="352" text-anchor="end" transform="rotate(-45 321.655 352)">EURGBP</text>
+<line class="grid" x1="379.393" y1="40" x2="379.393" y2="346" />
+<text class="axis" x="379.393" y="352" text-anchor="end" transform="rotate(-45 379.393 352)">EURJPY</text>
+<line class="grid" x1="437.131" y1="40" x2="437.131" y2="346" />
+<text class="axis" x="437.131" y="352" text-anchor="end" transform="rotate(-45 437.131 352)">EURUSD</text>
+<line class="grid" x1="494.869" y1="40" x2="494.869" y2="346" />
+<text class="axis" x="494.869" y="352" text-anchor="end" transform="rotate(-45 494.869 352)">GBPJPY</text>
+<line class="grid" x1="552.607" y1="40" x2="552.607" y2="346" />
+<text class="axis" x="552.607" y="352" text-anchor="end" transform="rotate(-45 552.607 352)">GBPUSD</text>
+<line class="grid" x1="610.345" y1="40" x2="610.345" y2="346" />
+<text class="axis" x="610.345" y="352" text-anchor="end" transform="rotate(-45 610.345 352)">NZDUSD</text>
+<line class="grid" x1="668.083" y1="40" x2="668.083" y2="346" />
+<text class="axis" x="668.083" y="352" text-anchor="end" transform="rotate(-45 668.083 352)">USDCAD</text>
+<line class="grid" x1="725.821" y1="40" x2="725.821" y2="346" />
+<text class="axis" x="725.821" y="352" text-anchor="end" transform="rotate(-45 725.821 352)">USDCHF</text>
+<line class="grid" x1="783.56" y1="40" x2="783.56" y2="346" />
+<text class="axis" x="783.56" y="352" text-anchor="end" transform="rotate(-45 783.56 352)">USDJPY</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">pair</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">lag-1 autocorrelation</text>
+<rect x="124.19" y="185.521" width="13.511" height="82.706" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="139.202" y="185.521" width="13.511" height="58.892" fill="#b08b28" fill-opacity="0.85" />
+<rect x="154.214" y="185.521" width="13.511" height="82.194" fill="#c0603a" fill-opacity="0.85" />
+<rect x="181.929" y="185.521" width="13.511" height="59.821" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="196.94" y="185.521" width="13.511" height="51.613" fill="#b08b28" fill-opacity="0.85" />
+<rect x="211.952" y="185.521" width="13.511" height="65.619" fill="#c0603a" fill-opacity="0.85" />
+<rect x="239.667" y="185.521" width="13.511" height="123.931" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="254.679" y="185.521" width="13.511" height="125.852" fill="#b08b28" fill-opacity="0.85" />
+<rect x="269.69" y="56.393" width="13.511" height="129.128" fill="#c0603a" fill-opacity="0.85" />
+<rect x="297.405" y="185.521" width="13.511" height="144.087" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="312.417" y="185.521" width="13.511" height="94.299" fill="#b08b28" fill-opacity="0.85" />
+<rect x="327.429" y="185.521" width="13.511" height="102.155" fill="#c0603a" fill-opacity="0.85" />
+<rect x="355.143" y="185.521" width="13.511" height="78.062" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="370.155" y="185.521" width="13.511" height="53.106" fill="#b08b28" fill-opacity="0.85" />
+<rect x="385.167" y="185.521" width="13.511" height="73.369" fill="#c0603a" fill-opacity="0.85" />
+<rect x="412.881" y="185.521" width="13.511" height="68.254" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="427.893" y="185.521" width="13.511" height="48.085" fill="#b08b28" fill-opacity="0.85" />
+<rect x="442.905" y="185.521" width="13.511" height="58.139" fill="#c0603a" fill-opacity="0.85" />
+<rect x="470.619" y="185.521" width="13.511" height="77.559" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="485.631" y="185.521" width="13.511" height="49.501" fill="#b08b28" fill-opacity="0.85" />
+<rect x="500.643" y="185.521" width="13.511" height="59.689" fill="#c0603a" fill-opacity="0.85" />
+<rect x="528.357" y="185.521" width="13.511" height="77.725" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="543.369" y="185.521" width="13.511" height="47.757" fill="#b08b28" fill-opacity="0.85" />
+<rect x="558.381" y="185.521" width="13.511" height="81.703" fill="#c0603a" fill-opacity="0.85" />
+<rect x="586.095" y="185.521" width="13.511" height="38.631" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="601.107" y="185.521" width="13.511" height="57.918" fill="#b08b28" fill-opacity="0.85" />
+<rect x="616.119" y="185.521" width="13.511" height="62.399" fill="#c0603a" fill-opacity="0.85" />
+<rect x="643.833" y="185.521" width="13.511" height="55.82" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="658.845" y="185.521" width="13.511" height="53.512" fill="#b08b28" fill-opacity="0.85" />
+<rect x="673.857" y="185.521" width="13.511" height="55.851" fill="#c0603a" fill-opacity="0.85" />
+<rect x="701.571" y="185.521" width="13.511" height="84.844" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="716.583" y="185.521" width="13.511" height="68.061" fill="#b08b28" fill-opacity="0.85" />
+<rect x="731.595" y="136.202" width="13.511" height="49.318" fill="#c0603a" fill-opacity="0.85" />
+<rect x="759.31" y="185.521" width="13.511" height="35.178" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="774.321" y="185.521" width="13.511" height="25.989" fill="#b08b28" fill-opacity="0.85" />
+<rect x="789.333" y="185.521" width="13.511" height="42.447" fill="#c0603a" fill-opacity="0.85" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">low volatility</text>
+<rect x="192.4" y="384" width="10" height="10" fill="#b08b28" />
+<text class="axis" x="206.4" y="392">mid volatility</text>
+<rect x="306.8" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="320.8" y="392">high volatility</text>
+</svg>

@@ -300,3 +300,82 @@ def test_tercile_edges_refuse_a_degenerate_sample() -> None:
     assert stats.tercile_edges(np.ones(500)) is None
     edges = stats.tercile_edges(np.arange(1000.0))
     assert edges is not None and edges[0] < edges[1]
+
+
+# --------------------------------------------------------------------------- #
+# Estimators that respect the holes in a bar table
+# --------------------------------------------------------------------------- #
+
+def test_segments_of_finds_the_runs() -> None:
+    """Two runs separated by one dropped pair."""
+    assert stats.segments_of(np.array([3, 4, 5, 9, 10])) == [(0, 3), (3, 5)]
+    assert stats.segments_of(np.array([], dtype="int64")) == []
+
+
+def test_the_segmented_variance_ratio_reduces_to_the_plain_one() -> None:
+    """One span must give exactly Lo and MacKinlay's published estimator."""
+    rng = np.random.default_rng(4)
+    r = rng.standard_normal(50_000)
+    for q in (2, 4, 8, 16):
+        plain = stats.variance_ratio(r, q)
+        segmented = stats.variance_ratio_segments(r, [(0, r.size)], q)
+        assert segmented["vr"] == pytest.approx(plain["vr"], rel=1e-12)
+        assert segmented["z"] == pytest.approx(plain["z"], rel=1e-12)
+
+
+def test_no_q_window_straddles_a_hole() -> None:
+    """A run of +1 and a run of -1, spliced. Pooled within runs the two-period
+    sums are all +2 or -2; a window allowed across the splice would produce a
+    zero that belongs to no piece of data."""
+    values = np.array([1.0] * 40 + [-1.0] * 40)
+    spans = [(0, 40), (40, 80)]
+    out = stats.variance_ratio_segments(values, spans, 2)
+    across = stats.variance_ratio_segments(values, [(0, 80)], 2)
+    assert out["vr"] != pytest.approx(across["vr"])
+
+
+def test_a_lag_pair_never_spans_a_hole() -> None:
+    """Which is the whole reason the spans are carried around."""
+    values = np.arange(10.0)
+    earlier, later, positions = stats.lag_pairs(values, [(0, 4), (4, 10)], 1)
+    assert list(positions) == [1, 2, 3, 5, 6, 7, 8, 9]
+    assert 4 not in list(positions)
+    assert list(later - earlier) == [1.0] * 8
+
+
+def test_autocorrelation_can_be_conditioned_on_a_label() -> None:
+    """The regime-conditional form: a mask over the later element of the pair."""
+    rng = np.random.default_rng(8)
+    noise = rng.standard_normal(60_000)
+    series = np.zeros_like(noise)
+    for i in range(1, series.size):
+        # Persistent in the first half, reverting in the second.
+        phi = 0.4 if i < series.size // 2 else -0.4
+        series[i] = phi * series[i - 1] + noise[i]
+    spans = [(0, series.size)]
+    first = np.zeros(series.size, dtype=bool)
+    first[: series.size // 2] = True
+    assert stats.autocorr_at(series, spans, 1, select=first)["rho"] > 0.3
+    assert stats.autocorr_at(series, spans, 1, select=~first)["rho"] < -0.3
+
+
+def test_forward_continuation_reads_positive_for_a_trending_series() -> None:
+    """And its z is deflated for the overlap it is built from."""
+    rng = np.random.default_rng(9)
+    noise = rng.standard_normal(100_000)
+    series = np.zeros_like(noise)
+    for i in range(1, series.size):
+        series[i] = 0.3 * series[i - 1] + noise[i]
+    out = stats.forward_continuation(series, [(0, series.size)], 4)
+    assert out["rho"] > 0.1
+    assert out["z"] == pytest.approx(out["rho"] * math.sqrt(out["n"] / 4),
+                                     rel=1e-9)
+
+
+def test_forward_continuation_reads_negative_for_a_reverting_series() -> None:
+    """Alternating signs give back everything they take. An even horizon
+    would sum to exactly zero and leave nothing to correlate against, which is
+    why this asks for three."""
+    values = np.array([1.0, -1.0] * 5_000)
+    out = stats.forward_continuation(values, [(0, values.size)], 3)
+    assert out["rho"] == pytest.approx(-1.0, abs=1e-3)

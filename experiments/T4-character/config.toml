@@ -1,0 +1,154 @@
+# T4 - EDA battery I, per-pair character. See taskcards/T4.md.
+#
+# One program, and that is the point of difference from T3. T3's evidence came
+# from two passes that had to run out of band -- a full-store re-validation and
+# a network sample -- so the experiment read their checkpoints back. Nothing
+# here needs that: the whole battery is a few seconds of numpy over the stored
+# bar tables, so the experiment computes every number it reports and the gate
+# recomputes every one of them on every run.
+#
+#   python -m research.run --config <this file>
+#       the experiment. Reads bars through the research loader, computes the
+#       seven sections of the card, writes result.json.
+#
+#   python -m research.character_report --result <result.json> --out <report>
+#       renders reports/T4_character.md and every figure under reports/T4/,
+#       each beside the CSV it was drawn from. Ruling R6: the report has no
+#       authored numbers and no note flags -- every figure in it is derived
+#       here, at render time, from the result document.
+#
+# Mode. `scoring`, `scored = false`. There is no scorecard and none can be
+# demanded: this card produces evidence for a checkpoint, and pre-reg #3 says
+# the decisions the evidence informs are made in chat, not in the loop.
+# `scoring` mode rather than `mechanical` because that is what puts this config
+# under the gate's sealed-date scan and makes the loader police every date it
+# serves -- including ruling R1's AUDUSD window, which the full-history
+# appendix would otherwise walk straight into.
+#
+# Seal. The window ends on the last research day. No date at or after the
+# cutoff appears in this file or in any read it makes.
+
+[experiment]
+id = "T4-character"
+taskcard = "T4"
+entry = "research.character:run"
+seed = 20260906
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+[experiment.params]
+experiment_dir = "experiments/T4-character"
+data_dir = "data/research"
+crosscheck_classes_path = "config/crosscheck.toml"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# --------------------------------------------------------------------------- #
+# Windows
+# --------------------------------------------------------------------------- #
+
+# The card's primary window. Ten years and two months, which is what every
+# figure in sections 1-6 is computed over unless it says otherwise.
+start_date = "2015-01-01"
+end_date = "2025-02-28"
+
+# The appendix reaches back to the start of the store, on two horizons only.
+# The card asks for the same memory and volatility statistics "across the full
+# history, era-tagged per R7's agreement table, to show which properties
+# survive the 2000s". AUDUSD starts in 2011 there by ruling R1, and the loader
+# refuses it rather than trusting this file to remember.
+history_start = "2005-01-03"
+history_timeframes = ["1h", "1d"]
+
+# The horizon ladder of pre-reg #6, in the order the report reads them.
+timeframes = ["5m", "30m", "1h", "4h", "1d"]
+
+# Split-half. Fixed on the calendar rather than on the sample: half the bars
+# would put the boundary wherever the density happened to change, and the
+# question is whether a property survives *time*, not whether it survives being
+# cut in two. 2020-01-01 splits the window almost evenly and puts the pandemic
+# and the rate cycle in the second half, which is the harder test.
+split_date = "2020-01-01"
+
+# Rolling windows: two years, stepped six months, so consecutive windows share
+# three quarters of their data and a property has to hold for two years at a
+# time in every part of the decade rather than on average across it.
+rolling_window_years = 2
+rolling_step_months = 6
+
+# --------------------------------------------------------------------------- #
+# Estimators
+# --------------------------------------------------------------------------- #
+
+# Return autocorrelation lags. Ten is enough to see the shape and short enough
+# that Ljung-Box over them is a test rather than a formality.
+acf_lags = 10
+
+# Volatility autocorrelation runs longer because that is where the memory is:
+# |r| stays correlated for tens of bars where r does not survive one.
+vol_acf_lags = 20
+
+# The variance-ratio profile. Doubling from 2 to 32 covers a factor of sixteen
+# in holding period at every horizon, which is the range a strategy would
+# actually choose between.
+vr_horizons = [2, 4, 8, 16, 32]
+
+# Augmented Dickey-Fuller lag order, fixed rather than selected. Schwert's rule
+# would put ~110 lags on a 750,000-observation series: a regression matrix of
+# several hundred megabytes to answer a question already obvious at ten, and a
+# number that would then depend on sample length in a way no reader could see.
+adf_lags = 10
+
+# Forward-continuation horizons. The variance ratio cannot be conditioned on a
+# regime -- it needs a contiguous overlapping window -- so this is the memory
+# statistic the regime tables use, and it is reported unconditionally too so
+# the two are on the same scale.
+continuation_horizons = [1, 4, 12]
+
+# Volatility regimes: terciles of the standard deviation of the previous 20
+# returns, computed strictly before the return being labelled.
+vol_window = 20
+regime_horizon = 4
+
+# --------------------------------------------------------------------------- #
+# Sessions, spread and density
+# --------------------------------------------------------------------------- #
+
+# Session, spread and density statistics are computed on the hourly series.
+# The roll window is two hours wide and the session map moves with three
+# separate daylight-saving rules, so hourly is the coarsest grain that resolves
+# both -- and the finest at which a per-bar spread mean is an average of
+# thousands of quotes rather than of a handful.
+session_timeframe = "1h"
+
+# Pre-reg #4's window, in America/New_York, derived to UTC per bar rather than
+# hardcoded: 17:00 New York is 21:00Z in summer and 22:00Z in winter.
+roll_start_hour_ny = 16
+roll_end_hour_ny = 18
+
+# A density structural-break candidate is a pair-year whose year-over-year log
+# change in median ticks per hour exceeds this multiple of the store-wide
+# median absolute change. Three, so the flag fires on a genuine step rather
+# than on the ordinary drift every pair shows.
+density_break_multiple = 3.0
+
+# --------------------------------------------------------------------------- #
+# Multiple testing and the empty dates
+# --------------------------------------------------------------------------- #
+
+# Benjamini-Hochberg level, applied within each test family. BH rather than
+# Bonferroni: the family is pairs times horizons of tests on overlapping data,
+# where controlling the expected false-discovery proportion is the honest
+# target and family-wise error is a target nothing would survive.
+fdr_alpha = 0.05
+
+# Section 7 re-derives the unexplained-empty dates through the same
+# research.calendar_build code T3 used, so the two cannot disagree. These are
+# T3's thresholds, restated here because the derivation needs them.
+calendar_min_empty_hours = 6
+calendar_min_pairs_partial = 3

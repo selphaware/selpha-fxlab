@@ -1,14 +1,88 @@
 # HANDOFF2.md — Phase 2 research loop, unattended run
 
-Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T3
+Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T4
 closed. If you are reading this because the session died, this file plus the
 checkpoints on disk are enough to restart without losing work.
 
-## State: ingestion and data quality are done
+## State: ingestion, data quality and the first EDA battery are done
 
-Nothing is running. T2a, T2b and T3 are complete, gated and pushed; the loop
-stopped there because T3's card says to. **Do not begin T4 without a
+Nothing is running. T2a, T2b, T3 and T4 are complete, gated and pushed; the
+loop stopped there because T4's card says to. **Do not begin T5 without a
 checkpoint.**
+
+### T4, the first research card
+
+`reports/T4_character.md`, experiment `experiments/T4-character/`, research gate
+exit 0 (full). It ran in two parts.
+
+**Step 0 re-issued T3's cross-check verdict under ruling R7**, which the M3
+checkpoint pre-registered and which the card told this loop to write into
+`SPEC2.md` before anything else. R7 amends pre-reg #7's flat 1.0 pip threshold
+to a density-aware one and changes nothing about the consequence. On the same
+stored sample, not re-drawn:
+
+| | pinned #7 | under R7 |
+|---|---|---|
+| hours classified | 11,790 | 11,790 |
+| `BLOCKED` | 1,327 | **478** |
+| `UNVERIFIABLE` | — | **624** |
+| `PASS` | — | 7,747 |
+| `ROLL_EXEMPT` | 2,941 | 2,941 |
+
+344 of the pinned blocks became `PASS`, 505 became `UNVERIFIABLE`, and nothing
+R7 blocked was passed by the flat threshold. Agreement among verifiable hours is
+94.2%, and the by-year table runs from 54.7% agreement with 46.6% unverifiable
+in 2005 to 98.2% with none in 2024 — which is what the T4 appendix era-tags the
+full history against. `config/crosscheck.toml` now carries the class of every
+sampled hour, derived and re-compared on every T3 run exactly as
+`config/calendar.toml` is, and `ResearchLoader.crosscheck_class` is how a later
+card asks. It tags; it never filters.
+
+**The battery** covers 12 pairs x 5 horizons over 2015-01-01 → 2025-02-28, with
+a 1h/1d appendix back to 2005. Four things a next card should not have to
+rediscover:
+
+* **Directional memory lives at 5m and barely anywhere else.** 11 of 60
+  pair-horizon cells have a q=4 variance ratio surviving Benjamini-Hochberg
+  across a 300-test family: 9 at `5m`, 2 at `30m`, none at `1h`, `4h` or `1d`.
+  All 11 are mean-reverting and all 11 hold their sign on rolling two-year
+  windows. The effects are 5-10% departures from a random walk on returns whose
+  standard deviation is 3-5 basis points — so T5's cost geometry, not T4's
+  statistics, decides whether any of it is tradeable.
+* **Volatility clustering is the one property that never changes its mind.**
+  Positive |return| autocorrelation at lag 1 in every one of 60 cells, and zero
+  sign flips between the two halves against 18 for the variance ratio. The
+  report's hypothesis section argues this belongs in a *sizing* rule rather
+  than an entry rule.
+* **The roll window is a different market**: 1.7x to 3.0x the spread for 0.4x to
+  0.6x the volatility, across all twelve pairs. Pre-reg #4 already excludes it;
+  the evidence points the same way, which is the answer to the "revisable at a
+  checkpoint with EDA evidence" clause.
+* **Ruling R4's verdict: tick count is an activity proxy within a pair-year and
+  not across years.** Bar-level log-ticks against log-|return| is positive for
+  every pair (0.17 to 0.27); the annual version collapses to between -0.21 and
+  0.73. 2007 moves ten of eleven pairs by 3x to 8x at once, which no market
+  event does. The three conditions under which R4 could be lifted are stated in
+  section 6; lifting it is a checkpoint decision.
+
+**One finding is about the pipeline rather than the market, and a checkpoint
+should look at it.** Of T3's 312 unexplained-empty dates, **236 have no readable
+empty pair on them at all**: the only pair that went quiet was AUDUSD inside
+ruling R1's window, so `calendar_build.classify` filtered the row's contents
+away and left the row counted. Every one falls in 2007-2010. Fixing it would
+change the committed holiday calendar, which T4's card does not cover, so it is
+reported as an observation. The 76 real dates are 36 week-boundary artefacts, 21
+partial holidays, 8 broader feed artefacts and 11 unknown.
+
+**How T4 reads "every test run is a ledgered trial".** The ledger records
+experiments — one entry per run of `research.run`, written before the run — and
+filling it with three thousand individual z-statistics would destroy what it is
+for. So T4 registers every hypothesis test inside the *hashed result*
+(`payload.test_register`, 1,164 tests across 9 families) and applies
+Benjamini-Hochberg within each family. A test cannot be dropped from its family
+after its p-value has been seen, and the report states the family size next to
+every claim. If a checkpoint prefers a different reading, this is the place to
+say so.
 
 | | T2a | T2b |
 |---|---|---|
@@ -79,7 +153,56 @@ forward:
   inherits this unanswered.
 * Tick density follows neither age nor volatility: 2022 (6,200/h) and 2016
   (5,946) top the store, 2008 the crisis year is fourth, and 2005-2006 are the
-  sparsest at 976 and 1,070.
+  sparsest at 976 and 1,070. **T4 answered this one**: the annual series is
+  dominated by feed changes, and 2007 alone moves ten of eleven pairs by 3x to
+  8x.
+
+Left by T4, for the M4 checkpoint:
+
+* **236 of the 312 unexplained-empty dates are an artefact of R1's filter**, as
+  above. The fix is a change to `calendar_build.classify` and would change the
+  committed calendar, so it is proposed rather than made.
+* **The strongest reversion in every pair sits in the Sydney session, where the
+  spread is roughly twice that pair's own median.** Returns here are mid-to-mid
+  so this is not bid-ask bounce in the textbook sense, but quote noise in a thin
+  book has the same signature and is equally untradeable. Whether the effect
+  survives outside that session is the question T7 has to answer, and the report
+  says so beside every hypothesis rather than in a footnote.
+* **The volatility-regime terciles are estimated on the whole decade.** Any T7
+  card conditioning on them must re-estimate the boundary inside each training
+  window, or it has fitted the regime to its own test set.
+* **EURCHF and USDCHF carry the 2015 SNB de-peg inside the primary window** —
+  a 15% five-minute move, 403 standard deviations, which is where their
+  five-figure kurtosis comes from. Every statistic for those two pairs in the
+  first half of the split is that afternoon. The report tabulates the largest
+  move in every cell so no reader has to guess.
+
+## What T4 added to the machinery
+
+| module | what it is |
+|---|---|
+| `research/stats.py` | every EDA estimator, in numpy alone: moments, tails, Jarque-Bera, ADF, Lo-MacKinlay variance ratio, span-aware autocorrelation, forward continuation, Benjamini-Hochberg, trailing volatility. No scipy, no statsmodels — each is checked in `tests2/test_stats.py` against a printed table or a hand-computed series, and the first such test caught a spurious `sqrt(n)` in the variance-ratio statistic that would have rejected every horizon for every pair |
+| `research/character.py` | the T4 experiment. Its four load-bearing decisions are documented at the top of the file and tested in `tests2/test_character.py` |
+| `research/character_report.py` | the report, including a *generated* hypothesis section — which pair-horizons appear in it comes from the FDR correction, not from a paragraph |
+| `research/character_figures.py` | 19 figures, each written beside the CSV it was drawn from |
+| `research/svgplot.py` | a deterministic SVG plotter. matplotlib stamps a timestamp into its SVG output, so two renders of an unchanged result would differ and every figure would show as changed on every diff |
+| `research/crosscheck_class.py` | ruling R7 as code, plus `config/crosscheck.toml` and its reader |
+| `research/crosscheck_spreads.py` | the checkpointed pass measuring each sampled hour's median spread, which R7's middle band thresholds against |
+
+**Nothing was installed.** `SPEC2.md` permits scipy, statsmodels, scikit-learn,
+matplotlib and duckdb when a card needs them; T4 did not need them, and the
+interpreter is unchanged from Phase 0.
+
+Two traps worth carrying forward:
+
+* **`asi8` on a stored timestamp returns microseconds, not nanoseconds.** The
+  bar tables are `timestamp[us]` and pandas 3 preserves the unit, so a gap rule
+  written against nanosecond steps rejects every pair in the store. `load_series`
+  calls `.as_unit("ns")` and says why.
+* **`write_result` serialises with `sort_keys=True`**, which is what makes the
+  hash reproducible and what destroys every meaningful key order in the payload.
+  Weekdays, priority classes and density bands are re-ordered at render time
+  from lists the payload does preserve.
 
 ## What was running
 

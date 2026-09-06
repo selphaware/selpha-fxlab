@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Median ticks per hour, by year">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Median ticks per hour, by year</text>
+<line class="grid" x1="78" y1="340.969" x2="854" y2="340.969" />
+<text class="axis" x="70" y="344.969" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="191.468" x2="854" y2="191.468" />
+<text class="axis" x="70" y="195.468" text-anchor="end">5,000</text>
+<line class="grid" x1="78" y1="41.966" x2="854" y2="41.966" />
+<text class="axis" x="70" y="45.966" text-anchor="end">10,000</text>
+<line class="zero" x1="78" y1="340.969" x2="854" y2="340.969" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">2005</text>
+<line class="grid" x1="154.214" y1="40" x2="154.214" y2="346" />
+<text class="axis" x="154.214" y="362" text-anchor="middle">2006</text>
+<line class="grid" x1="188.857" y1="40" x2="188.857" y2="346" />
+<text class="axis" x="188.857" y="362" text-anchor="middle">2007</text>
+<line class="grid" x1="223.5" y1="40" x2="223.5" y2="346" />
+<text class="axis" x="223.5" y="362" text-anchor="middle">2008</text>
+<line class="grid" x1="258.143" y1="40" x2="258.143" y2="346" />
+<text class="axis" x="258.143" y="362" text-anchor="middle">2009</text>
+<line class="grid" x1="292.786" y1="40" x2="292.786" y2="346" />
+<text class="axis" x="292.786" y="362" text-anchor="middle">2010</text>
+<line class="grid" x1="327.429" y1="40" x2="327.429" y2="346" />
+<text class="axis" x="327.429" y="362" text-anchor="middle">2011</text>
+<line class="grid" x1="362.071" y1="40" x2="362.071" y2="346" />
+<text class="axis" x="362.071" y="362" text-anchor="middle">2012</text>
+<line class="grid" x1="396.714" y1="40" x2="396.714" y2="346" />
+<text class="axis" x="396.714" y="362" text-anchor="middle">2013</text>
+<line class="grid" x1="431.357" y1="40" x2="431.357" y2="346" />
+<text class="axis" x="431.357" y="362" text-anchor="middle">2014</text>
+<line class="grid" x1="466" y1="40" x2="466" y2="346" />
+<text class="axis" x="466" y="362" text-anchor="middle">2015</text>
+<line class="grid" x1="500.643" y1="40" x2="500.643" y2="346" />
+<text class="axis" x="500.643" y="362" text-anchor="middle">2016</text>
+<line class="grid" x1="535.286" y1="40" x2="535.286" y2="346" />
+<text class="axis" x="535.286" y="362" text-anchor="middle">2017</text>
+<line class="grid" x1="569.929" y1="40" x2="569.929" y2="346" />
+<text class="axis" x="569.929" y="362" text-anchor="middle">2018</text>
+<line class="grid" x1="604.571" y1="40" x2="604.571" y2="346" />
+<text class="axis" x="604.571" y="362" text-anchor="middle">2019</text>
+<line class="grid" x1="639.214" y1="40" x2="639.214" y2="346" />
+<text class="axis" x="639.214" y="362" text-anchor="middle">2020</text>
+<line class="grid" x1="673.857" y1="40" x2="673.857" y2="346" />
+<text class="axis" x="673.857" y="362" text-anchor="middle">2021</text>
+<line class="grid" x1="708.5" y1="40" x2="708.5" y2="346" />
+<text class="axis" x="708.5" y="362" text-anchor="middle">2022</text>
+<line class="grid" x1="743.143" y1="40" x2="743.143" y2="346" />
+<text class="axis" x="743.143" y="362" text-anchor="middle">2023</text>
+<line class="grid" x1="777.786" y1="40" x2="777.786" y2="346" />
+<text class="axis" x="777.786" y="362" text-anchor="middle">2024</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">2025</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">year</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">ticks per hour</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,311.278 154.214,312.115 188.857,255.11 223.5,217.436 258.143,248.577 292.786,241.476 327.429,241.506 362.071,252.674 396.714,226.63 431.357,248.233 466,221.308 500.643,172.391 535.286,225.434 569.929,234.046 604.571,240.743 639.214,216.554 673.857,234.3 708.5,123.086 743.143,206.478 777.786,221.697 812.429,191.602" />
+<polyline class="series" stroke="#c0603a" points="327.429,245.707 362.071,257.577 396.714,271.167 431.357,279.076 466,257.233 500.643,230.876 535.286,265.919 569.929,267.579 604.571,273.036 639.214,258.788 673.857,274.381 708.5,216.808 743.143,266.906 777.786,283.65 812.429,270.614" />
+<polyline class="series" stroke="#4b8b5a" points="119.571,316.391 154.214,316.272 188.857,276.355 223.5,231.639 258.143,261.404 292.786,272.826 327.429,243.255 362.071,311.338 396.714,289.69 431.357,307.152 466,270.479 500.643,248.637 535.286,272.707 569.929,259.61 604.571,254.946 639.214,256.68 673.857,288.001 708.5,225.913 743.143,280.062 777.786,283.665 812.429,242.403" />
+<polyline class="series" stroke="#8d5aa8" points="119.571,328.471 154.214,328.68 188.857,277.82 223.5,219.409 258.143,244.81 292.786,250.192 327.429,241.282 362.071,273.454 396.714,277.267 431.357,285.684 466,250.147 500.643,207.375 535.286,236.348 569.929,236.886 604.571,245.228 639.214,221.428 673.857,273.499 708.5,213.519 743.143,270.27 777.786,277.865 812.429,249.773" />
+<polyline class="series" stroke="#b08b28" points="119.571,327.604 154.214,327.424 188.857,230.727 223.5,155.199 258.143,223.311 292.786,236.049 327.429,220.112 362.071,241.82 396.714,219.484 431.357,241.67 466,188.074 500.643,133.82 535.286,182.378 569.929,163.406 604.571,155.004 639.214,166.725 673.857,228.29 708.5,78.071 743.143,104.488 777.786,108.554 812.429,56.393" />
+<polyline class="series" stroke="#3f8f97" points="119.571,312.205 154.214,298.87 188.857,282.903 223.5,203.248 258.143,295.79 292.786,304.491 327.429,225.584 362.071,240.355 396.714,266.129 431.357,271.81 466,239.951 500.643,194.846 535.286,244.032 569.929,220.471 604.571,222.1 639.214,211.8 673.857,276.893 708.5,194.383 743.143,234.823 777.786,262.107 812.429,230.996" />
+<polyline class="series" stroke="#a8496a" points="119.571,325.66 154.214,326.154 188.857,241.969 223.5,190.496 258.143,236.468 292.786,236.453 327.429,226.107 362.071,247.919 396.714,208.87 431.357,227.498 466,192.066 500.643,128.946 535.286,174.454 569.929,171.913 604.571,215.149 639.214,176.174 673.857,214.954 708.5,105.13 743.143,185.906 777.786,178.939 812.429,124.924" />
+<polyline class="series" stroke="#6b7f3a" points="119.571,327.948 154.214,328.082 188.857,275.174 223.5,225.419 258.143,253.182 292.786,259.237 327.429,228.679 362.071,264.11 396.714,269.896 431.357,275.757 466,242.478 500.643,195.355 535.286,238.8 569.929,222.444 604.571,224.507 639.214,210.454 673.857,260.358 708.5,163.586 743.143,225.584 777.786,252.21 812.429,220.695" />
+<polyline class="series" stroke="#7a6bbf" points="119.571,325.78 154.214,328.71 188.857,301.441 223.5,299.258 258.143,307.675 292.786,297.689 327.429,283.695 362.071,268.939 396.714,283.934 431.357,284.099 466,269.567 500.643,247.561 535.286,270.135 569.929,275.323 604.571,278.029 639.214,272.662 673.857,283.77 708.5,237.873 743.143,267.743 777.786,287.238 812.429,282.38" />
+<polyline class="series" stroke="#9a6b3f" points="119.571,329.129 154.214,329.607 188.857,302.189 223.5,294.459 258.143,295.73 292.786,285.355 327.429,280.541 362.071,277.222 396.714,303.325 431.357,299.976 466,263.946 500.643,199.331 535.286,249.444 569.929,254.722 604.571,256.71 639.214,245.079 673.857,272.737 708.5,217.78 743.143,264.574 777.786,264.395 812.429,220.785" />
+<polyline class="series" stroke="#4a8fbf" points="119.571,326.647 154.214,327.125 188.857,271.765 223.5,223.237 258.143,258.684 292.786,270.479 327.429,253.511 362.071,262.421 396.714,279.195 431.357,289.421 466,278.657 500.643,251.208 535.286,271.451 569.929,273.081 604.571,281.258 639.214,276.1 673.857,296.866 708.5,237.843 743.143,277.162 777.786,282.454 812.429,268.401" />
+<polyline class="series" stroke="#8f4a4a" points="119.571,326.587 154.214,327.245 188.857,242.298 223.5,205.297 258.143,257.816 292.786,271.272 327.429,289.87 362.071,295.521 396.714,260.478 431.357,279.763 466,254.557 500.643,203.308 535.286,246.514 569.929,256.815 604.571,257.129 639.214,258.355 673.857,282.185 708.5,179.134 743.143,160.82 777.786,168.594 812.429,162.24" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">AUDJPY</text>
+<rect x="139.6" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="153.6" y="392">AUDUSD</text>
+<rect x="201.2" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="215.2" y="392">EURCHF</text>
+<rect x="262.8" y="384" width="10" height="10" fill="#8d5aa8" />
+<text class="axis" x="276.8" y="392">EURGBP</text>
+<rect x="324.4" y="384" width="10" height="10" fill="#b08b28" />
+<text class="axis" x="338.4" y="392">EURJPY</text>
+<rect x="386" y="384" width="10" height="10" fill="#3f8f97" />
+<text class="axis" x="400" y="392">EURUSD</text>
+<rect x="447.6" y="384" width="10" height="10" fill="#a8496a" />
+<text class="axis" x="461.6" y="392">GBPJPY</text>
+<rect x="509.2" y="384" width="10" height="10" fill="#6b7f3a" />
+<text class="axis" x="523.2" y="392">GBPUSD</text>
+<rect x="570.8" y="384" width="10" height="10" fill="#7a6bbf" />
+<text class="axis" x="584.8" y="392">NZDUSD</text>
+<rect x="632.4" y="384" width="10" height="10" fill="#9a6b3f" />
+<text class="axis" x="646.4" y="392">USDCAD</text>
+<rect x="694" y="384" width="10" height="10" fill="#4a8fbf" />
+<text class="axis" x="708" y="392">USDCHF</text>
+<rect x="755.6" y="384" width="10" height="10" fill="#8f4a4a" />
+<text class="axis" x="769.6" y="392">USDJPY</text>
+</svg>
