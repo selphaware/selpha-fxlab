@@ -420,6 +420,73 @@ price data alone.** The external-data question — rates and carry, positioning,
 the macro calendar — is **banked for a later checkpoint** and is not a T5 or T6
 concern. Neither card may originate it.
 
+### M5 checkpoint decisions, D5-D10 (approved in chat 2026-09-06)
+
+Fixed at the M5 checkpoint that closed T5 and opened T6, before any T6 result
+existed. Recorded here by `taskcards/T6.md`, which states them verbatim. They
+bind every card downstream in the same way §Pre-registered decisions does.
+D5 settles the one decision T5 said the checkpoint owed it; D9 replaces the
+reference size every cost figure from here is quoted at.
+
+**D5 — D2's edge measure is the lag-1 (realistic) figure.** All 11 T4 cells
+are **CLOSED**. The variance-ratio bound is recorded as an oracle upper bound,
+not a survival criterion: it credits a rule with every basis point of variance
+the reversion removed, and T5's section 4 shows that for the process family
+producing this structure it overstates an optimal rule by roughly the 12x-17x
+observed. ONE diagnostic T7 card is authorised — a walk-forwarded optimal
+linear forecaster on `EURUSD` `5m` and `NZDUSD` `30m`, solely to measure the
+recoverable fraction of a variance-ratio departure — and **its result is
+binding for the whole short-horizon reversion class**: whatever fraction it
+measures is the fraction every other cell in that class is credited with, so
+the question of how much of a variance-ratio departure a real rule recovers is
+asked once rather than once per cell.
+
+**D6 — Eras.** `2005-2008` is **stress test only**. `2009-2012` and `2013+`
+are **training data**. This is the checkpoint accepting T5's recommendation on
+both horizons it measured. Ruling R1 still applies inside it: `AUDUSD` before
+2011-01-01 is excluded, so a cross-pair analysis spanning the early era runs
+on **eleven** pairs and says so.
+
+**D7 — Cross-pair research horizons are `1h`, `4h`, `1d`.** `5m` and `30m`
+appear only as characterisation; **no cross-pair hypothesis is raised at those
+horizons**. This is T5's cost geometry applied to T6's scope: the horizons
+where T4 found directional memory are the horizons whose move-over-cost ratio
+is worst by an order of magnitude, and a cross-pair relationship there would
+have to pay two round trips out of the same move. Characterisation at `5m` and
+`30m` is still required — a correlation or a lead-lag that exists only at the
+short horizons is a fact about the universe — but it may not become a
+hypothesis.
+
+**D8 — The IB tick recorder starts as a parallel track** between T6 and T7: a
+paper account, Gateway + IBC + `ib_async`, writing to `data/` only. It is not a
+task-card loop and does not gate T6. **Recorder-measured spreads are the only
+evidence that can revisit a PARKED verdict** (pre-reg #1: parked candidates are
+revisitable only if measured costs prove the model overestimates — evidence,
+not preference).
+
+**D9 — The research reference notional is 100,000 units.** It is the size at
+which the USD 2.00 per-order commission floor exactly equals the 0.20 bp rate
+on a 100,000 USD notional, and roughly what the funded account carries. **All
+costs from here are stated at 100,000 units.** T5's 1,000,000-unit figures
+stand as measured and its Step 0 addendum re-expresses its cost floors at the
+new reference. Two consequences travel with this decision:
+
+* the per-order floor now binds for part of the universe, so the P0-A caveat
+  stops being a formality — the term P0-A would fix is a term that is now in
+  the arithmetic, and every table quoting a cost at this size says where it
+  binds;
+* **live sizing below 100,000 units faces up to 2-4x the modelled commission**
+  — a 50,000 USD notional pays the 2.00 floor against a 1.00 rate, a 25,000
+  one against 0.50 — and that multiple is stated on every scorecard.
+
+**D10 — A backtester-readiness card (P7) precedes any scorecard.** No candidate
+is scored until it lands, and it carries exactly five things: P0-A USD
+accounting (SPEC2 §Prerequisite fixes, with the interface already fixed in
+§The interface P0-A must expose); ruling R8's holiday ineligibility; spread at
+fill taken from ticks rather than from a bar mean; decision D3's session
+execution constraint; and walk-forward integration per pre-reg #8. T6 does not
+implement any of it and may not.
+
 ## Task roadmap (each = one task card, one bounded loop, one review)
 
 * **T1 — Coverage survey.** Measure Dukascopy coverage per pair per year,
