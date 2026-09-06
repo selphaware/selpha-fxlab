@@ -1,8 +1,8 @@
 # T5 — EDA battery II: cost geometry
 
-**Primary window:** 2015-01-01 → 2025-02-28, 12 pairs, horizons `5m`, `30m`, `1h`, `4h`, `1d` · **Era section:** 2005-01-03 → 2025-02-28 on `1h`, `1d` · **Task card:** `taskcards/T5.md` · **Experiment:** `T5-cost-geometry` · **Seed:** 20260906 · **Result hash:** `b2ef692281ebbe37`
+**Primary window:** 2015-01-01 → 2025-02-28, 12 pairs, horizons `5m`, `30m`, `1h`, `4h`, `1d` · **Era section:** 2005-01-03 → 2025-02-28 on `1h`, `1d` · **Task card:** `taskcards/T5.md` · **Experiment:** `T5-cost-geometry` · **Seed:** 20260906 · **Result hash:** `c4194024c1e4ec98`
 
-**Trials ledgered under T5:** 2 (SPEC2 pre-reg #10).
+**Trials ledgered under T5:** 3 (SPEC2 pre-reg #10).
 
 This card measures what the twelve pairs **cost** and puts it beside what T4 measured them to **be**. Everything in it is arithmetic and a map: no backtest, no scorecard, no candidate advanced or killed, and no claim anywhere that an edge exists. Pre-registered decision #3 puts those decisions in chat, between cards.
 
@@ -1109,13 +1109,243 @@ Questions, not answers, and not hypotheses this card is entitled to originate. P
 
 **What this card did not ask.** No cross-pair question is answered here — that is T6's card and this one may not originate it. No strategy is specified, no parameter is chosen, and nothing is backtested. Decision D4 banks the external-data question for a later checkpoint and this card leaves it banked.
 
+## Addendum — the cost floors at the 100,000-unit reference notional (decision D9)
+
+**This section was appended after the card closed**, by the T6 card's Step 0. SPEC2 decision D9, fixed at the M5 checkpoint, moves the research reference notional from 1,000,000 units to 100,000 — the size at which the USD 2.00 per-order minimum equals the 0.20 bp rate on a 100,000 USD notional, and roughly what the funded account carries. **Nothing above it changed**: the same series, the same slices, the same cost model and the same ladder, re-priced at one different size, which is what lets the two sets of tables be read against each other.
+
+The spread cost in basis points cannot move with size — it is a ratio of two quantities that both scale with it — so every difference below is the per-order minimum and nothing else. The experiment measures that rather than asserting it: **288 of 288** slice rows carry an identical spread line at both sizes.
+
+### Where the floor binds, and the two answers to that question
+
+At 1,000,000 units the per-order minimum bound on **0** of the priced moves, which is why no figure above depends on it. At 100,000 it binds for **6 of 12** pairs — `AUDUSD`, `EURCHF`, `EURGBP`, `EURUSD`, `NZDUSD`, `USDCHF` — and for 3 of them on every single move.
+
+**There are two answers to "does it bind", and they disagree.** The model floors a USD 2.00 minimum against a **quote-currency** notional, which is exactly SPEC2 prerequisite P0-A. The `illustrative` columns show what the same order would pay under the USD accounting P0-A would supply, using the median-mid conversion illustration section 1 already carries. They are used in no cost figure, no verdict and no ranked table anywhere in this report — they size the defect, they do not repair it.
+
+| pair | base | quote | quote notional @ 100,000 | model floors? | illustrative USD notional | USD from the rate | USD after the floor | P0-A multiple | P0-A floors? | verdicts |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `EURUSD` | EUR | USD | 111,375 | no | 111,375 | 2.228 | 2.228 | 1.000× | no | agree |
+| `GBPUSD` | GBP | USD | 129,888 | no | 129,888 | 2.598 | 2.598 | 1.000× | no | agree |
+| `USDJPY` | USD | JPY | 11,310,850 | no | 100,000 | 2.000 | 2.000 | 1.000× | no | agree |
+| `USDCHF` | USD | CHF | 95,868 | **yes** | 100,000 | 2.000 | 2.000 | 1.000× | no | **disagree** |
+| `AUDUSD` | AUD | USD | 71,747 | **yes** | 71,747 | 1.435 | 2.000 | 1.394× | **yes** | agree |
+| `USDCAD` | USD | CAD | 131,861 | no | 100,000 | 2.000 | 2.000 | 1.000× | no | agree |
+| `NZDUSD` | NZD | USD | 66,856 | **yes** | 66,856 | 1.337 | 2.000 | 1.496× | **yes** | agree |
+| `EURGBP` | EUR | GBP | 85,967 | **yes** | 111,375 | 2.228 | 2.228 | 1.000× | no | **disagree** |
+| `EURJPY` | EUR | JPY | 13,037,000 | no | 111,375 | 2.228 | 2.228 | 1.000× | no | agree |
+| `GBPJPY` | GBP | JPY | 15,248,775 | no | 129,888 | 2.598 | 2.598 | 1.000× | no | agree |
+| `EURCHF` | EUR | CHF | 107,608 | no | 111,375 | 2.228 | 2.228 | 1.000× | no | agree |
+| `AUDJPY` | AUD | JPY | 8,469,800 | no | 71,747 | 1.435 | 2.000 | 1.394× | **yes** | **disagree** |
+
+**3 pair(s) are priced on the wrong side of the floor at this size** — `USDCHF`, `EURGBP`, `AUDJPY`. Concretely: the model floors `USDCHF` because 100,000 USD is 95,868 **CHF**, while under USD accounting it is a 100,000 USD notional and does not floor; and it does not floor `AUDJPY` because 100,000 AUD is 8,469,800 **JPY**, while under USD accounting it is a 71,747 USD notional and pays 1.39× the modelled commission. That is P0-A stated as an amount rather than as a caveat, and at 1,000,000 units it did not arise at all. **It is the concrete reason SPEC2 decision D10 puts a backtester-readiness card in front of any scorecard.**
+
+### Unconditional, on hourly bars
+
+The same twelve pairs as section 1's first table, at both sizes. The cost at 100,000 is never below the cost at 1,000,000 — the floor can only raise a commission — and the experiment checks that rather than assuming it.
+
+| pair | moves | floor binds | @1.0× (1,000,000) | @1.2× (1,000,000) | @1.5× (1,000,000) | @2.0× (1,000,000) | @1.0× (100,000) | @1.2× (100,000) | @1.5× (100,000) | @2.0× (100,000) | ratio @ 1.5× | extra bp @ 1.5× |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `AUDJPY` | 62,810 | 0.0% | 1.3054 | 1.5665 | 1.9581 | 2.6109 | 1.3054 | 1.5665 | 1.9581 | 2.6109 | 1.000× | 0.0000 |
+| `AUDUSD` | 62,810 | 100.0% | 1.7979 | 2.1575 | 2.6968 | 3.5958 | 1.9636 | 2.3564 | 2.9455 | 3.9273 | 1.092× | 0.2486 |
+| `EURCHF` | 62,804 | 26.0% | 1.4682 | 1.7618 | 2.2023 | 2.9364 | 1.4730 | 1.7676 | 2.2095 | 2.9460 | 1.003× | 0.0072 |
+| `EURGBP` | 62,810 | 100.0% | 1.4669 | 1.7603 | 2.2003 | 2.9338 | 1.5392 | 1.8471 | 2.3089 | 3.0785 | 1.049× | 0.1085 |
+| `EURJPY` | 62,812 | 0.0% | 0.9587 | 1.1504 | 1.4380 | 1.9174 | 0.9587 | 1.1504 | 1.4380 | 1.9174 | 1.000× | 0.0000 |
+| `EURUSD` | 62,814 | 1.8% | 0.6588 | 0.7905 | 0.9882 | 1.3176 | 0.6588 | 0.7905 | 0.9882 | 1.3176 | 1.000× | 0.0000 |
+| `GBPJPY` | 62,810 | 0.0% | 1.4932 | 1.7918 | 2.2397 | 2.9863 | 1.4932 | 1.7918 | 2.2397 | 2.9863 | 1.000× | 0.0000 |
+| `GBPUSD` | 62,809 | 0.0% | 1.0919 | 1.3102 | 1.6378 | 2.1837 | 1.0919 | 1.3102 | 1.6378 | 2.1837 | 1.000× | 0.0000 |
+| `NZDUSD` | 62,805 | 100.0% | 2.0934 | 2.5121 | 3.1401 | 4.1868 | 2.2963 | 2.7555 | 3.4444 | 4.5926 | 1.097× | 0.3043 |
+| `USDCAD` | 62,810 | 0.0% | 1.2651 | 1.5181 | 1.8976 | 2.5301 | 1.2651 | 1.5181 | 1.8976 | 2.5301 | 1.000× | 0.0000 |
+| `USDCHF` | 62,805 | 90.8% | 1.5048 | 1.8058 | 2.2572 | 3.0096 | 1.5310 | 1.8372 | 2.2965 | 3.0620 | 1.017× | 0.0393 |
+| `USDJPY` | 62,811 | 0.0% | 0.7283 | 0.8740 | 1.0924 | 1.4566 | 0.7283 | 0.8740 | 1.0924 | 1.4566 | 1.000× | 0.0000 |
+
+The largest effect is `NZDUSD` at 1.097×, and the dearest single slice is `NZDUSD` london / low at 1.112× — 0.3172 bp more per round trip at the survival bar. That is small beside the spread differences section 1 measures, and it is not nothing: it is a commission line that has stopped being a constant.
+
+### By session
+
+Decision D3's execution constraint, re-costed. The ranking matters here rather than the level, because D3 uses it to choose a band rather than to price one.
+
+| pair | session | returns | floor binds | cost @ 1.0× (bp) | cost @ 1.2× (bp) | cost @ 1.5× (bp) | cost @ 2.0× (bp) | ratio @ 1.5× | extra bp @ 1.5× |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `EURUSD` | tokyo | 19,622 | 1.7% | 0.6753 | 0.8104 | 1.0130 | 1.3507 | 1.000× | 0.0000 |
+| `EURUSD` | london | 13,015 | 1.8% | 0.6366 | 0.7640 | 0.9550 | 1.2733 | 1.000× | 0.0000 |
+| `EURUSD` | london ny overlap | 8,081 | 1.9% | 0.6344 | 0.7613 | 0.9516 | 1.2688 | 1.000× | 0.0000 |
+| `EURUSD` | new york | 15,650 | 1.8% | 0.6439 | 0.7726 | 0.9658 | 1.2877 | 1.000× | 0.0000 |
+| `EURUSD` | sydney | 6,446 | 2.0% | 1.0832 | 1.2998 | 1.6248 | 2.1664 | 1.000× | 0.0001 |
+| `GBPUSD` | tokyo | 19,619 | 0.0% | 1.1528 | 1.3834 | 1.7292 | 2.3056 | 1.000× | 0.0000 |
+| `GBPUSD` | london | 13,015 | 0.0% | 1.0187 | 1.2224 | 1.5280 | 2.0374 | 1.000× | 0.0000 |
+| `GBPUSD` | london ny overlap | 8,081 | 0.0% | 1.0095 | 1.2114 | 1.5142 | 2.0189 | 1.000× | 0.0000 |
+| `GBPUSD` | new york | 15,650 | 0.0% | 1.0567 | 1.2680 | 1.5850 | 2.1133 | 1.000× | 0.0000 |
+| `GBPUSD` | sydney | 6,444 | 0.0% | 2.0732 | 2.4878 | 3.1097 | 4.1463 | 1.000× | 0.0000 |
+| `USDJPY` | tokyo | 19,622 | 0.0% | 0.7317 | 0.8781 | 1.0976 | 1.4635 | 1.000× | 0.0000 |
+| `USDJPY` | london | 13,015 | 0.0% | 0.6884 | 0.8260 | 1.0326 | 1.3767 | 1.000× | 0.0000 |
+| `USDJPY` | london ny overlap | 8,081 | 0.0% | 0.6866 | 0.8239 | 1.0299 | 1.3732 | 1.000× | 0.0000 |
+| `USDJPY` | new york | 15,650 | 0.0% | 0.7170 | 0.8604 | 1.0755 | 1.4340 | 1.000× | 0.0000 |
+| `USDJPY` | sydney | 6,443 | 0.0% | 1.2943 | 1.5532 | 1.9415 | 2.5887 | 1.000× | 0.0000 |
+| `USDCHF` | tokyo | 19,614 | 90.6% | 1.5935 | 1.9122 | 2.3903 | 3.1871 | 1.015× | 0.0346 |
+| `USDCHF` | london | 13,016 | 90.9% | 1.4372 | 1.7247 | 2.1559 | 2.8745 | 1.018× | 0.0378 |
+| `USDCHF` | london ny overlap | 8,081 | 90.9% | 1.4369 | 1.7243 | 2.1554 | 2.8739 | 1.018× | 0.0377 |
+| `USDCHF` | new york | 15,650 | 90.8% | 1.4812 | 1.7775 | 2.2218 | 2.9625 | 1.019× | 0.0419 |
+| `USDCHF` | sydney | 6,444 | 91.5% | 3.3339 | 4.0007 | 5.0008 | 6.6678 | 1.007× | 0.0330 |
+| `AUDUSD` | tokyo | 19,619 | 100.0% | 1.9530 | 2.3436 | 2.9295 | 3.9061 | 1.093× | 0.2492 |
+| `AUDUSD` | london | 13,015 | 100.0% | 1.8936 | 2.2723 | 2.8404 | 3.7872 | 1.093× | 0.2424 |
+| `AUDUSD` | london ny overlap | 8,081 | 100.0% | 1.8912 | 2.2694 | 2.8368 | 3.7823 | 1.091× | 0.2373 |
+| `AUDUSD` | new york | 15,650 | 100.0% | 1.9618 | 2.3542 | 2.9428 | 3.9237 | 1.091× | 0.2460 |
+| `AUDUSD` | sydney | 6,445 | 100.0% | 2.8604 | 3.4324 | 4.2906 | 5.7207 | 1.058× | 0.2342 |
+| `USDCAD` | tokyo | 19,621 | 0.0% | 1.3122 | 1.5747 | 1.9684 | 2.6245 | 1.000× | 0.0000 |
+| `USDCAD` | london | 13,015 | 0.0% | 1.2103 | 1.4523 | 1.8154 | 2.4205 | 1.000× | 0.0000 |
+| `USDCAD` | london ny overlap | 8,081 | 0.0% | 1.1992 | 1.4391 | 1.7989 | 2.3985 | 1.000× | 0.0000 |
+| `USDCAD` | new york | 15,650 | 0.0% | 1.2226 | 1.4671 | 1.8338 | 2.4451 | 1.000× | 0.0000 |
+| `USDCAD` | sydney | 6,443 | 0.0% | 2.1784 | 2.6140 | 3.2675 | 4.3567 | 1.000× | 0.0000 |
+| `NZDUSD` | tokyo | 19,614 | 100.0% | 2.2952 | 2.7542 | 3.4428 | 4.5903 | 1.093× | 0.2944 |
+| `NZDUSD` | london | 13,015 | 100.0% | 2.1804 | 2.6165 | 3.2706 | 4.3608 | 1.104× | 0.3071 |
+| `NZDUSD` | london ny overlap | 8,081 | 100.0% | 2.1830 | 2.6196 | 3.2745 | 4.3660 | 1.104× | 0.3097 |
+| `NZDUSD` | new york | 15,652 | 100.0% | 2.2821 | 2.7386 | 3.4232 | 4.5643 | 1.100× | 0.3104 |
+| `NZDUSD` | sydney | 6,443 | 100.0% | 3.7841 | 4.5409 | 5.6761 | 7.5682 | 1.057× | 0.3051 |
+| `EURGBP` | tokyo | 19,620 | 100.0% | 1.6113 | 1.9335 | 2.4169 | 3.2226 | 1.042× | 0.0969 |
+| `EURGBP` | london | 13,015 | 100.0% | 1.4212 | 1.7055 | 2.1318 | 2.8424 | 1.046× | 0.0934 |
+| `EURGBP` | london ny overlap | 8,081 | 100.0% | 1.4190 | 1.7028 | 2.1285 | 2.8380 | 1.048× | 0.0978 |
+| `EURGBP` | new york | 15,650 | 100.0% | 1.4758 | 1.7710 | 2.2138 | 2.9517 | 1.050× | 0.1046 |
+| `EURGBP` | sydney | 6,444 | 100.0% | 3.0385 | 3.6462 | 4.5577 | 6.0770 | 1.027× | 0.1188 |
+
+_First 40 of 60 pair-sessions; the whole table is in `result.json` under `payload.reference_addendum.rows`._
+
+And what that does to the cheapest band each pair is allowed to trade in:
+
+| pair | cheapest @ 1,000,000 | cheapest @ 100,000 |  | cost @ 1.5× (bp) | dearest / cheapest |
+| --- | --- | --- | --- | --- | --- |
+| `AUDJPY` | london | london | same | 1.8348 | 2.27× |
+| `AUDUSD` | london | london ny overlap | **moved** | 2.8368 | 1.51× |
+| `EURCHF` | london ny overlap | london ny overlap | same | 2.0325 | 2.48× |
+| `EURGBP` | london ny overlap | london ny overlap | same | 2.1285 | 2.14× |
+| `EURJPY` | london ny overlap | london ny overlap | same | 1.3145 | 2.03× |
+| `EURUSD` | london ny overlap | london ny overlap | same | 0.9516 | 1.71× |
+| `GBPJPY` | london | london | same | 2.1005 | 2.23× |
+| `GBPUSD` | london ny overlap | london ny overlap | same | 1.5142 | 2.05× |
+| `NZDUSD` | london | london | same | 3.2706 | 1.74× |
+| `USDCAD` | london ny overlap | london ny overlap | same | 1.7989 | 1.82× |
+| `USDCHF` | london ny overlap | london ny overlap | same | 2.1554 | 2.32× |
+| `USDJPY` | london ny overlap | london ny overlap | same | 1.0299 | 1.89× |
+
+**1 pair's cheapest band moves** — `AUDUSD`. The floor is a fixed charge, and a session does not dilute it any faster for being busier, so where two bands were close on spread the ranking can turn over on the commission. A T7 card taking D3's constraint forward should take it from this table rather than from section 1's, because it will trade at 100,000 units and not at 1,000,000.
+
+### By volatility tercile
+
+| pair | tercile | returns | floor binds | cost @ 1.0× (bp) | cost @ 1.2× (bp) | cost @ 1.5× (bp) | cost @ 2.0× (bp) | ratio @ 1.5× | extra bp @ 1.5× |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `EURUSD` | low | 20,932 | 0.0% | 0.6417 | 0.7700 | 0.9626 | 1.2834 | 1.000× | 0.0000 |
+| `EURUSD` | mid | 20,931 | 0.6% | 0.6589 | 0.7907 | 0.9884 | 1.3178 | 1.000× | 0.0000 |
+| `EURUSD` | high | 20,931 | 4.9% | 0.6841 | 0.8209 | 1.0261 | 1.3681 | 1.000× | 0.0000 |
+| `GBPUSD` | low | 20,930 | 0.0% | 1.0336 | 1.2403 | 1.5504 | 2.0672 | 1.000× | 0.0000 |
+| `GBPUSD` | mid | 20,929 | 0.0% | 1.0830 | 1.2996 | 1.6245 | 2.1660 | 1.000× | 0.0000 |
+| `GBPUSD` | high | 20,930 | 0.0% | 1.1887 | 1.4264 | 1.7831 | 2.3774 | 1.000× | 0.0000 |
+| `USDJPY` | low | 20,931 | 0.0% | 0.6789 | 0.8147 | 1.0184 | 1.3578 | 1.000× | 0.0000 |
+| `USDJPY` | mid | 20,930 | 0.0% | 0.7173 | 0.8608 | 1.0760 | 1.4346 | 1.000× | 0.0000 |
+| `USDJPY` | high | 20,930 | 0.0% | 0.8158 | 0.9790 | 1.2237 | 1.6317 | 1.000× | 0.0000 |
+| `USDCHF` | low | 20,929 | 89.7% | 1.4538 | 1.7446 | 2.1807 | 2.9077 | 1.018× | 0.0391 |
+| `USDCHF` | mid | 20,928 | 91.2% | 1.5179 | 1.8215 | 2.2769 | 3.0358 | 1.019× | 0.0431 |
+| `USDCHF` | high | 20,928 | 91.6% | 1.6856 | 2.0227 | 2.5284 | 3.3712 | 1.012× | 0.0312 |
+| `AUDUSD` | low | 20,930 | 100.0% | 1.9054 | 2.2865 | 2.8581 | 3.8108 | 1.097× | 0.2515 |
+| `AUDUSD` | mid | 20,930 | 100.0% | 1.9478 | 2.3374 | 2.9217 | 3.8957 | 1.092× | 0.2450 |
+| `AUDUSD` | high | 20,930 | 100.0% | 2.1035 | 2.5242 | 3.1552 | 4.2069 | 1.090× | 0.2613 |
+| `USDCAD` | low | 20,930 | 0.0% | 1.2432 | 1.4918 | 1.8648 | 2.4864 | 1.000× | 0.0000 |
+| `USDCAD` | mid | 20,930 | 0.0% | 1.2626 | 1.5151 | 1.8939 | 2.5252 | 1.000× | 0.0000 |
+| `USDCAD` | high | 20,930 | 0.0% | 1.3076 | 1.5691 | 1.9614 | 2.6152 | 1.000× | 0.0000 |
+| `NZDUSD` | low | 20,929 | 100.0% | 2.1799 | 2.6159 | 3.2699 | 4.3598 | 1.109× | 0.3220 |
+| `NZDUSD` | mid | 20,928 | 100.0% | 2.2829 | 2.7395 | 3.4244 | 4.5659 | 1.096× | 0.3008 |
+| `NZDUSD` | high | 20,928 | 100.0% | 2.4763 | 2.9715 | 3.7144 | 4.9526 | 1.099× | 0.3351 |
+| `EURGBP` | low | 20,930 | 100.0% | 1.4414 | 1.7297 | 2.1622 | 2.8829 | 1.047× | 0.0962 |
+| `EURGBP` | mid | 20,930 | 100.0% | 1.5321 | 1.8385 | 2.2981 | 3.0641 | 1.047× | 0.1036 |
+| `EURGBP` | high | 20,930 | 100.0% | 1.6670 | 2.0004 | 2.5005 | 3.3340 | 1.062× | 0.1457 |
+| `EURJPY` | low | 20,931 | 0.0% | 0.8860 | 1.0632 | 1.3290 | 1.7720 | 1.000× | 0.0000 |
+| `EURJPY` | mid | 20,930 | 0.0% | 0.9451 | 1.1341 | 1.4176 | 1.8902 | 1.000× | 0.0000 |
+| `EURJPY` | high | 20,931 | 0.0% | 1.0529 | 1.2634 | 1.5793 | 2.1057 | 1.000× | 0.0000 |
+| `GBPJPY` | low | 20,930 | 0.0% | 1.4239 | 1.7086 | 2.1358 | 2.8477 | 1.000× | 0.0000 |
+| `GBPJPY` | mid | 20,930 | 0.0% | 1.4749 | 1.7699 | 2.2124 | 2.9499 | 1.000× | 0.0000 |
+| `GBPJPY` | high | 20,930 | 0.0% | 1.6158 | 1.9390 | 2.4238 | 3.2317 | 1.000× | 0.0000 |
+| `EURCHF` | low | 20,928 | 18.1% | 1.3730 | 1.6476 | 2.0596 | 2.7461 | 1.002× | 0.0042 |
+| `EURCHF` | mid | 20,928 | 29.4% | 1.4611 | 1.7533 | 2.1916 | 2.9221 | 1.003× | 0.0064 |
+| `EURCHF` | high | 20,928 | 30.4% | 1.6417 | 1.9701 | 2.4626 | 3.2834 | 1.003× | 0.0064 |
+| `AUDJPY` | low | 20,930 | 0.0% | 1.1793 | 1.4152 | 1.7690 | 2.3586 | 1.000× | 0.0000 |
+| `AUDJPY` | mid | 20,930 | 0.0% | 1.2889 | 1.5467 | 1.9334 | 2.5779 | 1.000× | 0.0000 |
+| `AUDJPY` | high | 20,930 | 0.0% | 1.5210 | 1.8252 | 2.2815 | 3.0420 | 1.000× | 0.0000 |
+
+### Session × tercile
+
+The card's full grain, ranked by how much the floor costs the cell rather than alphabetically, so the cells the new reference actually moves are the ones on the page.
+
+| pair | session | tercile | returns | floor binds | cost @ 1.5× (bp) | ratio @ 1.5× |
+| --- | --- | --- | --- | --- | --- | --- |
+| `NZDUSD` | london | low | 4,697 | 100.0% | 3.1480 | 1.112× |
+| `NZDUSD` | london ny overlap | low | 3,182 | 100.0% | 3.1552 | 1.108× |
+| `NZDUSD` | tokyo | low | 6,297 | 100.0% | 3.2699 | 1.108× |
+| `NZDUSD` | new york | low | 4,661 | 100.0% | 3.2778 | 1.108× |
+| `NZDUSD` | london | high | 4,085 | 100.0% | 3.4983 | 1.101× |
+| `NZDUSD` | new york | high | 5,578 | 100.0% | 3.7044 | 1.101× |
+| `NZDUSD` | new york | mid | 5,410 | 100.0% | 3.3784 | 1.101× |
+| `AUDUSD` | london ny overlap | low | 3,210 | 100.0% | 2.7833 | 1.100× |
+| `NZDUSD` | london ny overlap | high | 2,276 | 100.0% | 3.5531 | 1.100× |
+| `AUDUSD` | london | low | 4,641 | 100.0% | 2.7804 | 1.100× |
+| `NZDUSD` | london | mid | 4,228 | 100.0% | 3.2874 | 1.099× |
+| `NZDUSD` | london ny overlap | mid | 2,620 | 100.0% | 3.2852 | 1.097× |
+| `AUDUSD` | tokyo | low | 6,469 | 100.0% | 2.8631 | 1.097× |
+| `AUDUSD` | new york | low | 4,519 | 100.0% | 2.8553 | 1.096× |
+| `NZDUSD` | tokyo | high | 6,767 | 100.0% | 3.7087 | 1.096× |
+| `NZDUSD` | tokyo | mid | 6,542 | 100.0% | 3.4186 | 1.095× |
+| `AUDUSD` | london | mid | 4,284 | 100.0% | 2.8257 | 1.094× |
+| `AUDUSD` | tokyo | mid | 6,554 | 100.0% | 2.9085 | 1.093× |
+| `AUDUSD` | new york | mid | 5,321 | 100.0% | 2.9049 | 1.092× |
+| `AUDUSD` | london ny overlap | mid | 2,643 | 100.0% | 2.8316 | 1.089× |
+| `AUDUSD` | london | high | 4,085 | 100.0% | 2.9885 | 1.088× |
+| `AUDUSD` | london ny overlap | high | 2,225 | 100.0% | 3.0025 | 1.087× |
+| `AUDUSD` | tokyo | high | 6,588 | 100.0% | 3.1087 | 1.086× |
+| `AUDUSD` | new york | high | 5,807 | 100.0% | 3.1122 | 1.085× |
+| `EURGBP` | london ny overlap | high | 2,293 | 100.0% | 2.2870 | 1.068× |
+| `EURGBP` | london | high | 3,346 | 100.0% | 2.3555 | 1.065× |
+| `AUDUSD` | sydney | low | 2,091 | 100.0% | 3.9710 | 1.061× |
+| `NZDUSD` | sydney | low | 2,092 | 100.0% | 5.0670 | 1.061× |
+| `NZDUSD` | sydney | high | 2,222 | 100.0% | 6.4832 | 1.059× |
+| `EURGBP` | new york | high | 5,869 | 100.0% | 2.3592 | 1.059× |
+| `AUDUSD` | sydney | mid | 2,128 | 100.0% | 4.2338 | 1.059× |
+| `EURGBP` | tokyo | high | 6,873 | 100.0% | 2.5952 | 1.059× |
+| `NZDUSD` | sydney | mid | 2,128 | 100.0% | 5.5673 | 1.058× |
+| `AUDUSD` | sydney | high | 2,225 | 100.0% | 4.6572 | 1.052× |
+| `EURGBP` | new york | low | 4,454 | 100.0% | 2.1201 | 1.049× |
+| `EURGBP` | london ny overlap | low | 3,220 | 100.0% | 2.0634 | 1.048× |
+| `EURGBP` | london | low | 5,433 | 100.0% | 2.0636 | 1.046× |
+| `EURGBP` | new york | mid | 5,324 | 100.0% | 2.1787 | 1.045× |
+| `EURGBP` | london ny overlap | mid | 2,565 | 100.0% | 2.1024 | 1.045× |
+| `EURGBP` | london | mid | 4,231 | 100.0% | 2.1277 | 1.045× |
+
+_Dearest 40 of 180 cells by the ratio; the whole table is in `result.json`._
+
+### The D2 verdicts, confirmed
+
+The card's question: does any D2 verdict change at the new reference notional? It cannot improve — the floor can only raise a commission, so every net edge at this size is at most what it was — but a cell could close harder. Each cell is re-verdicted against **its own** cheapest band at this size rather than against section 1's, so the table is internally consistent rather than half inherited.
+
+| pair | horizon | cost @ 1.5× (1,000,000) | cost @ 1.5× (100,000) | extra bp @ 1.5× | lag-1 @ 1,000,000 | lag-1 @ 100,000 | cell @ 1,000,000 | cell @ 100,000 |  |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `EURGBP` | `5m` | 2.1806 | 2.2882 | 0.1075 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `AUDJPY` | `5m` | 1.9235 | 1.9235 | 0.0000 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `GBPUSD` | `5m` | 1.6285 | 1.6285 | 0.0000 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `NZDUSD` | `5m` | 3.1126 | 3.4188 | 0.3063 | CLOSED | CLOSED | CLOSED | CLOSED | unchanged |
+| `AUDUSD` | `5m` | 2.6853 | 2.9298 | 0.2445 | CLOSED | CLOSED | CLOSED | CLOSED | unchanged |
+| `EURJPY` | `5m` | 1.4247 | 1.4247 | 0.0000 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `GBPJPY` | `5m` | 2.2237 | 2.2237 | 0.0000 | CLOSED | CLOSED | PARKED | PARKED | unchanged |
+| `EURUSD` | `5m` | 0.9846 | 0.9846 | 0.0000 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `USDCAD` | `5m` | 1.8827 | 1.8827 | 0.0000 | CLOSED | CLOSED | CLOSED | CLOSED | unchanged |
+| `NZDUSD` | `30m` | 3.1238 | 3.4293 | 0.3055 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+| `USDCAD` | `30m` | 1.8902 | 1.8902 | 0.0000 | CLOSED | CLOSED | SURVIVES | SURVIVES | unchanged |
+
+**No verdict changes.**
+
+The lag-1 column is the measure SPEC2 decision D5 has since settled on, and it closes all eleven cells at both sizes. The cell column is this card's best-of-variants verdict, which D5 records as an oracle upper bound rather than a survival criterion. The monotonicity check — that no cell's cost fell when the size fell — returned **True**.
+
 ## Provenance
 
-* Config: `experiments/T5-cost-geometry/config.toml` (sha256 `d1b6dd0d0c1ece5f`), which is where the cost model and the D2 test set are declared.
+* Config: `experiments/T5-cost-geometry/config.toml` (sha256 `6742157e19d166eb`), which is where the cost model and the D2 test set are declared.
 * Cost model: `fxlab.costs.IBCostModel`, unchanged from Phase 1. Every cost figure in this report was produced by it, through `research.costs`, from quotes built out of stored bars.
 * Bars: `data/research/bars/timeframe=<TF>/pair=<PAIR>/`, read only through `research.loader.ResearchLoader` in `scoring` mode, which is what enforces the seal and ruling R1 on every date served.
 * Cross-check classes: `config/crosscheck.toml`, derived under ruling R7 and re-derived and compared on every run of the T3 experiment. Section 6's agreement table comes from it.
-* Result: `experiments/T5-cost-geometry/result.json`, hash `b2ef692281ebbe37eab4149ad4063294f8b5f34104e819e93b5a5d97078fb71e`
+* Result: `experiments/T5-cost-geometry/result.json`, hash `c4194024c1e4ec9838b5dcc8d15e4bbfc602bd96d55d4bbbd3413e21e6b8d97d`
 * Figures: 9 under `T5/`, each beside the CSV of the numbers it was drawn from. Both are regenerated from `result.json` by `python -m research.cost_geometry_report`.
 * Loader mode `scoring`, scored `False`, re-run class `full`. It served 84 file(s) across 12 pair(s), 5 timeframe(s) and 6307 date(s); sealed dates served: none; dates withheld by an exclusion window: 2,189 across 1 pair(s) — ruling R1, the full-history era section asking `AUDUSD` for years it may not have.
 * Research gate: exit 0 (full, 2026-09-06)

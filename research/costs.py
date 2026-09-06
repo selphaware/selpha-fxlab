@@ -225,3 +225,35 @@ def multiplier_check(costs: Mapping[str, Any], ladder: Sequence[str],
         # being genuinely wrong.
         "within_tolerance": worst_rel <= 1e-12,
     }
+
+
+def floor_binding_legs(model: IBCostModel, entry_mid: np.ndarray,
+                       entry_spread: np.ndarray, exit_mid: np.ndarray,
+                       exit_spread: np.ndarray, units: float,
+                       ) -> tuple[np.ndarray, np.ndarray]:
+    """Which legs of each round trip pay the per-order minimum, not the rate.
+
+    T5's reference size of 1,000,000 units was chosen so that this was empty.
+    Decision D9 moves the reference to 100,000, where it is not, so the card's
+    P0-A caveat stops being a formality and starts being a column: the floor is
+    the one term in the model whose currency is wrong for the eight pairs that
+    are not USD-quoted, and it is now inside the arithmetic rather than beside
+    it.
+
+    The threshold is :func:`floor_notional` -- bisected off the model, not
+    divided out of its parameters -- and each leg is compared at the price it
+    would actually fill at: the entry crosses to the ask, the exit back to the
+    bid. Both are in the quote currency, which is exactly the defect.
+
+    Returns:
+        ``(entry_floored, exit_floored)``, boolean arrays. Kept apart because a
+        round trip can floor on one leg and not the other: the two legs price
+        at different notionals whenever the market has moved between them.
+    """
+    threshold = floor_notional(model)
+    size = abs(float(units))
+    entry_notional = size * (np.asarray(entry_mid, dtype="float64")
+                             + np.asarray(entry_spread, dtype="float64") / 2.0)
+    exit_notional = size * (np.asarray(exit_mid, dtype="float64")
+                            - np.asarray(exit_spread, dtype="float64") / 2.0)
+    return entry_notional <= threshold, exit_notional <= threshold

@@ -112,6 +112,23 @@ roll_end_hour_ny = 18
 # be read. The experiment measures the floor-binding count and reports it.
 reference_units = 1000000
 
+# SPEC2 decision D9, fixed at the M5 checkpoint and executed by the T6 card's
+# Step 0: the research reference notional is 100,000 units -- the size at which
+# the USD 2.00 per-order minimum equals the 0.20 bp rate on a 100,000 USD
+# notional, and roughly what the funded account carries. Every cost from T6
+# onward is quoted at this size, so section 1's cost floors and the D2 test set
+# are re-expressed at it in a derived addendum.
+#
+# It is declared here rather than defaulted in code for the same reason
+# `reference_units` is: a size nobody wrote down is a size nobody chose. The
+# addendum re-prices series this experiment has already loaded, through the
+# same model, at one different size -- so every difference between the two
+# tables is the per-order minimum and nothing else. Unlike the size above, this
+# one is NOT above the floor for the whole universe, which is the point: the
+# P0-A caveat stops being a formality here, and the addendum reports pair by
+# pair where the floor binds and by how much.
+addendum_reference_units = 100000
+
 # Volatility regimes: terciles of the standard deviation of the previous 20
 # returns, computed strictly before the return being labelled. T4's window, so
 # the regimes in the two reports are the same regimes.

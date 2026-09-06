@@ -7,6 +7,12 @@ pre-2013 recommendation and the questions for T6 and T7 are generated too --
 their prose is a template and every quantity in it, including which cells
 appear at all, comes from the result.
 
+The last section is an **addendum**, appended after the card closed by the T6
+card's Step 0: SPEC2 decision D9 moved the research reference notional to
+100,000 units, and section 1 is re-expressed at that size. It sits at the end
+rather than inside section 1 because nothing above it changed, and a reader
+should be able to see that at a glance.
+
 The one thing this module adds that the result does not contain is the
 *recommendation rule* for the era question. The card asks this card to
 recommend and not to decide, so the rule is stated in the report beside the
@@ -153,6 +159,7 @@ def render(document: dict[str, Any], trials: int, gate_status: str, home: str,
     lines += _closing_map(payload)
     lines += _closing_era_recommendation(payload)
     lines += _closing_questions(payload)
+    lines += _section_addendum(payload)
     lines += _provenance(document, payload, home, figures, figures_dir,
                          gate_status)
     return "\n".join(lines).rstrip() + "\n"
@@ -1605,6 +1612,344 @@ def _provenance(document: dict[str, Any], payload: dict[str, Any], home: str,
         f"* Research gate: {gate_status}",
         "",
     ]
+
+
+
+
+# --------------------------------------------------------------------------- #
+# Addendum: decision D9's reference notional (the T6 card's Step 0)
+# --------------------------------------------------------------------------- #
+
+def _slice_names(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """Session and tercile names, read off the result rather than imported.
+
+    The report stays a pure function of the result document: a session list
+    typed in here would be a second statement of the session map, and it would
+    go stale the first time one changed.
+    """
+    floors = payload.get("cost_floor") or {}
+    sessions: list[str] = []
+    terciles: list[str] = []
+    for row in floors.values():
+        for name in row.get("by_session", {}):
+            if name not in sessions:
+                sessions.append(name)
+        for name in row.get("by_tercile", {}):
+            if name not in terciles:
+                terciles.append(name)
+    return sessions, terciles
+
+
+def _floor_disagreement(addendum: dict[str, Any]) -> list[str]:
+    """The sentence naming the pairs the model and P0-A floor differently.
+
+    Generated rather than written: which pairs disagree, and by how much, is a
+    property of the median mids over this window, and a paragraph that named
+    them would stop being true the first time the window moved.
+    """
+    rows = [row for row in addendum["sizing"]
+            if row["floor_binds_at_reference_units"]
+            != bool(row.get("floor_would_bind_under_p0a"))]
+    if not rows:
+        return ["The model and USD accounting agree about every pair at this "
+                "size: nothing is floored on the wrong side of the "
+                "comparison.", ""]
+    model_only = [r for r in rows if r["floor_binds_at_reference_units"]]
+    p0a_only = [r for r in rows if not r["floor_binds_at_reference_units"]]
+    parts: list[str] = []
+    if model_only:
+        row = model_only[0]
+        parts.append(
+            f"the model floors `{row['pair']}` because "
+            f"{_n(addendum['units'])} {row['base_currency']} is "
+            f"{_n(row['quote_notional_at_reference_units'])} "
+            f"**{row['quote_currency']}**, while under USD accounting it is a "
+            f"{_n(row.get('illustrative_usd_notional_at_reference_units'))} "
+            "USD notional and does not floor")
+    if p0a_only:
+        row = p0a_only[0]
+        parts.append(
+            f"it does not floor `{row['pair']}` because "
+            f"{_n(addendum['units'])} {row['base_currency']} is "
+            f"{_n(row['quote_notional_at_reference_units'])} "
+            f"**{row['quote_currency']}**, while under USD accounting it is a "
+            f"{_n(row.get('illustrative_usd_notional_at_reference_units'))} "
+            "USD notional and pays "
+            f"{_x(row.get('illustrative_p0a_multiple'))} the modelled "
+            "commission")
+    named = "`" + "`, `".join(r["pair"] for r in rows) + "`"
+    return [
+        f"**{_n(len(rows))} pair(s) are priced on the wrong side of the floor "
+        f"at this size** — {named}. Concretely: " + "; and ".join(parts) + ". "
+        "That is P0-A stated as an amount rather than as a caveat, and at "
+        f"{_n(addendum['base_units'])} units it did not arise at all. **It is "
+        "the concrete reason SPEC2 decision D10 puts a backtester-readiness "
+        "card in front of any scorecard.**",
+        "",
+    ]
+
+
+def _section_addendum(payload: dict[str, Any]) -> list[str]:
+    """Section 1 and the D2 verdicts, re-expressed at 100,000 units.
+
+    Appended after the card closed, by the T6 card's Step 0, and generated
+    like everything else here: every row and every count in the prose comes
+    out of the hashed result.
+    """
+    addendum = payload.get("reference_addendum")
+    if not addendum:
+        return []
+    ladder = payload["method"]["ladder"]
+    sessions, terciles = _slice_names(payload)
+    reference = _n(addendum["units"])
+    base_units = _n(addendum["base_units"])
+    by_pair = addendum["by_pair"]
+    pairs = sorted(by_pair)
+    rows = addendum["rows"]
+
+    ever = [p for p in pairs if by_pair[p]["floor_binding_returns"] > 0]
+    always = [p for p in pairs if by_pair[p]["floor_binding_share"] == 1.0]
+    worst = max(pairs, key=lambda p: by_pair[p]["ratio"][BAR] or 0.0)
+    worst_slice = max(rows, key=lambda r: r["ratio"].get(BAR) or 0.0)
+    changed_band = [p for p in pairs if by_pair[p]["cheapest_session_changed"]]
+    identical_spread = sum(1 for row in rows if row["spread_bp_identical"])
+
+    sizing_rows = [[
+        f"`{row['pair']}`", row["base_currency"], row["quote_currency"],
+        _n(row["quote_notional_at_reference_units"]),
+        "**yes**" if row["floor_binds_at_reference_units"] else "no",
+        _n(row.get("illustrative_usd_notional_at_reference_units")),
+        _f(row.get("illustrative_usd_commission_from_the_rate"), 3),
+        _f(row.get("illustrative_usd_commission_after_the_floor"), 3),
+        _x(row.get("illustrative_p0a_multiple"), 3),
+        "**yes**" if row.get("floor_would_bind_under_p0a") else "no",
+        ("**disagree**" if row["floor_binds_at_reference_units"]
+         != bool(row.get("floor_would_bind_under_p0a")) else "agree")]
+        for row in addendum["sizing"]]
+
+    pair_rows = [[
+        f"`{pair}`", _n(by_pair[pair]["returns"]),
+        _pct(by_pair[pair]["floor_binding_share"]),
+        *[_f(by_pair[pair]["cost_bp_at_base_units"][rung], 4)
+          for rung in ladder],
+        *[_f(by_pair[pair]["cost_bp_at_reference_units"][rung], 4)
+          for rung in ladder],
+        _x(by_pair[pair]["ratio"][BAR], 3),
+        _f(by_pair[pair]["extra_bp_at_survival_bar"], 4)]
+        for pair in pairs]
+
+    def cut(names: Sequence[str]) -> list[list[Any]]:
+        return [[
+            f"`{row['pair']}`", row["slice"].replace("_", " "), _n(row["n"]),
+            _pct(row["floor_binding_share"]),
+            *[_f(row["cost_bp_at_reference_units"][rung], 4)
+              for rung in ladder],
+            _x(row["ratio"][BAR], 3),
+            _f(row["extra_bp_at_survival_bar"], 4)]
+            for row in rows if row["slice"] in names]
+
+    session_rows = cut(sessions)
+    tercile_rows = cut(terciles)
+
+    crosses = sorted((row for row in rows if "|" in row["slice"]),
+                     key=lambda r: -(r["ratio"].get(BAR) or 0.0))
+    cross_rows = [[
+        f"`{row['pair']}`", row["slice"].split("|")[0].replace("_", " "),
+        row["slice"].split("|")[1], _n(row["n"]),
+        _pct(row["floor_binding_share"]),
+        _f(row["cost_bp_at_reference_units"][BAR], 4),
+        _x(row["ratio"][BAR], 3)] for row in crosses]
+
+    band_rows = [[
+        f"`{pair}`",
+        (by_pair[pair]["cheapest_session_at_base_units"] or "—").replace(
+            "_", " "),
+        (by_pair[pair]["cheapest_session_at_reference_units"] or "—").replace(
+            "_", " "),
+        "**moved**" if by_pair[pair]["cheapest_session_changed"] else "same",
+        _f((addendum["cheapest_band"].get(pair) or {}).get(
+            "cost_bp_at_survival_bar"), 4),
+        _x((addendum["cheapest_band"].get(pair) or {}).get(
+            "ratio_dearest_to_cheapest"))]
+        for pair in pairs]
+
+    comparison = addendum["test_set"]["comparison"]
+    verdict_rows = [[
+        f"`{row['pair']}`", f"`{row['horizon']}`",
+        _f(row["cost_bp_at_base_units"], 4),
+        _f(row["cost_bp_at_reference_units"], 4),
+        _f(row["extra_bp_at_survival_bar"], 4),
+        row["lag1_verdict_at_base_units"] or "—",
+        row["lag1_verdict_at_reference_units"] or "—",
+        row["verdict_at_base_units"] or "—",
+        row["verdict_at_reference_units"] or "—",
+        "**changed**" if row["changed"] else "unchanged"]
+        for row in comparison["cells"]]
+    changed = comparison["changed"]
+
+    lines = [
+        "## Addendum — the cost floors at the 100,000-unit reference notional "
+        "(decision D9)",
+        "",
+        "**This section was appended after the card closed**, by the T6 card's "
+        "Step 0. SPEC2 decision D9, fixed at the M5 checkpoint, moves the "
+        f"research reference notional from {base_units} units to {reference} "
+        "— the size at which the USD 2.00 per-order minimum equals the 0.20 bp "
+        "rate on a 100,000 USD notional, and roughly what the funded account "
+        "carries. **Nothing above it changed**: the same series, the same "
+        "slices, the same cost model and the same ladder, re-priced at one "
+        "different size, which is what lets the two sets of tables be read "
+        "against each other.",
+        "",
+        "The spread cost in basis points cannot move with size — it is a ratio "
+        "of two quantities that both scale with it — so every difference below "
+        "is the per-order minimum and nothing else. The experiment measures "
+        f"that rather than asserting it: **{_n(identical_spread)} of "
+        f"{_n(len(rows))}** slice rows carry an identical spread line at both "
+        "sizes.",
+        "",
+        "### Where the floor binds, and the two answers to that question",
+        "",
+        f"At {base_units} units the per-order minimum bound on **0** of the "
+        "priced moves, which is why no figure above depends on it. At "
+        f"{reference} it binds for **{_n(len(ever))} of {_n(len(pairs))}** "
+        "pairs — `" + "`, `".join(ever) + f"` — and for {_n(len(always))} of "
+        "them on every single move.",
+        "",
+        "**There are two answers to \"does it bind\", and they disagree.** The "
+        "model floors a USD 2.00 minimum against a **quote-currency** "
+        "notional, which is exactly SPEC2 prerequisite P0-A. The "
+        "`illustrative` columns show what the same order would pay under the "
+        "USD accounting P0-A would supply, using the median-mid conversion "
+        "illustration section 1 already carries. They are used in no cost "
+        "figure, no verdict and no ranked table anywhere in this report — "
+        "they size the defect, they do not repair it.",
+        "",
+    ]
+    lines += _table(
+        ["pair", "base", "quote", f"quote notional @ {reference}",
+         "model floors?", "illustrative USD notional", "USD from the rate",
+         "USD after the floor", "P0-A multiple", "P0-A floors?", "verdicts"],
+        sizing_rows)
+    lines += _floor_disagreement(addendum)
+    lines += [
+        "### Unconditional, on hourly bars",
+        "",
+        "The same twelve pairs as section 1's first table, at both sizes. The "
+        f"cost at {reference} is never below the cost at {base_units} — the "
+        "floor can only raise a commission — and the experiment checks that "
+        "rather than assuming it.",
+        "",
+    ]
+    lines += _table(
+        ["pair", "moves", "floor binds",
+         *[f"@{rung}× ({base_units})" for rung in ladder],
+         *[f"@{rung}× ({reference})" for rung in ladder],
+         f"ratio @ {BAR}×", f"extra bp @ {BAR}×"],
+        pair_rows)
+    lines += [
+        f"The largest effect is `{worst}` at "
+        f"{_x(by_pair[worst]['ratio'][BAR], 3)}, and the dearest single slice "
+        f"is `{worst_slice['pair']}` "
+        f"{worst_slice['slice'].replace('_', ' ').replace('|', ' / ')} at "
+        f"{_x(worst_slice['ratio'][BAR], 3)} — "
+        f"{_f(worst_slice['extra_bp_at_survival_bar'], 4)} bp more per round "
+        "trip at the survival bar. That is small beside the spread "
+        "differences section 1 measures, and it is not nothing: it is a "
+        "commission line that has stopped being a constant.",
+        "",
+        "### By session",
+        "",
+        "Decision D3's execution constraint, re-costed. The ranking matters "
+        "here rather than the level, because D3 uses it to choose a band "
+        "rather than to price one.",
+        "",
+    ]
+    lines += _table(
+        ["pair", "session", "returns", "floor binds",
+         *[f"cost @ {rung}× (bp)" for rung in ladder],
+         f"ratio @ {BAR}×", f"extra bp @ {BAR}×"],
+        session_rows[:MAX_ROWS])
+    if len(session_rows) > MAX_ROWS:
+        lines += [f"_First {MAX_ROWS} of {len(session_rows)} pair-sessions; "
+                  "the whole table is in `result.json` under "
+                  "`payload.reference_addendum.rows`._", ""]
+    lines += ["And what that does to the cheapest band each pair is allowed "
+              "to trade in:", ""]
+    lines += _table(
+        ["pair", f"cheapest @ {base_units}", f"cheapest @ {reference}",
+         "", f"cost @ {BAR}× (bp)", "dearest / cheapest"],
+        band_rows)
+    if changed_band:
+        lines += [
+            f"**{_n(len(changed_band))} pair's cheapest band moves** — `"
+            + "`, `".join(changed_band) + "`. The floor is a fixed charge, and "
+            "a session does not dilute it any faster for being busier, so "
+            "where two bands were close on spread the ranking can turn over "
+            "on the commission. A T7 card taking D3's constraint forward "
+            "should take it from this table rather than from section 1's, "
+            f"because it will trade at {reference} units and not at "
+            f"{base_units}.",
+            "",
+        ]
+    else:
+        lines += ["No pair's cheapest band moves: decision D3's execution "
+                  "constraint is the same constraint at both sizes.", ""]
+    lines += ["### By volatility tercile", ""]
+    lines += _table(
+        ["pair", "tercile", "returns", "floor binds",
+         *[f"cost @ {rung}× (bp)" for rung in ladder],
+         f"ratio @ {BAR}×", f"extra bp @ {BAR}×"],
+        tercile_rows[:MAX_ROWS])
+    if len(tercile_rows) > MAX_ROWS:
+        lines += [f"_First {MAX_ROWS} of {len(tercile_rows)} pair-terciles; "
+                  "the whole table is in `result.json`._", ""]
+    lines += [
+        "### Session × tercile",
+        "",
+        "The card's full grain, ranked by how much the floor costs the cell "
+        "rather than alphabetically, so the cells the new reference actually "
+        "moves are the ones on the page.",
+        "",
+    ]
+    lines += _table(
+        ["pair", "session", "tercile", "returns", "floor binds",
+         f"cost @ {BAR}× (bp)", f"ratio @ {BAR}×"],
+        cross_rows[:MAX_ROWS])
+    if len(cross_rows) > MAX_ROWS:
+        lines += [f"_Dearest {MAX_ROWS} of {len(cross_rows)} cells by the "
+                  "ratio; the whole table is in `result.json`._", ""]
+    lines += [
+        "### The D2 verdicts, confirmed",
+        "",
+        "The card's question: does any D2 verdict change at the new reference "
+        "notional? It cannot improve — the floor can only raise a commission, "
+        "so every net edge at this size is at most what it was — but a cell "
+        "could close harder. Each cell is re-verdicted against **its own** "
+        "cheapest band at this size rather than against section 1's, so the "
+        "table is internally consistent rather than half inherited.",
+        "",
+    ]
+    lines += _table(
+        ["pair", "horizon", f"cost @ {BAR}× ({base_units})",
+         f"cost @ {BAR}× ({reference})", f"extra bp @ {BAR}×",
+         f"lag-1 @ {base_units}", f"lag-1 @ {reference}",
+         f"cell @ {base_units}", f"cell @ {reference}", ""],
+        verdict_rows)
+    lines += [
+        ("**No verdict changes.**" if not changed else
+         f"**{_n(len(changed))} verdict(s) change:** "
+         + ", ".join(f"`{key}`" for key in changed) + "."),
+        "",
+        "The lag-1 column is the measure SPEC2 decision D5 has since settled "
+        "on, and it closes all eleven cells at both sizes. The cell column is "
+        "this card's best-of-variants verdict, which D5 records as an oracle "
+        "upper bound rather than a survival criterion. The monotonicity check "
+        "— that no cell's cost fell when the size fell — returned "
+        f"**{comparison['costs_never_fell']}**.",
+        "",
+    ]
+    return lines
 
 
 # --------------------------------------------------------------------------- #

@@ -41,6 +41,14 @@ deviation of the returns strictly before it.
 decisions name the eleven T4 reversion cells; this module reads them out of the
 config and verdicts every one. It cannot add a cell, and a cell cannot be
 dropped after its arithmetic is seen.
+
+One thing was added after the card closed. SPEC2 decision D9, fixed at the M5
+checkpoint, moves the research reference notional to 100,000 units, and the T6
+card's Step 0 re-expresses this card's section 1 and its D2 verdicts at that
+size. :func:`reference_addendum` is that addendum: it re-prices series this
+experiment has already loaded, at one different size, through the same model.
+Nothing above it changed, which is what lets the two tables be read against
+each other.
 """
 
 from __future__ import annotations
@@ -456,6 +464,392 @@ def _conversion_pair(currency: str) -> str:
     return f"USD{currency}" if currency in ("JPY", "CHF", "CAD") \
         else f"{currency}USD"
 
+
+
+# --------------------------------------------------------------------------- #
+# Section 1 addendum -- decision D9's reference notional
+# --------------------------------------------------------------------------- #
+#
+# The T6 card's Step 0. Decision D9 moves the research reference notional from
+# 1,000,000 units to 100,000 -- the size at which the USD 2.00 per-order
+# minimum exactly equals the 0.20 bp rate on a 100,000 USD notional -- so every
+# cost figure from T6 onward is quoted at a size where the floor is inside the
+# arithmetic rather than provably outside it.
+#
+# This is a **derived addendum** and not a re-measurement. Nothing above is
+# touched: the same series, the same slices, the same cost model, the same
+# ladder, re-priced at the new size. That is deliberate. The card asks whether
+# any D2 verdict changes, and the only honest way to answer is for the two
+# tables to differ in exactly one input.
+#
+# Two figures are reported per slice, and they answer different questions:
+#
+# * the cost **the model produces** at 100,000 units. It is what T5's tables
+#   would have said had they been priced at this size, and it is the figure the
+#   gate re-runs. Its floor is a USD 2.00 minimum compared against a
+#   quote-currency notional, which is wrong for the eight pairs that are not
+#   USD-quoted -- and at this size that wrongness is load-bearing rather than
+#   theoretical, because the comparison now binds;
+# * the **illustrative** cost P0-A would produce, using the same median-mid
+#   conversion illustration T5 already carries in ``minimum_viable_notional``.
+#   It is used in no verdict and in no ranked table anywhere. It exists so a
+#   reader can see the size of the term P0-A would fix, which is exactly what
+#   D9's "2-4x the modelled commission" clause is about.
+
+#: The unconditional slice the session and tercile cuts are read against.
+ADDENDUM_ALL: Final[str] = "all"
+
+
+def floored_mask(priced: Priced, model: Any, units: float) -> np.ndarray:
+    """Per move, whether either leg of its round trip paid the per-order floor.
+
+    Either rather than both: a round trip whose entry floors and whose exit
+    does not has still been priced with a term P0-A would change, and counting
+    it as unfloored would be the more flattering of the two readings.
+    """
+    series = priced.series
+    pip = pair_spec(series.pair).pip_size
+    spread_price = series.spread_pips * pip
+    pos = series.ret_pos
+    entry_floored, exit_floored = cost_lib.floor_binding_legs(
+        model, series.mid_close[pos - 1], spread_price[pos - 1],
+        series.mid_close[pos], spread_price[pos], units)
+    return entry_floored | exit_floored
+
+
+def _slice_costs(priced: Priced, mask: np.ndarray) -> dict[str, Any] | None:
+    """The median round trip of one slice at every rung, or ``None`` if thin."""
+    n = int(mask.sum())
+    if n < stats.MIN_SAMPLE:
+        return None
+    cost = priced.cost_bp[mask]
+    return {"n": n,
+            "cost_bp": {rung: _r(_q(cost * float(rung), 0.50), 5)
+                        for rung in LADDER},
+            "spread_bp_p50": _r(_q(priced.spread_bp[mask], 0.50), 5),
+            "commission_bp_p50": _r(_q(priced.commission_bp[mask], 0.50), 5)}
+
+
+def addendum_slices(priced: Priced) -> dict[str, np.ndarray]:
+    """``all``, each session, each tercile and every session-by-tercile cross.
+
+    Exactly the cuts section 1 reports, in one dictionary, so the addendum
+    cannot quietly re-express a different set of slices from the ones it claims
+    to be re-expressing.
+    """
+    masks = slices_of(priced)
+    out: dict[str, np.ndarray] = {ADDENDUM_ALL: masks[ADDENDUM_ALL]}
+    if priced.session is not None:
+        for name in SESSIONS:
+            out[name] = masks[f"session:{name}"]
+    for tercile in TERCILES:
+        out[tercile] = masks[f"tercile:{tercile}"]
+    if priced.session is not None:
+        for name in SESSIONS:
+            for tercile in TERCILES:
+                out[f"{name}|{tercile}"] = (masks[f"session:{name}"]
+                                            & masks[f"tercile:{tercile}"])
+    return out
+
+
+def addendum_rows(priced_base: Priced, priced_ref: Priced,
+                  floored: np.ndarray) -> list[dict[str, Any]]:
+    """One row per slice: the cost at both notionals, and where the floor bit.
+
+    ``priced_base`` and ``priced_ref`` are the same series priced at the two
+    sizes, so every difference between the two cost columns is the per-order
+    minimum and nothing else -- the spread line is a ratio of two quantities
+    that both scale with size and is therefore identical by construction, which
+    ``spread_bp_identical`` measures rather than assumes.
+    """
+    rows: list[dict[str, Any]] = []
+    base_masks = addendum_slices(priced_base)
+    ref_masks = addendum_slices(priced_ref)
+    for name, mask in ref_masks.items():
+        base = _slice_costs(priced_base, base_masks[name])
+        ref = _slice_costs(priced_ref, mask)
+        if base is None or ref is None:
+            continue
+        ratios = {rung: _r(ref["cost_bp"][rung] / base["cost_bp"][rung]
+                           if base["cost_bp"][rung] else None, 5)
+                  for rung in LADDER}
+        rows.append({
+            "pair": priced_ref.pair,
+            "horizon": priced_ref.label,
+            "slice": name,
+            "n": ref["n"],
+            "cost_bp_at_base_units": base["cost_bp"],
+            "cost_bp_at_reference_units": ref["cost_bp"],
+            "ratio": ratios,
+            "extra_bp_at_survival_bar": _r(
+                ref["cost_bp"][SURVIVAL_BAR] - base["cost_bp"][SURVIVAL_BAR], 5),
+            "commission_bp_p50_at_base_units": base["commission_bp_p50"],
+            "commission_bp_p50_at_reference_units": ref["commission_bp_p50"],
+            "spread_bp_identical": bool(
+                base["spread_bp_p50"] == ref["spread_bp_p50"]),
+            "floor_binding_share": _r(float(floored[mask].mean()), 6),
+            "floor_binding_moves": int(floored[mask].sum()),
+        })
+    return rows
+
+
+def addendum_sizing(costs: dict[str, Any], pairs: Sequence[str],
+                    prices: dict[str, float], base_units: float,
+                    reference_units: float) -> list[dict[str, Any]]:
+    """Where each pair sits relative to the floor at the two reference sizes.
+
+    The illustrative columns are used in no cost figure anywhere: the
+    conversion rate is the median mid of a universe pair over the research
+    window, which is neither fill-time nor lookahead-safe and is therefore not
+    a conversion -- it is a way of stating how large the term P0-A would fix
+    actually is.
+    """
+    base = cost_lib.model_for(costs, 1.0)
+    threshold = cost_lib.floor_notional(base)
+    rows: list[dict[str, Any]] = []
+    for pair in pairs:
+        price = prices.get(pair)
+        if price is None:
+            continue
+        base_ccy, quote_ccy = pair[:3], pair[3:]
+        usd_per_base = _usd_per_unit(base_ccy, prices)
+        usd_per_quote = _usd_per_unit(quote_ccy, prices)
+        row: dict[str, Any] = {
+            "pair": pair,
+            "base_currency": base_ccy,
+            "quote_currency": quote_ccy,
+            "usd_quoted": quote_ccy == "USD",
+            "median_mid": _r(price, 6),
+            "quote_notional_at_base_units": _r(base_units * price, 2),
+            "quote_notional_at_reference_units": _r(reference_units * price, 2),
+            "floor_binds_at_base_units": bool(base_units * price <= threshold),
+            "floor_binds_at_reference_units": bool(
+                reference_units * price <= threshold),
+            "illustrative_usd_per_quote_unit": _r(usd_per_quote, 8),
+        }
+        if usd_per_base is not None:
+            usd_notional = reference_units * usd_per_base
+            rated = base.commission_rate * usd_notional
+            row["illustrative_usd_notional_at_reference_units"] = _r(
+                usd_notional, 2)
+            row["illustrative_usd_commission_from_the_rate"] = _r(rated, 4)
+            row["illustrative_usd_commission_after_the_floor"] = _r(
+                max(rated, base.commission_min), 4)
+            row["illustrative_p0a_multiple"] = _r(
+                max(rated, base.commission_min) / rated if rated else None, 4)
+            row["floor_would_bind_under_p0a"] = bool(
+                rated < base.commission_min)
+        rows.append(row)
+    return rows
+
+
+def _usd_per_unit(currency: str, prices: dict[str, float]) -> float | None:
+    """USD per one unit of ``currency``, from a universe pair's median mid.
+
+    An illustration, never a conversion: the rate is a decade median rather
+    than the fill-time, lookahead-safe rate SPEC2 prerequisite P0-A requires.
+    """
+    if currency == "USD":
+        return 1.0
+    pair = _conversion_pair(currency)
+    rate = prices.get(pair)
+    if rate is None or rate <= 0.0:
+        return None
+    return 1.0 / rate if pair.startswith("USD") else rate
+
+
+def addendum_verdicts(cells_base: Sequence[dict[str, Any]],
+                      cells_reference: Sequence[dict[str, Any]]
+                      ) -> dict[str, Any]:
+    """Whether any D2 verdict moved when the reference notional shrank.
+
+    The card's claim is that they can only close harder, and the claim has an
+    arithmetic reason: the floor can only raise a commission, never lower one,
+    so every cost at the smaller size is at least the cost at the larger and
+    every net edge is at most what it was. That is checked here rather than
+    asserted -- ``costs_never_fell`` is the check, and a False would mean the
+    addendum, not the market, is wrong.
+    """
+    by_key_base = {f"{c['pair']}|{c['horizon']}": c for c in cells_base}
+    rows: list[dict[str, Any]] = []
+    changed: list[str] = []
+    for cell in cells_reference:
+        key = f"{cell['pair']}|{cell['horizon']}"
+        before = by_key_base.get(key)
+        if before is None:
+            continue
+        row = {
+            "pair": cell["pair"],
+            "horizon": cell["horizon"],
+            "verdict_at_base_units": before["verdict"],
+            "verdict_at_reference_units": cell["verdict"],
+            "changed": before["verdict"] != cell["verdict"],
+            "route_at_base_units": before["verdict_from_route"],
+            "route_at_reference_units": cell["verdict_from_route"],
+            "lag1_verdict_at_base_units": _route_verdict(before, "lag1"),
+            "lag1_verdict_at_reference_units": _route_verdict(cell, "lag1"),
+            "cost_bp_at_base_units": _all_hours_cost(before),
+            "cost_bp_at_reference_units": _all_hours_cost(cell),
+        }
+        row["extra_bp_at_survival_bar"] = _r(
+            (row["cost_bp_at_reference_units"] or 0.0)
+            - (row["cost_bp_at_base_units"] or 0.0), 5)
+        if row["changed"]:
+            changed.append(key)
+        rows.append(row)
+    never_fell = all((r["extra_bp_at_survival_bar"] or 0.0) >= 0.0
+                     for r in rows)
+    return {"cells": rows, "changed": changed,
+            "any_changed": bool(changed),
+            "costs_never_fell": bool(never_fell)}
+
+
+def _route_verdict(cell: dict[str, Any], route: str) -> str | None:
+    """The verdict one measure gives a cell on all hours."""
+    row = (cell.get("variants") or {}).get("all hours") or {}
+    return (row.get(route) or {}).get("verdict")
+
+
+def _all_hours_cost(cell: dict[str, Any]) -> float | None:
+    """The cell's all-hours median round trip at the survival bar."""
+    row = (cell.get("variants") or {}).get("all hours") or {}
+    return (row.get("cost_bp") or {}).get(SURVIVAL_BAR)
+
+
+def addendum_cheapest(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    """One pair's cheapest and dearest session at the reference notional.
+
+    Ranked off the addendum's own rows rather than off section 1's, so the
+    answer is the one a reader of *this* table would compute. Decision D3's
+    execution constraint is a cost ranking and nothing else, so if the ranking
+    moves when the size changes, that is a fact the card owes the checkpoint.
+    """
+    session_rows = [row for row in rows if row["slice"] in SESSIONS]
+    usable = [row for row in session_rows
+              if row["cost_bp_at_reference_units"].get(SURVIVAL_BAR) is not None]
+    if not usable:
+        return {"session": None}
+    ranked = sorted(usable,
+                    key=lambda r: r["cost_bp_at_reference_units"][SURVIVAL_BAR])
+    best, worst = ranked[0], ranked[-1]
+    low = best["cost_bp_at_reference_units"][SURVIVAL_BAR]
+    high = worst["cost_bp_at_reference_units"][SURVIVAL_BAR]
+    return {
+        "session": best["slice"],
+        "cost_bp_at_survival_bar": low,
+        "dearest_session": worst["slice"],
+        "dearest_cost_bp_at_survival_bar": high,
+        "ratio_dearest_to_cheapest": _r(high / low if low else None, 3),
+        "ranking": [row["slice"] for row in ranked],
+    }
+
+
+def reference_addendum(*, costs: dict[str, Any], base_model: Any,
+                       pairs: Sequence[str], prices: dict[str, float],
+                       priced_cells: dict[str, Priced],
+                       test_set: Sequence[tuple[str, str]], vr_q: int,
+                       base_units: float, reference_units: float,
+                       session_horizon: str, roll: tuple[int, int],
+                       vol_window: int, floor: float,
+                       cells_base: Sequence[dict[str, Any]],
+                       cheapest_base: dict[str, Any]) -> dict[str, Any]:
+    """Section 1 and the D2 test set, re-expressed at decision D9's notional.
+
+    Everything here re-prices series this experiment has already loaded, at one
+    different size, through the same model. It loads nothing, and it recomputes
+    no spread, no move and no autocorrelation: those are properties of the
+    series and cannot depend on how large a position somebody takes in it.
+    Only the cost changes, and only through the per-order minimum.
+
+    The cells are re-verdicted against the addendum's own cheapest session, so
+    the second table is internally consistent rather than half inherited; where
+    that session differs from section 1's, the difference is reported.
+    """
+    rows: list[dict[str, Any]] = []
+    per_pair: dict[str, Any] = {}
+    cheapest_ref: dict[str, Any] = {}
+
+    for pair in pairs:
+        priced_base = priced_cells.get(f"{pair}|{session_horizon}")
+        if priced_base is None:
+            continue
+        priced_ref = price_series(priced_base.series, base_model,
+                                  reference_units, roll=roll,
+                                  vol_window=vol_window, floor_notional=floor)
+        floored = floored_mask(priced_ref, base_model, reference_units)
+        pair_rows = addendum_rows(priced_base, priced_ref, floored)
+        rows.extend(pair_rows)
+        cheapest_ref[pair] = addendum_cheapest(pair_rows)
+        unconditional = next((row for row in pair_rows
+                              if row["slice"] == ADDENDUM_ALL), None)
+        was = (cheapest_base.get(pair) or {}).get("session")
+        now = cheapest_ref[pair].get("session")
+        per_pair[pair] = {
+            "returns": int(priced_ref.abs_bp.size),
+            "floor_binding_returns": int(floored.sum()),
+            "floor_binding_share": _r(float(floored.mean()), 6),
+            "floor_binding_returns_at_base_units": int(priced_base.floor_bars),
+            "cost_bp_at_base_units": (unconditional or {}).get(
+                "cost_bp_at_base_units"),
+            "cost_bp_at_reference_units": (unconditional or {}).get(
+                "cost_bp_at_reference_units"),
+            "ratio": (unconditional or {}).get("ratio"),
+            "extra_bp_at_survival_bar": (unconditional or {}).get(
+                "extra_bp_at_survival_bar"),
+            "worst_slice_ratio": _r(max(
+                (row["ratio"][SURVIVAL_BAR] for row in pair_rows
+                 if row["ratio"].get(SURVIVAL_BAR) is not None),
+                default=None), 5),
+            "cheapest_session_at_base_units": was,
+            "cheapest_session_at_reference_units": now,
+            "cheapest_session_changed": bool(was is not None and was != now),
+        }
+        del priced_ref, floored
+
+    cells_ref: list[dict[str, Any]] = []
+    missing: list[str] = []
+    for pair, horizon in test_set:
+        priced_base = priced_cells.get(f"{pair}|{horizon}")
+        if priced_base is None:
+            missing.append(f"{pair}|{horizon}")
+            continue
+        priced_ref = price_series(priced_base.series, base_model,
+                                  reference_units, roll=roll,
+                                  vol_window=vol_window, floor_notional=floor)
+        cells_ref.append(test_set_cell(
+            priced_ref, (cheapest_ref.get(pair) or {}).get("session"), vr_q))
+        del priced_ref
+
+    binding = [pair for pair, row in per_pair.items()
+               if row["floor_binding_returns"] > 0]
+    return {
+        "units": reference_units,
+        "base_units": base_units,
+        "decision": "D9",
+        "statement": (
+            "SPEC2 decision D9 moves the research reference notional to "
+            "100,000 units -- the size at which the USD 2.00 per-order minimum "
+            "equals the 0.20 bp rate on a 100,000 USD notional. Section 1's "
+            "cost floors are re-expressed here at that size. The series, the "
+            "slices, the cost model and the ladder are unchanged; only the "
+            "position size differs, so every difference below is the per-order "
+            "minimum and nothing else."),
+        "floor_notional_quote_currency": _r(floor, 4),
+        "sizing": addendum_sizing(costs, pairs, prices, base_units,
+                                  reference_units),
+        "rows": rows,
+        "by_pair": per_pair,
+        "cheapest_band": cheapest_ref,
+        "pairs_with_a_binding_floor": sorted(binding),
+        "test_set": {
+            "cells": cells_ref,
+            "missing": missing,
+            "counts": {verdict: sum(1 for c in cells_ref
+                                    if c["verdict"] == verdict)
+                       for verdict in (SURVIVES, PARKED, CLOSED)},
+            "comparison": addendum_verdicts(cells_base, cells_ref),
+        },
+    }
 
 # --------------------------------------------------------------------------- #
 # Section 3 -- the minimum viable holding period
@@ -918,6 +1312,12 @@ def run(*, params: dict[str, Any], seed: int, loader: Any,
     history_horizons = [str(t) for t in params["history_timeframes"]]
     roll = (int(params["roll_start_hour_ny"]), int(params["roll_end_hour_ny"]))
     units = float(params["reference_units"])
+    # SPEC2 decision D9, via the T6 card's Step 0. The addendum re-expresses
+    # section 1 and the D2 test set at the research reference notional, which
+    # is a different size from the one this card's tables were measured at --
+    # so it is read from the config rather than defaulted, exactly as
+    # ``reference_units`` is. A size nobody declared is a size nobody chose.
+    addendum_units = float(params["addendum_reference_units"])
     vol_window = int(params["vol_window"])
     vr_q = int(params["vr_horizon"])
     test_set = [(str(cell["pair"]), str(cell["horizon"]))
@@ -1007,6 +1407,13 @@ def run(*, params: dict[str, Any], seed: int, loader: Any,
     missing = [f"{pair}|{horizon}" for pair, horizon in test_set
                if f"{pair}|{horizon}" not in priced_cells]
 
+    addendum = reference_addendum(
+        costs=costs, base_model=base_model, pairs=pairs, prices=prices,
+        priced_cells=priced_cells, test_set=test_set, vr_q=vr_q,
+        base_units=units, reference_units=addendum_units,
+        session_horizon=session_horizon, roll=roll, vol_window=vol_window,
+        floor=floor, cells_base=cells, cheapest_base=cheapest)
+
     holding = {pair: minimum_holding_period(moves[pair], horizons,
                                             SURVIVAL_BAR)
                for pair in pairs if moves.get(pair)}
@@ -1046,6 +1453,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any,
                     costs, LADDER, MULTIPLIER_GRID).items()},
             "floor_notional_quote_currency": _r(floor, 4),
             "returns_priced_below_the_floor": floor_bars_total,
+            "addendum_reference_units": addendum_units,
         },
         "coverage": coverage,
         "cost_floor": floors,
@@ -1063,6 +1471,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any,
                                     if c["verdict"] == verdict)
                        for verdict in (SURVIVES, PARKED, CLOSED)},
         },
+        "reference_addendum": addendum,
         "roll": rolls,
         "eras": eras,
         "era_agreement": agreement,
