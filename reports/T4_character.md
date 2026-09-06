@@ -559,6 +559,27 @@ Volatility, spread and quote density by hour of day, on hourly bars. Three separ
 
 *Median tick count by UTC hour -- the density series R4 asks to characterise, at its finest published grain.* — source table: [`T4/density_by_hour.csv`](T4/density_by_hour.csv)
 
+### By day of week
+
+The same hourly bars, split by weekday. Each cell is mean |return| in basis points, then median spread in pips — per bar, because Monday and Friday are short days by construction and their totals would only be measuring the length of the trading week.
+
+| pair | Mon | Tue | Wed | Thu | Fri | Sun |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AUDJPY` | 8.93 / 0.798 | 10.24 / 0.793 | 10.07 / 0.798 | 10.47 / 0.808 | 10.37 / 0.792 | 11.68 / 1.853 |
+| `AUDUSD` | 7.99 / 0.997 | 9.22 / 0.991 | 9.38 / 0.993 | 9.59 / 0.997 | 9.46 / 0.986 | 8.43 / 1.510 |
+| `EURCHF` | 4.62 / 1.125 | 4.57 / 1.110 | 4.62 / 1.118 | 5.20 / 1.128 | 5.23 / 1.108 | 3.86 / 3.032 |
+| `EURGBP` | 5.86 / 0.897 | 6.22 / 0.888 | 6.22 / 0.891 | 6.54 / 0.898 | 6.63 / 0.880 | 4.66 / 1.913 |
+| `EURJPY` | 7.08 / 0.724 | 7.48 / 0.707 | 7.52 / 0.710 | 8.08 / 0.717 | 8.27 / 0.694 | 7.91 / 1.884 |
+| `EURUSD` | 6.01 / 0.294 | 6.35 / 0.289 | 6.62 / 0.290 | 7.02 / 0.293 | 7.05 / 0.287 | 5.01 / 0.692 |
+| `GBPJPY` | 8.29 / 1.763 | 9.00 / 1.729 | 9.01 / 1.736 | 9.33 / 1.753 | 9.57 / 1.725 | 9.11 / 3.836 |
+| `GBPUSD` | 6.90 / 0.912 | 7.43 / 0.899 | 7.62 / 0.906 | 7.79 / 0.910 | 8.10 / 0.891 | 5.54 / 2.017 |
+| `NZDUSD` | 8.37 / 1.105 | 9.37 / 1.094 | 10.14 / 1.102 | 9.79 / 1.104 | 9.66 / 1.088 | 8.79 / 1.901 |
+| `USDCAD` | 5.70 / 1.143 | 6.22 / 1.127 | 6.59 / 1.134 | 6.38 / 1.139 | 6.88 / 1.128 | 5.31 / 2.097 |
+| `USDCHF` | 6.20 / 1.044 | 6.51 / 1.034 | 6.75 / 1.036 | 7.33 / 1.039 | 7.29 / 1.022 | 5.12 / 2.534 |
+| `USDJPY` | 6.33 / 0.378 | 6.91 / 0.366 | 7.33 / 0.367 | 7.37 / 0.372 | 7.71 / 0.360 | 7.46 / 1.053 |
+
+The Sunday column is the weekly open: two or three hours of thin quoting, and the row it produces is the reason the daily horizon drops those bars rather than counting them as days.
+
 ## 4 — Session and spread structure
 
 Computed on `1h` bars with the session boundaries **derived** from each centre's own local clock, so they move with British Summer Time and US daylight saving independently, as they do in reality.

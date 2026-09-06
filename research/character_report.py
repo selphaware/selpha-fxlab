@@ -683,8 +683,35 @@ def _section_volatility(payload: dict[str, Any], index: dict[str, Any],
         *_figure(index, "volatility_by_hour", figures_dir),
         *_figure(index, "spread_by_hour", figures_dir),
         *_figure(index, "density_by_hour", figures_dir),
+        "### By day of week",
+        "",
+        "The same hourly bars, split by weekday. Each cell is mean |return| "
+        "in basis points, then median spread in pips — per bar, because "
+        "Monday and Friday are short days by construction and their totals "
+        "would only be measuring the length of the trading week.",
+        "",
+        *_table(["pair", *WEEKDAYS[:5], "Sun"], _weekday_rows(payload)),
+        "The Sunday column is the weekly open: two or three hours of thin "
+        "quoting, and the row it produces is the reason the daily horizon "
+        "drops those bars rather than counting them as days.",
+        "",
     ]
     return lines
+
+
+def _weekday_rows(payload: dict[str, Any]) -> list[list[Any]]:
+    """Mean |return| and median spread per weekday, one row per pair."""
+    rows: list[list[Any]] = []
+    for pair in sorted(payload["clock"]):
+        block = payload["clock"][pair]["by_weekday"]
+        cells: list[Any] = [f"`{pair}`"]
+        for day in (*WEEKDAYS[:5], "Sun"):
+            entry = block.get(day)
+            cells.append("—" if not entry else
+                         f"{_f(entry['mean_abs_bp'], 2)} / "
+                         f"{_f(entry['median_spread_pips'], 3)}")
+        rows.append(cells)
+    return rows
 
 
 # --------------------------------------------------------------------------- #

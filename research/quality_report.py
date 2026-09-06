@@ -768,6 +768,16 @@ def _reissue(payload: dict[str, Any]) -> list[str]:
                   _f(b["median"]), _f(b["p95"]), _f(b["max"])]
                  for pair, b in (r7.get("by_pair") or {}).items()]
 
+    pair_year_rows = []
+    for pair, years in sorted((r7.get("by_pair_year") or {}).items()):
+        for year, counts in sorted(years.items()):
+            verifiable = counts["PASS"] + counts["BLOCKED"]
+            pair_year_rows.append([
+                f"`{pair}`", year, _n(counts["PASS"]), _n(counts["BLOCKED"]),
+                _n(counts["UNVERIFIABLE"]), _n(counts["ROLL_EXEMPT"]),
+                (f"{100.0 * counts['PASS'] / verifiable:.0f}%"
+                 if verifiable else "—")])
+
     blocked_rows = [[f"`{b['pair']}`", b["date"], f"{int(b['hour']):02d}:00Z",
                      _n(b["ticks"]), f"`{b['band']}`",
                      _f(b["threshold_pips"]), _f(b["abs_worst_pips"])]
@@ -868,6 +878,14 @@ def _reissue(payload: dict[str, Any]) -> list[str]:
         "",
         *_table(["pair", "`PASS`", "`BLOCKED`", "`UNVERIFIABLE`",
                  "`ROLL_EXEMPT`", "median abs Δ", "p95", "max"], pair_rows),
+        "### By pair and year",
+        "",
+        "The full classification, which is what the T4 card asks Step 0 to "
+        "re-render. Every row is one pair in one year; a year with no "
+        "`UNVERIFIABLE` hours is a year the check could see all of.",
+        "",
+        *_table(["pair", "year", "`PASS`", "`BLOCKED`", "`UNVERIFIABLE`",
+                 "`ROLL_EXEMPT`", "agreement"], pair_year_rows),
         "### The blocked-hour list",
         "",
         "The final blocked set under R7, per hour. Pre-reg #7's blocking "
