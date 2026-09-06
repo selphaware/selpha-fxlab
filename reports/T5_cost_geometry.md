@@ -887,6 +887,8 @@ Each era is reported twice: uncontrolled, and inside ruling R3's `3k-10k` refere
 
 ### `1d` bars
 
+**34 of 35** pair-eras have no rows inside the `3k-10k` band at this horizon, and their band columns are dashes rather than zeroes. A bar of this length holds far more quotes than the band admits, so R3's control simply has nothing to hold still here — which is a fact about the grain rather than about the era, and means the uncontrolled column is all there is at this horizon. The evidence table at the end of the report falls back to it for exactly these cells and says so.
+
 | pair | era | moves | median spread (pips) | cost @ 1.5× (bp) | median \|move\| (bp) | move / cost @ 1.5× | share above cost | band moves | band spread | band cost @ 1.5× | share in band |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `AUDJPY` | 2005-2008 | 1,042 | 2.890 | 5.5846 | 40.576 | 7.27 | 92.0% | — | — | — | 0.0% |
@@ -1069,6 +1071,8 @@ The task card asks for an evidence table for the checkpoint's pre-2013 decision 
 
 ### On `1h` bars
 
+Built from ruling R3's `3k-10k` band where the band has rows — **35 of 35** pair-eras at this horizon — and from the uncontrolled figure for the rest. At the daily grain every bar holds more quotes than the band admits, so there the density control has nothing to hold still and the uncontrolled figure is the only one there is.
+
 | era | pairs measured | median spread (pips) | median cost @ 1.5× (bp) | vs `2013+` | median \|move\| (bp) | share of moves above cost | cross-check hours | unverifiable | agreement | recommendation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2005-2008 | 11 | 1.942 | 2.8440 | 1.37× | 8.073 | 78.0% | 1,584 | 38.5% | 69.1% | **stress test only — the cross-check could not see most of it; it disagreed where it could see it** |
@@ -1076,6 +1080,8 @@ The task card asks for an evidence table for the checkpoint's pre-2013 decision 
 | 2013+ | 12 | 0.929 | 2.0790 | 1.00× | 6.377 | 83.0% | 5,611 | 0.1% | 98.8% | **training data** |
 
 ### On `1d` bars
+
+Built from ruling R3's `3k-10k` band where the band has rows — **1 of 35** pair-eras at this horizon — and from the uncontrolled figure for the rest. At the daily grain every bar holds more quotes than the band admits, so there the density control has nothing to hold still and the uncontrolled figure is the only one there is.
 
 | era | pairs measured | median spread (pips) | median cost @ 1.5× (bp) | vs `2013+` | median \|move\| (bp) | share of moves above cost | cross-check hours | unverifiable | agreement | recommendation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

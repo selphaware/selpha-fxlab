@@ -1093,6 +1093,7 @@ def _section_roll(payload: dict[str, Any], by_name: dict[str, Any],
 def _section_eras(payload: dict[str, Any], by_name: dict[str, Any],
                   figures_dir: str) -> list[str]:
     eras = payload["eras"]
+    band = payload["method"]["r3_reference_band"]
     names = [row["era"] for row in payload["method"]["calendar_eras"]]
     lines = [
         "## 6 — The era question: what the pre-2013 data would cost (R7 evidence)",
@@ -1136,7 +1137,21 @@ def _section_eras(payload: dict[str, Any], by_name: dict[str, Any],
                     if controlled.get("usable") else "—",
                     _pct(era["band_composition"].get(
                         payload["method"]["r3_reference_band"]))])
+        controlled = sum(1 for row in rows if row[8] != "—")
         lines += [f"### `{horizon}` bars", ""]
+        if controlled < len(rows):
+            lines += [
+                f"**{len(rows) - controlled} of {len(rows)}** pair-eras have "
+                f"no rows inside the `{band}` band at this horizon, and their "
+                "band columns are dashes rather than zeroes. A bar of this "
+                "length holds far more quotes than the band admits, so R3's "
+                "control simply has nothing to hold still here — which "
+                "is a fact about the grain rather than about the era, and "
+                "means the uncontrolled column is all there is at this "
+                "horizon. The evidence table at the end of the report falls "
+                "back to it for exactly these cells and says so.",
+                "",
+            ]
         lines += _table(
             ["pair", "era", "moves", "median spread (pips)",
              f"cost @ {BAR}× (bp)", "median |move| (bp)",
@@ -1318,6 +1333,18 @@ def _closing_map(payload: dict[str, Any]) -> list[str]:
     ]
 
 
+def _band_coverage(payload: dict[str, Any], horizon: str) -> tuple[int, int]:
+    """Pair-eras with usable rows inside R3's reference band, and the total."""
+    band_rows = 0
+    total = 0
+    for _pair, horizons in payload["eras"].items():
+        for _era, block in (horizons.get(horizon) or {}).items():
+            total += 1
+            if (block.get("reference_band") or {}).get("usable"):
+                band_rows += 1
+    return band_rows, total
+
+
 def _closing_era_recommendation(payload: dict[str, Any]) -> list[str]:
     lines = [
         "## The pre-2013 evidence, and a recommendation",
@@ -1360,7 +1387,19 @@ def _closing_era_recommendation(payload: dict[str, Any]) -> list[str]:
                 _pct(row["crosscheck_unverifiable_share"]),
                 _pct(row["crosscheck_agreement_rate"]),
                 f"**{_recommend(row, ratio)}**"])
-        lines += [f"### On `{horizon}` bars", ""]
+        banded, total = _band_coverage(payload, horizon)
+        lines += [
+            f"### On `{horizon}` bars",
+            "",
+            f"Built from ruling R3's `{payload['method']['r3_reference_band']}` "
+            f"band where the band has rows — **{banded} of {total}** "
+            "pair-eras at this horizon — and from the uncontrolled "
+            "figure for the rest. At the daily grain every bar holds more "
+            "quotes than the band admits, so there the density control has "
+            "nothing to hold still and the uncontrolled figure is the only "
+            "one there is.",
+            "",
+        ]
         lines += _table(
             ["era", "pairs measured", "median spread (pips)",
              f"median cost @ {BAR}× (bp)", f"vs `{REFERENCE_ERA}`",
