@@ -21,7 +21,12 @@ a market holiday shuts everybody at once, and a data problem does not. So:
 * everything else -- one pair alone, or a handful of scattered hours -- is
   **unexplained**, and the card is explicit that those are data facts for T4
   rather than holidays. Calling them holidays would be the whole failure mode
-  this split exists to avoid.
+  this split exists to avoid;
+* a date whose *only* quiet pairs are ones an exclusion window removes is
+  **excluded_only**: the readable universe saw nothing happen, so there is
+  nothing to explain. T5 Step 0 separated these out. Before it, they fell
+  through to ``unexplained`` and were handed on as data facts -- 236 of T3's
+  312, every one of them 2007-2010, where ruling R1's AUDUSD window is.
 
 "Every readable pair" is doing real work in the first rule. Ruling R1 excludes
 AUDUSD before 2011, so on those dates the universe is eleven pairs and the
@@ -55,6 +60,38 @@ _LOG: Final[logging.Logger] = logging.getLogger("research.calendar_build")
 FULL: Final[str] = "full"
 PARTIAL: Final[str] = "partial"
 UNEXPLAINED: Final[str] = "unexplained"
+
+#: The fourth outcome, added by T5 Step 0: every pair that went quiet on the
+#: date is inside an exclusion window, so the readable universe observed
+#: nothing at all. Not a classification of the market -- a record that the
+#: filter cast a shadow -- and deliberately not folded into ``UNEXPLAINED``,
+#: which is where 236 of them spent T3 and T4 masquerading as data facts.
+EXCLUDED_ONLY: Final[str] = "excluded_only"
+
+#: How an unexplained-empty date is classified. The order below is the
+#: priority order, and each rule is a statement about evidence rather than a
+#: guess. Lives here rather than in the card that first needed it, because two
+#: cards deriving the same verdict two ways is how the two quietly disagree.
+EMPTY_CLASSES: Final[tuple[str, ...]] = (
+    "r1_artefact", "week_boundary", "calendar_holiday", "currency_holiday",
+    "feed_artefact", "unknown")
+
+#: The three buckets a class rolls into, plus the honest fourth.
+EMPTY_KINDS: Final[dict[str, str]] = {
+    "r1_artefact": "bookkeeping artefact",
+    "week_boundary": "feed artefact",
+    "feed_artefact": "feed artefact",
+    "calendar_holiday": "partial holiday",
+    "currency_holiday": "partial holiday",
+    "unknown": "unknown",
+}
+
+#: A Sunday or Friday date this shallow is the week edge, not a closure. The FX
+#: week opens Sunday 17:00 New York and closes Friday 17:00, so those two days
+#: carry a handful of open hours whose exact extent the feed and the derived
+#: boundary need not agree on to the hour.
+WEEK_EDGE_DAYS: Final[tuple[str, ...]] = ("Sun", "Fri")
+WEEK_EDGE_MAX_HOURS: Final[int] = 3
 
 #: Easter Sunday by year, Western computus. Tabulated rather than computed:
 #: the anonymous Gregorian algorithm is four lines and every one of them is a
@@ -168,6 +205,7 @@ def classify(scanned: dict[str, Any], pairs: Sequence[str], *,
     """
     empty = scanned["empty"]
     rows: dict[str, dict[str, Any]] = {}
+    shadow: dict[str, dict[str, Any]] = {}
     for date in sorted(empty):
         readable = readable_pairs(pairs, date)
         if not readable:
@@ -182,6 +220,18 @@ def classify(scanned: dict[str, Any], pairs: Sequence[str], *,
             "hours_by_pair": counts,
             "max_hours": max(counts.values()) if counts else 0,
         }
+        if not counts:
+            # T5 Step 0. Every pair that went quiet here is inside an
+            # exclusion window, so the readable universe saw nothing happen
+            # at all: the row is about the filter, not about the market. It
+            # used to fall straight through to UNEXPLAINED and be handed to
+            # the next card as a data fact, which put 236 dates of nothing in
+            # front of T4. Recorded separately -- deleting it would lose the
+            # evidence that the shadow exists, and keeping it in the
+            # unexplained pile is what the repair is for.
+            row["kind"] = EXCLUDED_ONLY
+            shadow[date] = row
+            continue
         if len(deep) == len(readable):
             row["kind"] = FULL
         elif len(deep) >= min_pairs_partial:
@@ -191,7 +241,65 @@ def classify(scanned: dict[str, Any], pairs: Sequence[str], *,
         rows[date] = row
     counts = {kind: sum(1 for r in rows.values() if r["kind"] == kind)
               for kind in (FULL, PARTIAL, UNEXPLAINED)}
-    return {"dates": rows, "counts": counts}
+    counts[EXCLUDED_ONLY] = len(shadow)
+    return {"dates": rows, "counts": counts, "excluded_only": shadow}
+
+
+def classify_empty_date(row: dict[str, Any], static: dict[str, str],
+                        readable: int) -> dict[str, Any]:
+    """Classify one unexplained-empty date by what the evidence supports.
+
+    ``r1_artefact`` is kept as a verdict even though :func:`classify` no
+    longer routes those rows here: the T4 result characterised 312 dates and
+    re-hashes against this function, and a class that stops existing would
+    make a closed card unreproducible to say the same thing a count already
+    says. After T5 Step 0 the caller that supplies real rows never produces
+    it, which is the repair.
+    """
+    date = str(row["date"])
+    pairs = [str(p) for p in row["pairs_empty"]]
+    weekday = as_date(date).strftime("%a")
+    max_hours = int(row["max_hours"])
+    currencies = [set((p[:3], p[3:])) for p in pairs]
+    shared = set.intersection(*currencies) if currencies else set()
+    if not pairs:
+        verdict = "r1_artefact"
+    elif weekday in WEEK_EDGE_DAYS and max_hours <= WEEK_EDGE_MAX_HOURS:
+        verdict = "week_boundary"
+    elif date in static:
+        verdict = "calendar_holiday"
+    elif shared and len(pairs) >= 2:
+        verdict = "currency_holiday"
+    elif readable and len(pairs) >= max(2, readable // 2):
+        verdict = "feed_artefact"
+    else:
+        verdict = "unknown"
+    return {
+        "date": date,
+        "weekday": weekday,
+        "pairs_empty": pairs,
+        "pairs_empty_deep": [str(p) for p in row["pairs_empty_deep"]],
+        "hours_by_pair": {str(k): int(v)
+                          for k, v in sorted(row["hours_by_pair"].items())},
+        "hours": int(sum(row["hours_by_pair"].values())),
+        "max_hours": max_hours,
+        "readable_pairs": readable,
+        "static_holiday": static.get(date, ""),
+        "shared_currency": sorted(shared),
+        "class": verdict,
+        "kind": EMPTY_KINDS[verdict],
+    }
+
+
+def classify_unexplained(classified: dict[str, Any], pairs: Sequence[str],
+                         static: dict[str, str]) -> list[dict[str, Any]]:
+    """Every surviving unexplained date, classified, in date order."""
+    return sorted(
+        (classify_empty_date(row, static,
+                             len(readable_pairs(pairs, str(row["date"]))))
+         for row in classified["dates"].values()
+         if row["kind"] == UNEXPLAINED),
+        key=lambda r: r["date"])
 
 
 def compare_static(classified: dict[str, Any], static: dict[str, str],
@@ -247,25 +355,36 @@ def _static_by_year(classified: dict[str, Any], in_window: set[str],
     actually covers.
     """
     rows = classified["dates"]
+    shadow = classified.get("excluded_only") or {}
     out: dict[str, dict[str, int]] = {}
     for date in sorted(in_window):
         bucket = out.setdefault(date[:4], {
-            FULL: 0, PARTIAL: 0, UNEXPLAINED: 0,
+            FULL: 0, PARTIAL: 0, UNEXPLAINED: 0, EXCLUDED_ONLY: 0,
             "traded_through": 0, "closed_week": 0})
         if not present.get(date):
             bucket["closed_week"] += 1
             continue
         row = rows.get(date)
-        if row is None:
+        if row is not None:
+            bucket[row["kind"]] += 1
+        elif date in shadow:
+            # The only pair that went quiet is one an exclusion window
+            # removes, so as far as the readable universe is concerned the
+            # feed quoted through. Counted apart from "traded through" all
+            # the same: the two are the same observation about different
+            # universes, and folding them together would put a claim about
+            # eleven pairs in a column headed by a claim about twelve.
+            bucket[EXCLUDED_ONLY] += 1
+        else:
             # No empty hour at all on a day the market was open: the feed
             # quoted straight through the holiday.
             bucket["traded_through"] += 1
-        else:
-            bucket[row["kind"]] += 1
     return out
 
 
-def unexplained_profile(classified: dict[str, Any]) -> dict[str, Any]:
+def unexplained_profile(classified: dict[str, Any],
+                        pairs: Sequence[str] = (),
+                        static: dict[str, str] | None = None) -> dict[str, Any]:
     """The empty hours the calendar does **not** explain.
 
     The card is explicit that these are data facts for T4 rather than
@@ -273,6 +392,13 @@ def unexplained_profile(classified: dict[str, Any]) -> dict[str, Any]:
     two pairs went quiet and ten did not is evidence about the feed, and
     filing it as a market closure would launder that evidence into a fact
     about the market.
+
+    Since T5 Step 0 this counts only dates on which a *readable* pair went
+    quiet. The dates whose only quiet pairs were excluded ones are counted
+    separately, under ``excluded_only``, because "236 rows the filter made" and
+    "76 facts about the feed" are different claims and the first one used to be
+    reported as the second. Give ``pairs`` and ``static`` and the survivors are
+    classified too.
     """
     rows = [r for r in classified["dates"].values()
             if r["kind"] == UNEXPLAINED]
@@ -289,7 +415,8 @@ def unexplained_profile(classified: dict[str, Any]) -> dict[str, Any]:
     for row in rows:
         key = str(len(row["pairs_empty_deep"]))
         widths[key] = widths.get(key, 0) + 1
-    return {
+    shadow = classified.get("excluded_only") or {}
+    profile: dict[str, Any] = {
         "dates": len(rows),
         "hours": sum(sum(r["hours_by_pair"].values()) for r in rows),
         "by_year": dict(sorted(by_year.items())),
@@ -299,7 +426,36 @@ def unexplained_profile(classified: dict[str, Any]) -> dict[str, Any]:
             ({"date": r["date"], "pairs": len(r["hours_by_pair"]),
               "hours": sum(r["hours_by_pair"].values())} for r in rows),
             key=lambda r: (-r["hours"], r["date"]))[:20],
+        "excluded_only": {
+            "dates": len(shadow),
+            "by_year": dict(sorted(
+                (year, sum(1 for d in shadow if d[:4] == year))
+                for year in sorted({d[:4] for d in shadow}))),
+        },
     }
+    if pairs:
+        classes = classify_unexplained(classified, pairs, static or {})
+        by_class = {name: 0 for name in EMPTY_CLASSES}
+        by_kind: dict[str, int] = {}
+        by_weekday: dict[str, int] = {}
+        class_by_year: dict[str, dict[str, int]] = {}
+        for row in classes:
+            by_class[row["class"]] += 1
+            by_kind[row["kind"]] = by_kind.get(row["kind"], 0) + 1
+            by_weekday[row["weekday"]] = by_weekday.get(row["weekday"], 0) + 1
+            class_by_year.setdefault(
+                row["date"][:4],
+                {n: 0 for n in EMPTY_CLASSES})[row["class"]] += 1
+        order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        profile["classified"] = {
+            "by_class": by_class,
+            "by_kind": {k: by_kind[k] for k in sorted(by_kind)},
+            "by_weekday": {d: by_weekday[d] for d in order if d in by_weekday},
+            "by_year": {k: class_by_year[k] for k in sorted(class_by_year)},
+            "dates": {row["date"]: row["class"] for row in classes},
+            "all": classes,
+        }
+    return profile
 
 
 def build(base: pathlib.Path, pairs: Sequence[str], start: dt.date,
@@ -318,7 +474,7 @@ def build(base: pathlib.Path, pairs: Sequence[str], start: dt.date,
         "classified": classified,
         "static": static,
         "comparison": compare_static(classified, static, scanned, start, end),
-        "unexplained": unexplained_profile(classified),
+        "unexplained": unexplained_profile(classified, pairs, static),
     }
 
 
@@ -383,6 +539,54 @@ def render_toml(document: dict[str, Any]) -> str:
     for date in sorted(d for d, r in rows.items() if r["kind"] == PARTIAL):
         pairs = ", ".join(f'"{p}"' for p in rows[date]["pairs_empty_deep"])
         lines.append(f'"{date}" = [{pairs}]')
+
+    universe = list(document.get("pairs") or [])
+    survivors = (classify_unexplained(document["classified"], universe, static)
+                 if universe else [])
+    shadow = document["classified"].get("excluded_only") or {}
+    lines += [
+        "",
+        "# ---------------------------------------------------------------",
+        "# INFORMATIONAL (ruling R8). Nothing below marks an hour ineligible",
+        "# for execution -- that is the static major-holiday list's job, in",
+        "# every year, whether or not the feed served data. This section is",
+        "# the empties-derived component: dates the feed left empty that are",
+        "# neither a full nor a partial holiday, with the class the evidence",
+        "# supports. Regenerated with the rest of the file; do not hand-edit.",
+        "#",
+        "# `week_boundary`    a Sunday or Friday date at most three hours",
+        "#                    deep -- the FX week edge, where the feed and the",
+        "#                    derived boundary need not agree to the hour.",
+        "# `calendar_holiday` the static major-holiday list names the date.",
+        "# `currency_holiday` every empty pair shares a currency, so that",
+        "#                    centre shut and the crosses kept trading.",
+        "# `feed_artefact`    at least half the readable universe went quiet,",
+        "#                    too shallowly to be a market closure.",
+        "# `unknown`          none of the above, said rather than guessed.",
+        "#",
+        "# `excluded_only` counts dates whose ONLY quiet pairs sit inside an",
+        "# exclusion window (ruling R1). The readable universe saw nothing",
+        "# happen on them, so they are not unexplained -- they are the",
+        "# filter's own shadow. Before T5 Step 0 they were counted as",
+        "# unexplained empty dates, which is what that step repaired.",
+        "",
+        "[calendar.unexplained]",
+        f"dates = {len(survivors)}",
+        f"empty_hours = {sum(r['hours'] for r in survivors)}",
+        f"excluded_only = {len(shadow)}",
+    ]
+    for name in EMPTY_CLASSES:
+        count = sum(1 for r in survivors if r["class"] == name)
+        if name == "r1_artefact" and not count:
+            continue
+        lines.append(f"{name} = {count}")
+    lines += [
+        "",
+        "# Every surviving date, with its class.",
+        "[calendar.unexplained.by_date]",
+    ]
+    for row in survivors:
+        lines.append(f'"{row["date"]}" = "{row["class"]}"')
     lines.append("")
     return "\n".join(lines)
 

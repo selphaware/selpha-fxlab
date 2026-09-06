@@ -97,7 +97,9 @@ def test_the_by_year_fold_sums_across_pairs() -> None:
 
 def _calendar_file(base: pathlib.Path, full: list[str],
                    partial: dict[str, list[str]] | None = None,
-                   *, min_empty: int = 6, min_pairs: int = 3) -> None:
+                   *, min_empty: int = 6, min_pairs: int = 3,
+                   unexplained: dict[str, str] | None = None,
+                   excluded_only: int = 0) -> None:
     """Write a committed calendar with the given contents."""
     lines = ["[calendar]",
              f"min_empty_hours = {min_empty}",
@@ -108,16 +110,25 @@ def _calendar_file(base: pathlib.Path, full: list[str],
     for date, pairs in (partial or {}).items():
         joined = ", ".join(f'"{p}"' for p in pairs)
         lines.append(f'"{date}" = [{joined}]')
+    lines += ["[calendar.unexplained]",
+              f"excluded_only = {excluded_only}",
+              "[calendar.unexplained.by_date]"]
+    lines += [f'"{d}" = "{c}"' for d, c in (unexplained or {}).items()]
     (base / "config").mkdir(parents=True, exist_ok=True)
     (base / "config" / "calendar.toml").write_text("\n".join(lines) + "\n",
                                                    encoding="utf-8")
 
 
 def _derived(full: list[str],
-             partial: dict[str, list[str]] | None = None) -> dict[str, Any]:
+             partial: dict[str, list[str]] | None = None,
+             unexplained: dict[str, str] | None = None,
+             excluded_only: int = 0) -> dict[str, Any]:
     """A re-derivation to compare the committed file against."""
     return {"rules": {"min_empty_hours": 6, "min_pairs_partial": 3},
-            "full": full, "partial": partial or {}}
+            "full": full, "partial": partial or {},
+            "unexplained": {
+                "excluded_only": {"dates": excluded_only},
+                "classified": {"dates": dict(unexplained or {})}}}
 
 
 PARAMS = {"calendar_path": "config/calendar.toml"}
@@ -166,6 +177,29 @@ def test_an_edited_rule_is_caught_even_when_the_dates_match(
     out = quality.compare_committed(tmp_path, PARAMS,
                                     _derived(["2019-12-25"]))
     assert out["rules_agree"] is False
+
+
+def test_an_edited_informational_class_is_caught(
+        tmp_path: pathlib.Path) -> None:
+    """Ruling R8's informational section is tracked, so it is editable too.
+
+    It marks no hour ineligible for anything, but a class changed by hand
+    would still reach every reader of the file, and the file is supposed to be
+    derived rather than believed.
+    """
+    _calendar_file(tmp_path, [], unexplained={"2012-06-16": "feed_artefact"})
+    out = quality.compare_committed(
+        tmp_path, PARAMS, _derived([], unexplained={"2012-06-16": "unknown"}))
+    assert out["unexplained_agrees"] is False
+    assert out["agrees"] is False
+
+
+def test_an_edited_shadow_count_is_caught(tmp_path: pathlib.Path) -> None:
+    """The count of dates the exclusion filter removed is part of the claim."""
+    _calendar_file(tmp_path, [], excluded_only=12)
+    out = quality.compare_committed(tmp_path, PARAMS,
+                                    _derived([], excluded_only=236))
+    assert out["unexplained_agrees"] is False
 
 
 def test_a_missing_calendar_does_not_pass(tmp_path: pathlib.Path) -> None:

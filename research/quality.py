@@ -372,7 +372,8 @@ def build_calendar(walk: dict[str, Any], pairs: Sequence[str], start: dt.date,
         "static_count": len(static),
         "comparison": calendar_build.compare_static(
             classified, static, walk["scan"], start, end),
-        "unexplained": calendar_build.unexplained_profile(classified),
+        "unexplained": calendar_build.unexplained_profile(
+            classified, pairs, static),
     }
 
 
@@ -399,6 +400,21 @@ def compare_committed(base: pathlib.Path, params: dict[str, Any],
                        sorted(calendar["partial"].items())}
     missing = sorted(set(derived_full) - set(committed_full))
     extra = sorted(set(committed_full) - set(derived_full))
+    # The informational section (ruling R8) is compared for the same reason
+    # the holidays are: it is tracked, so it is editable, and a class quietly
+    # changed by hand would reach every reader of the file. It marks no hour
+    # ineligible for anything -- comparing it is about the file staying
+    # derived, not about the calendar's authority.
+    committed_unexplained = block.get("unexplained") or {}
+    committed_classes = {str(k): str(v) for k, v in
+                         (committed_unexplained.get("by_date") or {}).items()}
+    derived_classes = {
+        str(k): str(v) for k, v in
+        ((calendar["unexplained"].get("classified") or {}).get("dates")
+         or {}).items()}
+    unexplained_agrees = (committed_classes == derived_classes
+                          and int(committed_unexplained.get("excluded_only", -1))
+                          == int(calendar["unexplained"]["excluded_only"]["dates"]))
     return {
         "present": True,
         "path": str(params.get("calendar_path", "config/calendar.toml")),
@@ -408,12 +424,17 @@ def compare_committed(base: pathlib.Path, params: dict[str, Any],
                         == calendar["rules"]["min_pairs_partial"]),
         "full_agrees": derived_full == committed_full,
         "partial_agrees": derived_partial == committed_partial,
+        "unexplained_agrees": unexplained_agrees,
         "agrees": (derived_full == committed_full
-                   and derived_partial == committed_partial),
+                   and derived_partial == committed_partial
+                   and unexplained_agrees),
         "derived_not_committed": missing,
         "committed_not_derived": extra,
         "full_days": len(committed_full),
         "partial_days": len(committed_partial),
+        "unexplained_dates": len(committed_classes),
+        "excluded_only_dates": int(committed_unexplained.get(
+            "excluded_only", 0)),
     }
 
 

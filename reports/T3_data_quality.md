@@ -1,8 +1,8 @@
 # T3 — Data quality, holiday calendar and cross-venue check
 
-**Window:** 2005-01-03 → 2025-02-28, 12 pairs · **Task card:** `taskcards/T3.md` · **Experiment:** `T3-quality` · **Seed:** 20260905 · **Result hash:** `4d019b876f50f655`
+**Window:** 2005-01-03 → 2025-02-28, 12 pairs · **Task card:** `taskcards/T3.md` · **Experiment:** `T3-quality` · **Seed:** 20260905 · **Result hash:** `4bb59c9e469b8b27`
 
-**Trials ledgered under T3:** 3 (SPEC2 pre-reg #10).
+**Trials ledgered under T3:** 7 (SPEC2 pre-reg #10).
 
 This card asks four questions about the store the two ingestion cards built, and answers them from four different directions: does the bookkeeping agree with the files, is every stored hour still valid, which quiet days were holidays, and does a second venue quote the same market. It produces no strategy content and is not scorable.
 
@@ -159,35 +159,35 @@ The derivation is one idea. The derived FX week already says which hours should 
 | --- | --- |
 | full market holidays | **19** |
 | partial holidays | 3 |
-| unexplained empty dates | 312 |
+| unexplained empty dates | 76 |
 
 ### The finding that matters more than the calendar
 
 A calendar derived from emptiness can only contain the holidays the feed left empty — and **the feed did not always leave them empty.** Read down this table, which takes the static major-holiday list and asks what the feed actually did on each date:
 
-| year | full | partial | unexplained | traded through | fell on a closed week |
-| --- | --- | --- | --- | --- | --- |
-| 2005 | 0 | 0 | 0 | 6 | 0 |
-| 2006 | 0 | 0 | 0 | 7 | 0 |
-| 2007 | 0 | 0 | 3 | 4 | 0 |
-| 2008 | 0 | 0 | 4 | 3 | 0 |
-| 2009 | 0 | 0 | 3 | 2 | 2 |
-| 2010 | 0 | 0 | 2 | 4 | 1 |
-| 2011 | 0 | 0 | 0 | 6 | 1 |
-| 2012 | 0 | 1 | 0 | 6 | 0 |
-| 2013 | 2 | 0 | 0 | 5 | 0 |
-| 2014 | 2 | 0 | 0 | 5 | 0 |
-| 2015 | 2 | 0 | 0 | 3 | 2 |
-| 2016 | 1 | 0 | 0 | 6 | 0 |
-| 2017 | 1 | 0 | 1 | 5 | 0 |
-| 2018 | 2 | 0 | 0 | 5 | 0 |
-| 2019 | 2 | 0 | 0 | 5 | 0 |
-| 2020 | 2 | 0 | 0 | 3 | 2 |
-| 2021 | 1 | 0 | 0 | 5 | 1 |
-| 2022 | 0 | 0 | 1 | 5 | 1 |
-| 2023 | 1 | 0 | 1 | 5 | 0 |
-| 2024 | 2 | 0 | 0 | 5 | 0 |
-| 2025 | 1 | 0 | 0 | 0 | 0 |
+| year | full | partial | unexplained | only an excluded pair | traded through | fell on a closed week |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2005 | 0 | 0 | 0 | 0 | 6 | 0 |
+| 2006 | 0 | 0 | 0 | 0 | 7 | 0 |
+| 2007 | 0 | 0 | 2 | 1 | 4 | 0 |
+| 2008 | 0 | 0 | 2 | 2 | 3 | 0 |
+| 2009 | 0 | 0 | 2 | 1 | 2 | 2 |
+| 2010 | 0 | 0 | 1 | 1 | 4 | 1 |
+| 2011 | 0 | 0 | 0 | 0 | 6 | 1 |
+| 2012 | 0 | 1 | 0 | 0 | 6 | 0 |
+| 2013 | 2 | 0 | 0 | 0 | 5 | 0 |
+| 2014 | 2 | 0 | 0 | 0 | 5 | 0 |
+| 2015 | 2 | 0 | 0 | 0 | 3 | 2 |
+| 2016 | 1 | 0 | 0 | 0 | 6 | 0 |
+| 2017 | 1 | 0 | 1 | 0 | 5 | 0 |
+| 2018 | 2 | 0 | 0 | 0 | 5 | 0 |
+| 2019 | 2 | 0 | 0 | 0 | 5 | 0 |
+| 2020 | 2 | 0 | 0 | 0 | 3 | 2 |
+| 2021 | 1 | 0 | 0 | 0 | 5 | 1 |
+| 2022 | 0 | 0 | 1 | 0 | 5 | 1 |
+| 2023 | 1 | 0 | 1 | 0 | 5 | 0 |
+| 2024 | 2 | 0 | 0 | 0 | 5 | 0 |
+| 2025 | 1 | 0 | 0 | 0 | 0 | 0 |
 
 Through the early years the feed quoted straight across days the whole market was shut. There is no emptiness there to derive a holiday from, so those dates are absent from the calendar and their bars contain prices nobody traded at. **This calendar is dense in the later years and near-empty in the early ones, and that is a fact about the feed rather than about the market.** Any card that treats an early-era holiday bar as tradeable is reading a quote that had no market behind it; `config/calendar.toml` carries the same warning at the top of the file.
 
@@ -213,21 +213,40 @@ Every derived full holiday appears on the static list: there is no date where th
 
 The card is explicit that these are data facts for T4 and not holidays, and keeping them out of the calendar is the point: a date where two pairs went quiet and ten did not is evidence about the feed, and filing it as a market closure would launder that evidence into a fact about the market.
 
+**T5 Step 0 repaired the derivation of this list.** A date whose only quiet pairs sit inside an exclusion window used to fall through to *unexplained* with an empty pair list: the readable universe saw nothing happen, and the row was the filter's own shadow rather than a fact about the feed. T4 measured how many, and they are now counted under `excluded_only` instead of being handed on as data facts. Every one of them falls in 2007–2010, where ruling R1's AUDUSD window is.
+
 | measure | value |
 | --- | --- |
-| dates | 312 |
+| dates | 76 |
 | empty hours on them | 963 |
-| dates where no pair reached the depth threshold | 298 |
+| dates where no pair reached the depth threshold | 62 |
+| dates removed as the exclusion filter's shadow | 236 |
+
+Classified by what the evidence supports — the same rule T4 applied, now derived here so the calendar file and the report cannot drift apart:
+
+| class | dates |
+| --- | --- |
+| `calendar_holiday` | 7 |
+| `currency_holiday` | 14 |
+| `feed_artefact` | 8 |
+| `unknown` | 11 |
+| `week_boundary` | 36 |
+
+| rolled up | dates |
+| --- | --- |
+| feed artefact | 44 |
+| partial holiday | 21 |
+| unknown | 11 |
 
 By year:
 
 | year | dates |
 | --- | --- |
 | 2005 | 1 |
-| 2007 | 86 |
-| 2008 | 76 |
-| 2009 | 72 |
-| 2010 | 39 |
+| 2007 | 8 |
+| 2008 | 8 |
+| 2009 | 17 |
+| 2010 | 4 |
 | 2011 | 5 |
 | 2012 | 12 |
 | 2013 | 1 |
@@ -277,8 +296,10 @@ The deepest of them:
 | its rules match the ones used here | yes |
 | its full holidays match the re-derivation | yes |
 | its partial holidays match the re-derivation | yes |
+| its informational section matches the re-derivation | yes |
 | full holidays recorded | 19 |
 | partial holidays recorded | 3 |
+| unexplained dates recorded (informational, ruling R8) | 76 |
 
 After this card, `EMPTY_TRADING_HOUR` on a calendar date is `closed` rather than a warning — pre-reg #5's closing clause, now that there is a calendar to test a date against.
 
@@ -969,7 +990,7 @@ The loader refused it while this result was produced (`PAIR_EXCLUDED_WINDOW`: ye
 * Median spreads for ruling R7: `experiments/T3-quality/spreads.jsonl`, one record per pair-date, written by `python -m research.crosscheck_spreads` from the stored ticks through the research loader.
 * Calendar: `config/calendar.toml`, written by `python -m research.calendar_build` and re-derived and compared on every run of this experiment.
 * Cross-check classification: `config/crosscheck.toml`, written by `python -m research.crosscheck_class` and re-derived and compared the same way.
-* Result: `experiments/T3-quality/result.json`, hash `4d019b876f50f6555139b1bf043c978a86ce3837f7a3cd22bfd3679285a8ae1d`
+* Result: `experiments/T3-quality/result.json`, hash `4bb59c9e469b8b2776721c7d2540238c88b16278e01ff3eeb355dd400d8c5bfa`
 * Loader mode `scoring`, scored `False`, re-run class `full`. It served 12 file(s) across 12 pair(s) and 6307 date(s); sealed dates served: none; dates withheld by an exclusion window: 1,772.
 * Research gate: exit 0 (full, 2026-09-06)
 

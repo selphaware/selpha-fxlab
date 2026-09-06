@@ -998,74 +998,25 @@ def density_breaks(profiles: dict[str, Any], multiple: float) -> dict[str, Any]:
 # Section 7 -- the unexplained empty dates
 # --------------------------------------------------------------------------- #
 
-#: How an unexplained-empty date is classified. The order below is the priority
-#: order, and each rule is a statement about evidence rather than a guess.
+#: The empty-date classifier moved to :mod:`research.calendar_build` in T5
+#: Step 0, which is where the rows it classifies are produced. Re-exported
+#: here because this card's report and tests ask for it by this name, and
+#: because two modules owning one verdict is how the two stop agreeing.
 #:
-#: ``r1_artefact`` comes first and is the one nobody expected. T3 filters a
-#: date's empty pairs down to the ones research may read, and ruling R1 removes
-#: AUDUSD before 2011 -- so a date on which *only* AUDUSD went quiet in 2008
-#: survives as a row whose pair list is then empty, and is counted as an
-#: unexplained date. It is not a fact about the readable universe at all. It is
-#: the exclusion filter casting a shadow, and folding it in with the rest would
-#: put a three-figure count of nothing in front of a reviewer.
-EMPTY_CLASSES: Final[tuple[str, ...]] = (
-    "r1_artefact", "week_boundary", "calendar_holiday", "currency_holiday",
-    "feed_artefact", "unknown")
-
-#: The three buckets the T4 card asks for, and which fine class rolls into each.
-EMPTY_KINDS: Final[dict[str, str]] = {
-    "r1_artefact": "bookkeeping artefact",
-    "week_boundary": "feed artefact",
-    "feed_artefact": "feed artefact",
-    "calendar_holiday": "partial holiday",
-    "currency_holiday": "partial holiday",
-    "unknown": "unknown",
-}
-
-#: A Sunday or Friday date this shallow is the week edge, not a closure. The FX
-#: week opens Sunday 17:00 New York and closes Friday 17:00, so those two days
-#: carry a handful of open hours whose exact extent the feed and the derived
-#: boundary need not agree on to the hour.
-WEEK_EDGE_DAYS: Final[tuple[str, ...]] = ("Sun", "Fri")
-WEEK_EDGE_MAX_HOURS: Final[int] = 3
-
-
-def classify_empty_date(row: dict[str, Any], static: dict[str, str],
-                        readable: int) -> dict[str, Any]:
-    """Classify one unexplained-empty date by what the evidence supports."""
-    date = str(row["date"])
-    pairs = [str(p) for p in row["pairs_empty"]]
-    weekday = as_date(date).strftime("%a")
-    max_hours = int(row["max_hours"])
-    currencies = [set((p[:3], p[3:])) for p in pairs]
-    shared = set.intersection(*currencies) if currencies else set()
-    if not pairs:
-        verdict = "r1_artefact"
-    elif weekday in WEEK_EDGE_DAYS and max_hours <= WEEK_EDGE_MAX_HOURS:
-        verdict = "week_boundary"
-    elif date in static:
-        verdict = "calendar_holiday"
-    elif shared and len(pairs) >= 2:
-        verdict = "currency_holiday"
-    elif readable and len(pairs) >= max(2, readable // 2):
-        verdict = "feed_artefact"
-    else:
-        verdict = "unknown"
-    return {
-        "date": date,
-        "weekday": weekday,
-        "pairs_empty": pairs,
-        "pairs_empty_deep": [str(p) for p in row["pairs_empty_deep"]],
-        "hours_by_pair": {str(k): int(v)
-                          for k, v in sorted(row["hours_by_pair"].items())},
-        "hours": int(sum(row["hours_by_pair"].values())),
-        "max_hours": max_hours,
-        "readable_pairs": readable,
-        "static_holiday": static.get(date, ""),
-        "shared_currency": sorted(shared),
-        "class": verdict,
-        "kind": EMPTY_KINDS[verdict],
-    }
+#: ``r1_artefact`` is the class nobody expected and the one Step 0 repaired.
+#: T3 filtered a date's empty pairs down to the ones research may read, and
+#: ruling R1 removes AUDUSD before 2011 -- so a date on which *only* AUDUSD
+#: went quiet in 2008 survived as a row whose pair list was then empty, and
+#: was counted as an unexplained date. It is not a fact about the readable
+#: universe at all; it is the exclusion filter casting a shadow. Since Step 0
+#: :func:`research.calendar_build.classify` files those rows under
+#: ``excluded_only`` instead, and this section reads both lists so that what
+#: T4 measured stays exactly what T4 measured.
+EMPTY_CLASSES: Final[tuple[str, ...]] = calendar_build.EMPTY_CLASSES
+EMPTY_KINDS: Final[dict[str, str]] = calendar_build.EMPTY_KINDS
+WEEK_EDGE_DAYS: Final[tuple[str, ...]] = calendar_build.WEEK_EDGE_DAYS
+WEEK_EDGE_MAX_HOURS: Final[int] = calendar_build.WEEK_EDGE_MAX_HOURS
+classify_empty_date = calendar_build.classify_empty_date
 
 
 def section_empties(store: pathlib.Path, pairs: Sequence[str], start: dt.date,
@@ -1083,12 +1034,19 @@ def section_empties(store: pathlib.Path, pairs: Sequence[str], start: dt.date,
         scanned, pairs, min_empty_hours=min_empty_hours,
         min_pairs_partial=min_pairs_partial)
     static = calendar_build.static_holidays(range(start.year, end.year + 1))
+    # Both lists, deliberately. Since T5 Step 0 the dates whose only quiet
+    # pairs were excluded ones live under ``excluded_only`` rather than
+    # falling through to UNEXPLAINED -- that separation is the repair. This
+    # card's question was how big the shadow is, so it reads the shadow too,
+    # and the 312 dates it characterises stay the 312 dates it characterised.
+    candidates = [row for row in classified["dates"].values()
+                  if row["kind"] == calendar_build.UNEXPLAINED]
+    candidates += list((classified.get("excluded_only") or {}).values())
     rows = [
         classify_empty_date(
             row, static,
             len(calendar_build.readable_pairs(pairs, str(row["date"]))))
-        for row in classified["dates"].values()
-        if row["kind"] == calendar_build.UNEXPLAINED]
+        for row in candidates]
     rows.sort(key=lambda r: r["date"])
 
     by_class: dict[str, int] = {name: 0 for name in EMPTY_CLASSES}

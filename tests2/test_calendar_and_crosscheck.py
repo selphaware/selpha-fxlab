@@ -147,6 +147,75 @@ def test_the_unexplained_profile_counts_dates_and_hours() -> None:
     assert profile["by_pair"]["USDJPY"] == {"dates": 2, "hours": 15}
 
 
+def test_a_date_only_an_excluded_pair_went_quiet_on_is_not_unexplained() -> None:
+    """T5 Step 0. The readable universe saw nothing happen, so nothing is
+    unexplained -- the row is the exclusion filter's own shadow.
+
+    This is the defect that put 236 dates of nothing in T3's unexplained list
+    and in front of T4, every one of them inside ruling R1's AUDUSD window.
+    """
+    scan = _scan({"2008-06-16": {"AUDUSD": 9}})
+    classified = cal.classify(scan, PAIRS, min_empty_hours=6,
+                              min_pairs_partial=3)
+    assert "2008-06-16" not in classified["dates"]
+    assert "2008-06-16" in classified["excluded_only"]
+    assert classified["counts"]["unexplained"] == 0
+    assert classified["counts"][cal.EXCLUDED_ONLY] == 1
+
+
+def test_the_same_shape_after_the_window_is_a_real_unexplained_date() -> None:
+    """The repair must not swallow a date the loader would actually serve."""
+    scan = _scan({"2012-06-16": {"AUDUSD": 9}})
+    classified = cal.classify(scan, PAIRS, min_empty_hours=6,
+                              min_pairs_partial=3)
+    assert classified["dates"]["2012-06-16"]["kind"] == cal.UNEXPLAINED
+    assert classified["counts"][cal.EXCLUDED_ONLY] == 0
+
+
+def test_the_profile_counts_the_shadow_apart_from_the_facts() -> None:
+    """Two different claims, so two different numbers."""
+    scan = _scan({"2008-06-16": {"AUDUSD": 9},
+                  "2012-06-16": {"AUDUSD": 9}})
+    classified = cal.classify(scan, PAIRS, min_empty_hours=6,
+                              min_pairs_partial=3)
+    profile = cal.unexplained_profile(classified, PAIRS, {})
+    assert profile["dates"] == 1
+    assert profile["excluded_only"] == {"dates": 1, "by_year": {"2008": 1}}
+    assert profile["classified"]["dates"] == {"2012-06-16": "unknown"}
+
+
+def test_a_week_edge_date_classifies_as_the_week_boundary() -> None:
+    """A shallow Sunday is the FX week edge, not a closure."""
+    scan = _scan({"2012-06-17": {"EURUSD": 2, "GBPUSD": 2}})
+    classified = cal.classify(scan, PAIRS, min_empty_hours=6,
+                              min_pairs_partial=3)
+    profile = cal.unexplained_profile(classified, PAIRS, {})
+    assert profile["classified"]["dates"] == {"2012-06-17": "week_boundary"}
+
+
+def test_the_informational_section_states_the_class_and_the_shadow() -> None:
+    """Ruling R8: the empties-derived component is informational, and the
+    file has to say which dates it covers and that it is not an eligibility
+    rule."""
+    scan = _scan({"2008-06-16": {"AUDUSD": 9},
+                  "2012-06-16": {"AUDUSD": 9}})
+    classified = cal.classify(scan, PAIRS, min_empty_hours=6,
+                              min_pairs_partial=3)
+    rendered = cal.render_toml({
+        "window": {"start": "2005-01-03", "end": "2012-12-31"},
+        "rules": {"min_empty_hours": 6, "min_pairs_partial": 3},
+        "pairs": PAIRS,
+        "classified": classified,
+        "static": {},
+    })
+    assert "INFORMATIONAL" in rendered
+    assert "[calendar.unexplained]" in rendered
+    assert "dates = 1" in rendered
+    assert "excluded_only = 1" in rendered
+    assert '"2012-06-16" = "unknown"' in rendered
+    assert "2008-06-16" not in rendered
+
+
 def test_the_rendered_calendar_carries_its_own_rule() -> None:
     """A calendar that does not say how it was derived cannot be audited."""
     scan = _scan({"2019-12-25": {p: 14 for p in PAIRS}})

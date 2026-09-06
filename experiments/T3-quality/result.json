@@ -8120,7 +8120,7 @@
   },
   "config_path": "config.toml",
   "config_sha256": "5627059eb40cb4f21836f731e36a56e8a1dc3881e835a16fb8bb505fe40bba2e",
-  "created_at": "2026-09-06T13:30:57.274281+00:00",
+  "created_at": "2026-09-06T16:24:01.015453+00:00",
   "entry": "research.quality:run",
   "experiment_id": "T3-quality",
   "mode": "scoring",
@@ -8302,6 +8302,7 @@
         "by_year": {
           "2005": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 0,
             "partial": 0,
             "traded_through": 6,
@@ -8309,6 +8310,7 @@
           },
           "2006": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 0,
             "partial": 0,
             "traded_through": 7,
@@ -8316,34 +8318,39 @@
           },
           "2007": {
             "closed_week": 0,
-            "full": 0,
-            "partial": 0,
-            "traded_through": 4,
-            "unexplained": 3
-          },
-          "2008": {
-            "closed_week": 0,
-            "full": 0,
-            "partial": 0,
-            "traded_through": 3,
-            "unexplained": 4
-          },
-          "2009": {
-            "closed_week": 2,
-            "full": 0,
-            "partial": 0,
-            "traded_through": 2,
-            "unexplained": 3
-          },
-          "2010": {
-            "closed_week": 1,
+            "excluded_only": 1,
             "full": 0,
             "partial": 0,
             "traded_through": 4,
             "unexplained": 2
           },
+          "2008": {
+            "closed_week": 0,
+            "excluded_only": 2,
+            "full": 0,
+            "partial": 0,
+            "traded_through": 3,
+            "unexplained": 2
+          },
+          "2009": {
+            "closed_week": 2,
+            "excluded_only": 1,
+            "full": 0,
+            "partial": 0,
+            "traded_through": 2,
+            "unexplained": 2
+          },
+          "2010": {
+            "closed_week": 1,
+            "excluded_only": 1,
+            "full": 0,
+            "partial": 0,
+            "traded_through": 4,
+            "unexplained": 1
+          },
           "2011": {
             "closed_week": 1,
+            "excluded_only": 0,
             "full": 0,
             "partial": 0,
             "traded_through": 6,
@@ -8351,6 +8358,7 @@
           },
           "2012": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 0,
             "partial": 1,
             "traded_through": 6,
@@ -8358,6 +8366,7 @@
           },
           "2013": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 5,
@@ -8365,6 +8374,7 @@
           },
           "2014": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 5,
@@ -8372,6 +8382,7 @@
           },
           "2015": {
             "closed_week": 2,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 3,
@@ -8379,6 +8390,7 @@
           },
           "2016": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 1,
             "partial": 0,
             "traded_through": 6,
@@ -8386,6 +8398,7 @@
           },
           "2017": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 1,
             "partial": 0,
             "traded_through": 5,
@@ -8393,6 +8406,7 @@
           },
           "2018": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 5,
@@ -8400,6 +8414,7 @@
           },
           "2019": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 5,
@@ -8407,6 +8422,7 @@
           },
           "2020": {
             "closed_week": 2,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 3,
@@ -8414,6 +8430,7 @@
           },
           "2021": {
             "closed_week": 1,
+            "excluded_only": 0,
             "full": 1,
             "partial": 0,
             "traded_through": 5,
@@ -8421,6 +8438,7 @@
           },
           "2022": {
             "closed_week": 1,
+            "excluded_only": 0,
             "full": 0,
             "partial": 0,
             "traded_through": 5,
@@ -8428,6 +8446,7 @@
           },
           "2023": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 1,
             "partial": 0,
             "traded_through": 5,
@@ -8435,6 +8454,7 @@
           },
           "2024": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 2,
             "partial": 0,
             "traded_through": 5,
@@ -8442,6 +8462,7 @@
           },
           "2025": {
             "closed_week": 0,
+            "excluded_only": 0,
             "full": 1,
             "partial": 0,
             "traded_through": 0,
@@ -8587,9 +8608,10 @@
         ]
       },
       "counts": {
+        "excluded_only": 236,
         "full": 19,
         "partial": 3,
-        "unexplained": 312
+        "unexplained": 76
       },
       "full": [
         "2013-01-01",
@@ -8689,10 +8711,10 @@
         },
         "by_year": {
           "2005": 1,
-          "2007": 86,
-          "2008": 76,
-          "2009": 72,
-          "2010": 39,
+          "2007": 8,
+          "2008": 8,
+          "2009": 17,
+          "2010": 4,
           "2011": 5,
           "2012": 12,
           "2013": 1,
@@ -8707,10 +8729,2221 @@
           "2023": 4,
           "2024": 2
         },
-        "dates": 312,
+        "classified": {
+          "all": [
+            {
+              "class": "feed_artefact",
+              "date": "2005-01-18",
+              "hours": 22,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2007-08-26",
+              "hours": 1,
+              "hours_by_pair": {
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2007-09-02",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2007-09-30",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2007-10-28",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2007-12-24",
+              "hours": 12,
+              "hours_by_pair": {
+                "EURJPY": 6,
+                "USDJPY": 6
+              },
+              "kind": "partial holiday",
+              "max_hours": 6,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2007-12-25",
+              "hours": 48,
+              "hours_by_pair": {
+                "EURJPY": 24,
+                "USDJPY": 24
+              },
+              "kind": "partial holiday",
+              "max_hours": 24,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "Christmas Day",
+              "weekday": "Tue"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2007-12-26",
+              "hours": 10,
+              "hours_by_pair": {
+                "EURJPY": 5,
+                "USDJPY": 5
+              },
+              "kind": "partial holiday",
+              "max_hours": 5,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "Boxing Day",
+              "weekday": "Wed"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2007-12-31",
+              "hours": 12,
+              "hours_by_pair": {
+                "EURJPY": 6,
+                "USDJPY": 6
+              },
+              "kind": "partial holiday",
+              "max_hours": 6,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2008-01-01",
+              "hours": 44,
+              "hours_by_pair": {
+                "EURJPY": 22,
+                "USDJPY": 22
+              },
+              "kind": "partial holiday",
+              "max_hours": 22,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "New Year's Day",
+              "weekday": "Tue"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2008-03-09",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2008-03-16",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2008-08-08",
+              "hours": 6,
+              "hours_by_pair": {
+                "EURJPY": 3,
+                "USDJPY": 3
+              },
+              "kind": "feed artefact",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "unknown",
+              "date": "2008-12-04",
+              "hours": 3,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "NZDUSD": 1,
+                "USDJPY": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "NZDUSD",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2008-12-24",
+              "hours": 3,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 2
+              },
+              "kind": "partial holiday",
+              "max_hours": 2,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2008-12-25",
+              "hours": 44,
+              "hours_by_pair": {
+                "EURJPY": 22,
+                "USDJPY": 22
+              },
+              "kind": "partial holiday",
+              "max_hours": 22,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "Christmas Day",
+              "weekday": "Thu"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2008-12-31",
+              "hours": 6,
+              "hours_by_pair": {
+                "EURJPY": 3,
+                "USDJPY": 3
+              },
+              "kind": "partial holiday",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2009-01-01",
+              "hours": 44,
+              "hours_by_pair": {
+                "EURJPY": 22,
+                "USDJPY": 22
+              },
+              "kind": "partial holiday",
+              "max_hours": 22,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "New Year's Day",
+              "weekday": "Thu"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2009-03-08",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2009-05-03",
+              "hours": 9,
+              "hours_by_pair": {
+                "EURJPY": 3,
+                "NZDUSD": 3,
+                "USDJPY": 3
+              },
+              "kind": "feed artefact",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURJPY",
+                "NZDUSD",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-05-11",
+              "hours": 6,
+              "hours_by_pair": {
+                "EURJPY": 3,
+                "USDJPY": 3
+              },
+              "kind": "partial holiday",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2009-06-14",
+              "hours": 6,
+              "hours_by_pair": {
+                "EURJPY": 3,
+                "USDJPY": 3
+              },
+              "kind": "feed artefact",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-06-15",
+              "hours": 48,
+              "hours_by_pair": {
+                "EURJPY": 24,
+                "USDJPY": 24
+              },
+              "kind": "partial holiday",
+              "max_hours": 24,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-06-16",
+              "hours": 48,
+              "hours_by_pair": {
+                "EURJPY": 24,
+                "USDJPY": 24
+              },
+              "kind": "partial holiday",
+              "max_hours": 24,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-06-17",
+              "hours": 48,
+              "hours_by_pair": {
+                "EURJPY": 24,
+                "USDJPY": 24
+              },
+              "kind": "partial holiday",
+              "max_hours": 24,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-06-18",
+              "hours": 48,
+              "hours_by_pair": {
+                "EURJPY": 24,
+                "USDJPY": 24
+              },
+              "kind": "partial holiday",
+              "max_hours": 24,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-06-19",
+              "hours": 28,
+              "hours_by_pair": {
+                "EURJPY": 14,
+                "USDJPY": 14
+              },
+              "kind": "partial holiday",
+              "max_hours": 14,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "unknown",
+              "date": "2009-08-18",
+              "hours": 1,
+              "hours_by_pair": {
+                "EURUSD": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "EUR",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "unknown",
+              "date": "2009-08-19",
+              "hours": 3,
+              "hours_by_pair": {
+                "EURUSD": 3
+              },
+              "kind": "unknown",
+              "max_hours": 3,
+              "pairs_empty": [
+                "EURUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "EUR",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2009-11-06",
+              "hours": 1,
+              "hours_by_pair": {
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-11-17",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "partial holiday",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-12-24",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "partial holiday",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2009-12-25",
+              "hours": 44,
+              "hours_by_pair": {
+                "EURJPY": 22,
+                "USDJPY": 22
+              },
+              "kind": "partial holiday",
+              "max_hours": 22,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "Christmas Day",
+              "weekday": "Fri"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2009-12-31",
+              "hours": 4,
+              "hours_by_pair": {
+                "EURJPY": 2,
+                "USDJPY": 2
+              },
+              "kind": "partial holiday",
+              "max_hours": 2,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "calendar_holiday",
+              "date": "2010-01-01",
+              "hours": 44,
+              "hours_by_pair": {
+                "EURJPY": 22,
+                "USDJPY": 22
+              },
+              "kind": "partial holiday",
+              "max_hours": 22,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "New Year's Day",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2010-03-14",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2010-03-21",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "currency_holiday",
+              "date": "2010-06-18",
+              "hours": 12,
+              "hours_by_pair": {
+                "EURJPY": 6,
+                "USDJPY": 6
+              },
+              "kind": "partial holiday",
+              "max_hours": 6,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "readable_pairs": 11,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2011-02-25",
+              "hours": 1,
+              "hours_by_pair": {
+                "AUDUSD": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "AUD",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2011-03-04",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2011-03-11",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2011-03-13",
+              "hours": 1,
+              "hours_by_pair": {
+                "AUDUSD": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "AUD",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2011-11-25",
+              "hours": 1,
+              "hours_by_pair": {
+                "AUDUSD": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "AUD",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-01-06",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-01-13",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-01-20",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-01-27",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURJPY": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-02-03",
+              "hours": 1,
+              "hours_by_pair": {
+                "EURJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "EUR",
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-02-10",
+              "hours": 1,
+              "hours_by_pair": {
+                "EURJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "EUR",
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-02-17",
+              "hours": 1,
+              "hours_by_pair": {
+                "EURJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "EUR",
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2012-02-24",
+              "hours": 1,
+              "hours_by_pair": {
+                "EURJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "EUR",
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "unknown",
+              "date": "2012-05-03",
+              "hours": 4,
+              "hours_by_pair": {
+                "AUDUSD": 1,
+                "EURJPY": 1,
+                "NZDUSD": 1,
+                "USDJPY": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDUSD",
+                "EURJPY",
+                "NZDUSD",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "unknown",
+              "date": "2012-06-12",
+              "hours": 6,
+              "hours_by_pair": {
+                "AUDUSD": 2,
+                "EURJPY": 2,
+                "USDJPY": 2
+              },
+              "kind": "unknown",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDUSD",
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "unknown",
+              "date": "2012-06-13",
+              "hours": 9,
+              "hours_by_pair": {
+                "AUDUSD": 3,
+                "EURJPY": 3,
+                "USDJPY": 3
+              },
+              "kind": "unknown",
+              "max_hours": 3,
+              "pairs_empty": [
+                "AUDUSD",
+                "EURJPY",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "unknown",
+              "date": "2012-12-31",
+              "hours": 9,
+              "hours_by_pair": {
+                "AUDUSD": 2,
+                "EURJPY": 2,
+                "GBPUSD": 1,
+                "NZDUSD": 2,
+                "USDJPY": 2
+              },
+              "kind": "unknown",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDUSD",
+                "EURJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2013-12-31",
+              "hours": 21,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 1,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 1,
+                "GBPJPY": 2,
+                "GBPUSD": 1,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2014-12-31",
+              "hours": 18,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 1,
+                "EURJPY": 2,
+                "EURUSD": 1,
+                "GBPJPY": 1,
+                "GBPUSD": 1,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Wed"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2015-12-31",
+              "hours": 24,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2016-09-02",
+              "hours": 10,
+              "hours_by_pair": {
+                "AUDUSD": 1,
+                "EURCHF": 1,
+                "EURGBP": 1,
+                "EURJPY": 1,
+                "EURUSD": 1,
+                "GBPJPY": 1,
+                "GBPUSD": 1,
+                "USDCAD": 1,
+                "USDCHF": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Fri"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2017-01-01",
+              "hours": 2,
+              "hours_by_pair": {
+                "NZDUSD": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "NZDUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "NZD",
+                "USD"
+              ],
+              "static_holiday": "New Year's Day",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2017-12-24",
+              "hours": 12,
+              "hours_by_pair": {
+                "AUDJPY": 1,
+                "AUDUSD": 1,
+                "EURCHF": 1,
+                "EURGBP": 1,
+                "EURJPY": 1,
+                "EURUSD": 1,
+                "GBPJPY": 1,
+                "GBPUSD": 1,
+                "NZDUSD": 1,
+                "USDCAD": 1,
+                "USDCHF": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2017-12-31",
+              "hours": 24,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2018-12-31",
+              "hours": 23,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 1,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2019-05-26",
+              "hours": 33,
+              "hours_by_pair": {
+                "AUDJPY": 3,
+                "AUDUSD": 3,
+                "EURCHF": 3,
+                "EURGBP": 3,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 3,
+                "GBPUSD": 3,
+                "NZDUSD": 3,
+                "USDCAD": 3,
+                "USDCHF": 3,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 3,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "unknown",
+              "date": "2019-12-24",
+              "hours": 2,
+              "hours_by_pair": {
+                "EURCHF": 1,
+                "USDJPY": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "EURCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2019-12-31",
+              "hours": 22,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 1,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 1,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2020-12-31",
+              "hours": 24,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "unknown",
+              "date": "2022-05-19",
+              "hours": 1,
+              "hours_by_pair": {
+                "USDCHF": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "USDCHF"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "CHF",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Thu"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2022-10-09",
+              "hours": 1,
+              "hours_by_pair": {
+                "USDCAD": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "USDCAD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "CAD",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2022-12-25",
+              "hours": 1,
+              "hours_by_pair": {
+                "AUDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "AUD",
+                "JPY"
+              ],
+              "static_holiday": "Christmas Day",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2023-01-01",
+              "hours": 7,
+              "hours_by_pair": {
+                "EURGBP": 1,
+                "EURJPY": 1,
+                "GBPJPY": 1,
+                "GBPUSD": 1,
+                "NZDUSD": 2,
+                "USDCAD": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "EURGBP",
+                "EURJPY",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "New Year's Day",
+              "weekday": "Sun"
+            },
+            {
+              "class": "unknown",
+              "date": "2023-01-02",
+              "hours": 1,
+              "hours_by_pair": {
+                "NZDUSD": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "NZDUSD"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "NZD",
+                "USD"
+              ],
+              "static_holiday": "",
+              "weekday": "Mon"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2023-12-24",
+              "hours": 16,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 1,
+                "EURCHF": 1,
+                "EURGBP": 1,
+                "EURJPY": 1,
+                "EURUSD": 1,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 1,
+                "USDCHF": 1,
+                "USDJPY": 1
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "week_boundary",
+              "date": "2023-12-31",
+              "hours": 24,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Sun"
+            },
+            {
+              "class": "unknown",
+              "date": "2024-12-24",
+              "hours": 1,
+              "hours_by_pair": {
+                "AUDJPY": 1
+              },
+              "kind": "unknown",
+              "max_hours": 1,
+              "pairs_empty": [
+                "AUDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [
+                "AUD",
+                "JPY"
+              ],
+              "static_holiday": "",
+              "weekday": "Tue"
+            },
+            {
+              "class": "feed_artefact",
+              "date": "2024-12-31",
+              "hours": 24,
+              "hours_by_pair": {
+                "AUDJPY": 2,
+                "AUDUSD": 2,
+                "EURCHF": 2,
+                "EURGBP": 2,
+                "EURJPY": 2,
+                "EURUSD": 2,
+                "GBPJPY": 2,
+                "GBPUSD": 2,
+                "NZDUSD": 2,
+                "USDCAD": 2,
+                "USDCHF": 2,
+                "USDJPY": 2
+              },
+              "kind": "feed artefact",
+              "max_hours": 2,
+              "pairs_empty": [
+                "AUDJPY",
+                "AUDUSD",
+                "EURCHF",
+                "EURGBP",
+                "EURJPY",
+                "EURUSD",
+                "GBPJPY",
+                "GBPUSD",
+                "NZDUSD",
+                "USDCAD",
+                "USDCHF",
+                "USDJPY"
+              ],
+              "pairs_empty_deep": [],
+              "readable_pairs": 12,
+              "shared_currency": [],
+              "static_holiday": "",
+              "weekday": "Tue"
+            }
+          ],
+          "by_class": {
+            "calendar_holiday": 7,
+            "currency_holiday": 14,
+            "feed_artefact": 8,
+            "r1_artefact": 0,
+            "unknown": 11,
+            "week_boundary": 36
+          },
+          "by_kind": {
+            "feed artefact": 44,
+            "partial holiday": 21,
+            "unknown": 11
+          },
+          "by_weekday": {
+            "Fri": 19,
+            "Mon": 7,
+            "Sun": 21,
+            "Thu": 10,
+            "Tue": 12,
+            "Wed": 7
+          },
+          "by_year": {
+            "2005": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2007": {
+              "calendar_holiday": 2,
+              "currency_holiday": 2,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 4
+            },
+            "2008": {
+              "calendar_holiday": 2,
+              "currency_holiday": 2,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 1,
+              "week_boundary": 3
+            },
+            "2009": {
+              "calendar_holiday": 2,
+              "currency_holiday": 9,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 2,
+              "week_boundary": 4
+            },
+            "2010": {
+              "calendar_holiday": 1,
+              "currency_holiday": 1,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 2
+            },
+            "2011": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 5
+            },
+            "2012": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 4,
+              "week_boundary": 8
+            },
+            "2013": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2014": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2015": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2016": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 1
+            },
+            "2017": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 3
+            },
+            "2018": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2019": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 1,
+              "week_boundary": 1
+            },
+            "2020": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 0,
+              "week_boundary": 0
+            },
+            "2022": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 1,
+              "week_boundary": 2
+            },
+            "2023": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 0,
+              "r1_artefact": 0,
+              "unknown": 1,
+              "week_boundary": 3
+            },
+            "2024": {
+              "calendar_holiday": 0,
+              "currency_holiday": 0,
+              "feed_artefact": 1,
+              "r1_artefact": 0,
+              "unknown": 1,
+              "week_boundary": 0
+            }
+          },
+          "dates": {
+            "2005-01-18": "feed_artefact",
+            "2007-08-26": "week_boundary",
+            "2007-09-02": "week_boundary",
+            "2007-09-30": "week_boundary",
+            "2007-10-28": "week_boundary",
+            "2007-12-24": "currency_holiday",
+            "2007-12-25": "calendar_holiday",
+            "2007-12-26": "calendar_holiday",
+            "2007-12-31": "currency_holiday",
+            "2008-01-01": "calendar_holiday",
+            "2008-03-09": "week_boundary",
+            "2008-03-16": "week_boundary",
+            "2008-08-08": "week_boundary",
+            "2008-12-04": "unknown",
+            "2008-12-24": "currency_holiday",
+            "2008-12-25": "calendar_holiday",
+            "2008-12-31": "currency_holiday",
+            "2009-01-01": "calendar_holiday",
+            "2009-03-08": "week_boundary",
+            "2009-05-03": "week_boundary",
+            "2009-05-11": "currency_holiday",
+            "2009-06-14": "week_boundary",
+            "2009-06-15": "currency_holiday",
+            "2009-06-16": "currency_holiday",
+            "2009-06-17": "currency_holiday",
+            "2009-06-18": "currency_holiday",
+            "2009-06-19": "currency_holiday",
+            "2009-08-18": "unknown",
+            "2009-08-19": "unknown",
+            "2009-11-06": "week_boundary",
+            "2009-11-17": "currency_holiday",
+            "2009-12-24": "currency_holiday",
+            "2009-12-25": "calendar_holiday",
+            "2009-12-31": "currency_holiday",
+            "2010-01-01": "calendar_holiday",
+            "2010-03-14": "week_boundary",
+            "2010-03-21": "week_boundary",
+            "2010-06-18": "currency_holiday",
+            "2011-02-25": "week_boundary",
+            "2011-03-04": "week_boundary",
+            "2011-03-11": "week_boundary",
+            "2011-03-13": "week_boundary",
+            "2011-11-25": "week_boundary",
+            "2012-01-06": "week_boundary",
+            "2012-01-13": "week_boundary",
+            "2012-01-20": "week_boundary",
+            "2012-01-27": "week_boundary",
+            "2012-02-03": "week_boundary",
+            "2012-02-10": "week_boundary",
+            "2012-02-17": "week_boundary",
+            "2012-02-24": "week_boundary",
+            "2012-05-03": "unknown",
+            "2012-06-12": "unknown",
+            "2012-06-13": "unknown",
+            "2012-12-31": "unknown",
+            "2013-12-31": "feed_artefact",
+            "2014-12-31": "feed_artefact",
+            "2015-12-31": "feed_artefact",
+            "2016-09-02": "week_boundary",
+            "2017-01-01": "week_boundary",
+            "2017-12-24": "week_boundary",
+            "2017-12-31": "week_boundary",
+            "2018-12-31": "feed_artefact",
+            "2019-05-26": "week_boundary",
+            "2019-12-24": "unknown",
+            "2019-12-31": "feed_artefact",
+            "2020-12-31": "feed_artefact",
+            "2022-05-19": "unknown",
+            "2022-10-09": "week_boundary",
+            "2022-12-25": "week_boundary",
+            "2023-01-01": "week_boundary",
+            "2023-01-02": "unknown",
+            "2023-12-24": "week_boundary",
+            "2023-12-31": "week_boundary",
+            "2024-12-24": "unknown",
+            "2024-12-31": "feed_artefact"
+          }
+        },
+        "dates": 76,
+        "excluded_only": {
+          "by_year": {
+            "2007": 78,
+            "2008": 68,
+            "2009": 55,
+            "2010": 35
+          },
+          "dates": 236
+        },
         "hours": 963,
         "pairs_deep_per_date": {
-          "0": 298,
+          "0": 62,
           "2": 14
         },
         "worst": [
@@ -8821,13 +11054,16 @@
       "agrees": true,
       "committed_not_derived": [],
       "derived_not_committed": [],
+      "excluded_only_dates": 236,
       "full_agrees": true,
       "full_days": 19,
       "partial_agrees": true,
       "partial_days": 3,
       "path": "config/calendar.toml",
       "present": true,
-      "rules_agree": true
+      "rules_agree": true,
+      "unexplained_agrees": true,
+      "unexplained_dates": 76
     },
     "crosscheck": {
       "availability": {
@@ -26229,7 +28465,7 @@
     }
   },
   "rerun_class": "full",
-  "result_hash": "4d019b876f50f6555139b1bf043c978a86ce3837f7a3cd22bfd3679285a8ae1d",
+  "result_hash": "4bb59c9e469b8b2776721c7d2540238c88b16278e01ff3eeb355dd400d8c5bfa",
   "scope": {
     "dates": [
       "2005-01-03",

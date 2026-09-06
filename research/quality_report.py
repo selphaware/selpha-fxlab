@@ -357,6 +357,7 @@ def _calendar(payload: dict[str, Any]) -> list[str]:
     unexplained = cal["unexplained"]
 
     year_rows = [[year, _n(b["full"]), _n(b["partial"]), _n(b["unexplained"]),
+                  _n(b.get("excluded_only", 0)),
                   _n(b["traded_through"]), _n(b["closed_week"])]
                  for year, b in sorted(comparison["by_year"].items())]
     unex_rows = [[r["date"], _n(r["pairs"]), _n(r["hours"])]
@@ -401,7 +402,8 @@ def _calendar(payload: dict[str, Any]) -> list[str]:
         "Read down this table, which takes the static major-holiday list and "
         "asks what the feed actually did on each date:",
         "",
-        *_table(["year", "full", "partial", "unexplained", "traded through",
+        *_table(["year", "full", "partial", "unexplained",
+                 "only an excluded pair", "traded through",
                  "fell on a closed week"], year_rows),
         "Through the early years the feed quoted straight across days the "
         "whole market was shut. There is no emptiness there to derive a "
@@ -456,12 +458,24 @@ def _calendar(payload: dict[str, Any]) -> list[str]:
         "feed, and filing it as a market closure would launder that evidence "
         "into a fact about the market.",
         "",
+        "**T5 Step 0 repaired the derivation of this list.** A date whose "
+        "only quiet pairs sit inside an exclusion window used to fall through "
+        "to *unexplained* with an empty pair list: the readable universe saw "
+        "nothing happen, and the row was the filter's own shadow rather than "
+        "a fact about the feed. T4 measured how many, and they are now "
+        "counted under `excluded_only` instead of being handed on as data "
+        "facts. Every one of them falls in 2007–2010, where ruling R1's "
+        "AUDUSD window is.",
+        "",
         *_table(["measure", "value"], [
             ["dates", _n(unexplained["dates"])],
             ["empty hours on them", _n(unexplained["hours"])],
             ["dates where no pair reached the depth threshold",
              _n((unexplained["pairs_deep_per_date"] or {}).get("0", 0))],
+            ["dates removed as the exclusion filter's shadow",
+             _n(unexplained["excluded_only"]["dates"])],
         ]),
+        *_unexplained_classes(unexplained),
         "By year:",
         "",
         *_table(["year", "dates"], unex_year),
@@ -484,14 +498,42 @@ def _calendar(payload: dict[str, Any]) -> list[str]:
              _tick(committed.get("full_agrees"))],
             ["its partial holidays match the re-derivation",
              _tick(committed.get("partial_agrees"))],
+            ["its informational section matches the re-derivation",
+             _tick(committed.get("unexplained_agrees"))],
             ["full holidays recorded", _n(committed.get("full_days", 0))],
             ["partial holidays recorded",
              _n(committed.get("partial_days", 0))],
+            ["unexplained dates recorded (informational, ruling R8)",
+             _n(committed.get("unexplained_dates", 0))],
         ]),
         "After this card, `EMPTY_TRADING_HOUR` on a calendar date is `closed` "
         "rather than a warning — pre-reg #5's closing clause, now that there "
         "is a calendar to test a date against.",
         "",
+    ]
+
+
+def _unexplained_classes(unexplained: dict[str, Any]) -> list[str]:
+    """The classification of the surviving unexplained dates.
+
+    Empty when the profile carries none, which is the honest rendering of an
+    older result document rather than a table of zeroes.
+    """
+    block = unexplained.get("classified") or {}
+    by_class = block.get("by_class") or {}
+    if not by_class:
+        return []
+    rows = [[f"`{name}`", _n(count)]
+            for name, count in by_class.items() if count]
+    kinds = [[kind, _n(count)]
+             for kind, count in (block.get("by_kind") or {}).items()]
+    return [
+        "Classified by what the evidence supports — the same rule T4 applied, "
+        "now derived here so the calendar file and the report cannot drift "
+        "apart:",
+        "",
+        *_table(["class", "dates"], rows),
+        *_table(["rolled up", "dates"], kinds),
     ]
 
 

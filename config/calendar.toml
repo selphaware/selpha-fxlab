@@ -61,3 +61,116 @@ partial_days = 3
 "2009-06-25" = ["EURJPY", "NZDUSD", "USDJPY"]
 "2009-06-26" = ["EURJPY", "NZDUSD", "USDJPY"]
 "2012-12-25" = ["AUDUSD", "EURJPY", "NZDUSD", "USDCAD", "USDJPY"]
+
+# ---------------------------------------------------------------
+# INFORMATIONAL (ruling R8). Nothing below marks an hour ineligible
+# for execution -- that is the static major-holiday list's job, in
+# every year, whether or not the feed served data. This section is
+# the empties-derived component: dates the feed left empty that are
+# neither a full nor a partial holiday, with the class the evidence
+# supports. Regenerated with the rest of the file; do not hand-edit.
+#
+# `week_boundary`    a Sunday or Friday date at most three hours
+#                    deep -- the FX week edge, where the feed and the
+#                    derived boundary need not agree to the hour.
+# `calendar_holiday` the static major-holiday list names the date.
+# `currency_holiday` every empty pair shares a currency, so that
+#                    centre shut and the crosses kept trading.
+# `feed_artefact`    at least half the readable universe went quiet,
+#                    too shallowly to be a market closure.
+# `unknown`          none of the above, said rather than guessed.
+#
+# `excluded_only` counts dates whose ONLY quiet pairs sit inside an
+# exclusion window (ruling R1). The readable universe saw nothing
+# happen on them, so they are not unexplained -- they are the
+# filter's own shadow. Before T5 Step 0 they were counted as
+# unexplained empty dates, which is what that step repaired.
+
+[calendar.unexplained]
+dates = 76
+empty_hours = 963
+excluded_only = 236
+week_boundary = 36
+calendar_holiday = 7
+currency_holiday = 14
+feed_artefact = 8
+unknown = 11
+
+# Every surviving date, with its class.
+[calendar.unexplained.by_date]
+"2005-01-18" = "feed_artefact"
+"2007-08-26" = "week_boundary"
+"2007-09-02" = "week_boundary"
+"2007-09-30" = "week_boundary"
+"2007-10-28" = "week_boundary"
+"2007-12-24" = "currency_holiday"
+"2007-12-25" = "calendar_holiday"
+"2007-12-26" = "calendar_holiday"
+"2007-12-31" = "currency_holiday"
+"2008-01-01" = "calendar_holiday"
+"2008-03-09" = "week_boundary"
+"2008-03-16" = "week_boundary"
+"2008-08-08" = "week_boundary"
+"2008-12-04" = "unknown"
+"2008-12-24" = "currency_holiday"
+"2008-12-25" = "calendar_holiday"
+"2008-12-31" = "currency_holiday"
+"2009-01-01" = "calendar_holiday"
+"2009-03-08" = "week_boundary"
+"2009-05-03" = "week_boundary"
+"2009-05-11" = "currency_holiday"
+"2009-06-14" = "week_boundary"
+"2009-06-15" = "currency_holiday"
+"2009-06-16" = "currency_holiday"
+"2009-06-17" = "currency_holiday"
+"2009-06-18" = "currency_holiday"
+"2009-06-19" = "currency_holiday"
+"2009-08-18" = "unknown"
+"2009-08-19" = "unknown"
+"2009-11-06" = "week_boundary"
+"2009-11-17" = "currency_holiday"
+"2009-12-24" = "currency_holiday"
+"2009-12-25" = "calendar_holiday"
+"2009-12-31" = "currency_holiday"
+"2010-01-01" = "calendar_holiday"
+"2010-03-14" = "week_boundary"
+"2010-03-21" = "week_boundary"
+"2010-06-18" = "currency_holiday"
+"2011-02-25" = "week_boundary"
+"2011-03-04" = "week_boundary"
+"2011-03-11" = "week_boundary"
+"2011-03-13" = "week_boundary"
+"2011-11-25" = "week_boundary"
+"2012-01-06" = "week_boundary"
+"2012-01-13" = "week_boundary"
+"2012-01-20" = "week_boundary"
+"2012-01-27" = "week_boundary"
+"2012-02-03" = "week_boundary"
+"2012-02-10" = "week_boundary"
+"2012-02-17" = "week_boundary"
+"2012-02-24" = "week_boundary"
+"2012-05-03" = "unknown"
+"2012-06-12" = "unknown"
+"2012-06-13" = "unknown"
+"2012-12-31" = "unknown"
+"2013-12-31" = "feed_artefact"
+"2014-12-31" = "feed_artefact"
+"2015-12-31" = "feed_artefact"
+"2016-09-02" = "week_boundary"
+"2017-01-01" = "week_boundary"
+"2017-12-24" = "week_boundary"
+"2017-12-31" = "week_boundary"
+"2018-12-31" = "feed_artefact"
+"2019-05-26" = "week_boundary"
+"2019-12-24" = "unknown"
+"2019-12-31" = "feed_artefact"
+"2020-12-31" = "feed_artefact"
+"2022-05-19" = "unknown"
+"2022-10-09" = "week_boundary"
+"2022-12-25" = "week_boundary"
+"2023-01-01" = "week_boundary"
+"2023-01-02" = "unknown"
+"2023-12-24" = "week_boundary"
+"2023-12-31" = "week_boundary"
+"2024-12-24" = "unknown"
+"2024-12-31" = "feed_artefact"
