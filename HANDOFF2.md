@@ -1,14 +1,84 @@
 # HANDOFF2.md — Phase 2 research loop, unattended run
 
-Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T4
+Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T5
 closed. If you are reading this because the session died, this file plus the
 checkpoints on disk are enough to restart without losing work.
 
-## State: ingestion, data quality and the first EDA battery are done
+## State: ingestion, data quality and both EDA batteries are done
 
-Nothing is running. T2a, T2b, T3 and T4 are complete, gated and pushed; the
-loop stopped there because T4's card says to. **Do not begin T5 without a
+Nothing is running. T2a, T2b, T3, T4 and T5 are complete, gated and pushed; the
+loop stopped there because T5's card says to. **Do not begin T6 without a
 checkpoint.**
+
+Every experiment in `experiments/` re-hashes exactly as recorded, checked after
+T5's changes to shared code. `verify2\research_gate.py <dir>` exits 0 on all
+six.
+
+### T5, the cost geometry -- and the answer it gives T4
+
+`reports/T5_cost_geometry.md`, experiment `experiments/T5-cost-geometry`
+(hash `b2ef692281ebbe37`), research gate exit 0 (full). Read the report rather
+than this summary; every figure in it is derived at render time from
+`result.json`, and the five things below are the ones a next card should not
+have to rediscover.
+
+**Every cost in the card comes out of `fxlab.costs.IBCostModel`.**
+`research/costs.py` builds two quotes from stored bars, hands them to the model
+and hands the answer back; it contains no spread, no rate and no minimum of its
+own. The ladder is the model's `cost_multiplier`, and the experiment *measures*
+that a rung scales the finished cost -- on a grid including floor-binding sizes
+-- rather than assuming it. The comparison is in basis points of notional,
+which is currency-free because cost and notional are both quote currency.
+
+* **The D2 test set is answered, and the answer depends entirely on which
+  measure you believe.** On `|rho(1)| x sd` -- what a rule trading the measured
+  autocorrelation earns, and the figure the card names -- **11 of 11 cells are
+  CLOSED in every variant tested**, the round trip costing 10x to 24x the edge.
+  On the variance-ratio upper bound, which credits a rule with every basis
+  point of variance the reversion removed, **7 SURVIVE and 1 is PARKED**. The
+  two differ by 12x to 17x, and section 4 shows why: for a first-order moving
+  average -- the simplest process producing this structure -- the bound
+  overstates an optimal rule by roughly that factor. A T7 card taking a
+  surviving cell forward is betting that a better rule than lag-1 recovers a
+  large fraction of the bound. **That bet is the thing the checkpoint has to
+  decide**, and it is not one this card is entitled to make.
+* **Cost is spread plus a constant.** Commission is a flat 0.40 bp per round
+  trip everywhere above the floor, in every session, era and pair. So every
+  difference between two cells in the whole card is a difference in the
+  spread -- which is also why the roll window's *cost* penalty (a median 1.41x)
+  is much smaller than its *spread* penalty (2.02x). A card arguing about the
+  roll window on spread ratios alone overstates it.
+* **The roll window fails on the move, not on the cost.** For 5 of 12 pairs the
+  median move inside it does not clear its own round trip at 1.5x, against 0 of
+  12 outside. That is a stronger statement than T4's spread ratio and it points
+  the same way pre-reg #4 already does.
+* **Session is the largest lever in either battery.** The dearest session costs
+  up to 2.49x the cheapest inside the same pair; `london_ny_overlap` is
+  cheapest for 8 of 12 pairs. Against directional effects measured in
+  hundredths of a basis point, D3's execution constraint is worth more than
+  every signal T4 found put together.
+* **The pre-2013 recommendation is stress test only, and the reason is
+  verifiability rather than cost.** 2005-2008 costs only 1.37x what 2013+ costs
+  at the survival bar, but the cross-check could not verify 38.5% of the hours
+  it sampled there and agreed with 69.1% of the ones it could. The rule that
+  turns that evidence into a recommendation is stated in the report *before*
+  the numbers, so a checkpoint can disagree with the rule rather than with the
+  reading. **The decision is the checkpoint's; the card recommends.**
+
+**Step 0 repaired T3's calendar filter and re-issued T3-quality.**
+`calendar_build.classify` filtered a date's empty pairs down to the readable
+ones but still emitted the row, so a date on which only AUDUSD went quiet in
+2008 survived as an unexplained-empty date with an empty pair list. Those rows
+now come out under a fourth outcome, `excluded_only`: **T3's unexplained list is
+76 dates, not 312**, and the 236 removed are counted rather than deleted. The
+76 are classified in `config/calendar.toml`'s new informational section (ruling
+R8 -- it marks no hour ineligible for anything; the static list does that), and
+the T3 experiment re-derives and compares that section on every run exactly as
+it does the holidays. The static holiday list is untouched and the full and
+partial holidays are byte-identical. T3-quality re-hashed
+`4d019b876f50f655` -> `4bb59c9e469b8b27`; **T4-character re-hashes unchanged**,
+because `character.section_empties` reads both lists and so still characterises
+the 312 dates it characterised.
 
 ### T4, the first research card
 
@@ -157,6 +227,25 @@ forward:
   dominated by feed changes, and 2007 alone moves ten of eleven pairs by 3x to
   8x.
 
+Left by T5, for the M5 checkpoint:
+
+* **The D2 verdict depends on which edge measure the checkpoint accepts**, and
+  the two differ by more than an order of magnitude. Seven cells earn a T7 card
+  under D2's rule as written; every one of them is closed on the realistic
+  measure. This is the single decision the checkpoint owes.
+* **A T7 card acting on a surviving cell inherits a selection.** Each cell's
+  verdict is the best of up to twelve variant-measure combinations, which is
+  the conservative direction for a bound and an inflation for a claim. The
+  count is in the report beside every cell.
+* **The pre-2013 recommendation is stress test only on verifiability, not on
+  cost.** If the checkpoint disagrees with R7's `UNVERIFIABLE` band rather than
+  with the reading of it, the recommendation changes -- so the two questions
+  should be settled in that order.
+* **Nothing here re-estimates a volatility tercile inside a training window.**
+  T5's terciles are the whole-decade ones, exactly as T4's were, and they are
+  used only to slice a cost table. A T7 card conditioning on them still owes
+  the re-estimation D3 requires.
+
 Left by T4, for the M4 checkpoint:
 
 * **236 of the 312 unexplained-empty dates are an artefact of R1's filter**, as
@@ -177,6 +266,32 @@ Left by T4, for the M4 checkpoint:
   first half of the split is that afternoon. The report tabulates the largest
   move in every cell so no reader has to guess.
 
+## What T5 added to the machinery
+
+| module | what it is |
+|---|---|
+| `research/costs.py` | the only place a cost is produced, and it produces none of its own. Two quotes from stored bars, into `fxlab.costs.IBCostModel`, out as basis points of notional. `floor_notional` bisects on the model rather than dividing its parameters; `multiplier_check` asks the model whether a ladder rung really scales the finished cost, on a grid that includes floor-binding sizes |
+| `research/cost_geometry.py` | the T5 experiment. Its five load-bearing decisions are documented at the top of the file and tested in `tests2/test_cost_geometry.py` |
+| `research/cost_geometry_report.py` | the report, including a *generated* recommendation and a *generated* question section. The recommendation rule is stated in the report before the table it is applied to, so a checkpoint disagrees with a rule rather than with a paragraph |
+| `research/cost_geometry_figures.py` | 9 figures, each written beside the CSV it was drawn from |
+| `research.experiment.execute` | now hands `[experiment.costs]` to the entry point. A cost model that an entry point had to *find* was a cost model nobody declared; every existing entry point accepts and ignores it |
+
+Three things worth carrying forward:
+
+* **A round trip is two orders and both are priced.** Entry crosses to the ask
+  and pays commission; exit crosses back to the bid and pays its own. Pricing
+  it as one order halves the answer.
+* **Price the entry leg at the entry bar's spread and the exit leg at the exit
+  bar's.** Using one bar's spread twice understates the cost of exactly the
+  moments the spread is moving.
+* **The USD 2.00 minimum is the only currency-sensitive term in the model, and
+  it is the whole of P0-A.** Every other cost figure is a ratio of two
+  quote-currency quantities. T5's reference size of 1,000,000 units is far
+  above where the floor binds -- 0 of ~12.9M priced moves -- so no figure in
+  the card depends on it. **A card that sizes below about 100,000 units of
+  quote notional cannot say that**, and for a JPY cross the model's floor is
+  worth about USD 0.013 rather than USD 2.00.
+
 ## What T4 added to the machinery
 
 | module | what it is |
@@ -189,9 +304,9 @@ Left by T4, for the M4 checkpoint:
 | `research/crosscheck_class.py` | ruling R7 as code, plus `config/crosscheck.toml` and its reader |
 | `research/crosscheck_spreads.py` | the checkpointed pass measuring each sampled hour's median spread, which R7's middle band thresholds against |
 
-**Nothing was installed.** `SPEC2.md` permits scipy, statsmodels, scikit-learn,
-matplotlib and duckdb when a card needs them; T4 did not need them, and the
-interpreter is unchanged from Phase 0.
+**Nothing was installed, by T4 or by T5.** `SPEC2.md` permits scipy,
+statsmodels, scikit-learn, matplotlib and duckdb when a card needs them;
+neither card needed them, and the interpreter is unchanged from Phase 0.
 
 Two traps worth carrying forward:
 

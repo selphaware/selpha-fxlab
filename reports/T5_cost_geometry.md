@@ -819,6 +819,12 @@ T4 established that this window is dearer and quieter at once. This is the same 
 | `USDCHF` | 4,742 | 2.005 | 1.019 | 3.1833 | 2.2341 | 1.43× | 2.392 | 4.598 | 0.52× | 0.75 | 2.06 | 34.5% | 69.2% |
 | `USDJPY` | 4,741 | 0.947 | 0.354 | 1.4947 | 1.0756 | 1.39× | 2.539 | 4.836 | 0.53× | 1.70 | 4.50 | 62.5% | 85.8% |
 
+Two readings, both of which the table above supports and neither of which T4's version of it could give:
+
+**The cost penalty is smaller than the spread penalty.** Inside the window the spread is a median 2.02× its level outside, but the round trip is only 1.41× — because the commission does not widen with the spread, and a flat 0.40 bp is a larger share of a cheap round trip than of a dear one. A card arguing about the roll window on spread ratios alone would overstate the penalty by about that difference.
+
+**It does not matter, because the move falls further than the cost rises.** For 5 of 12 pairs the median move inside the window does not clear its own round trip at 1.5× at all, against 0 of 12 outside it. That is the arithmetic form of pre-registered decision #4, and it is a stronger statement than the spread ratio: the window is not merely dearer, it is a window in which the typical move is not worth capturing.
+
 > **P0-A caveat.** 8 of the twelve pairs above are not USD-quoted (`USDJPY`, `USDCHF`, `USDCAD`, `EURGBP`, `EURJPY`, `GBPJPY`, `EURCHF`, `AUDJPY`), and SPEC2 prerequisite P0-A is **unfixed**: commission is floored against a quote-currency notional and cross-pair P&L is summed without conversion. Every cost in this table is a ratio of two quote-currency quantities and is therefore currency-free; the one currency-sensitive term is the USD 2.00 per-order floor, which binds on **0** of the priced moves at this card's reference size of 1,000,000 units. Commission is reported in the quote currency, as the model computes it.
 
 ![Inside the derived 16:00-18:00 New York roll window against outside it: the cost ratio and the move ratio, on hourly bars. Pre-registered decision #4 already excludes the window; a bar above 1 on cost and below 1 on move is why.](T5/roll_window_cost_and_move.svg)
@@ -955,7 +961,7 @@ How much of the executable universe survives being wrong about costs. A cell her
 
 The point of the table is the gradient rather than the level. A pair whose count barely moves from 1.0× to 2.0× is one where a cost-model error costs little; a pair that loses half its cells is one where the whole case rests on the cost model being right, which is exactly the risk the 1.5× survival bar exists to absorb.
 
-| pair | cells measured | executable @ 1.0× | executable @ 1.2× | executable @ 1.5× | executable @ 2.0× | share surviving 2× | first cells lost |
+| pair | cells measured | executable @ 1.0× | executable @ 1.2× | executable @ 1.5× | executable @ 2.0× | share surviving 2.0× | cells lost from 1.0× to 2.0× |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `AUDJPY` | 17 | 16 | 16 | 14 | 11 | 64.7% | `1h sydney`, `30m sydney`, `5m london`, `5m new_york`… |
 | `AUDUSD` | 17 | 15 | 12 | 11 | 10 | 58.8% | `1h sydney`, `30m sydney`, `5m london`, `5m london_ny_overlap`… |

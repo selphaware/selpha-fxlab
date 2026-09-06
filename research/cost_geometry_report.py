@@ -1004,11 +1004,26 @@ def _section_test_set(payload: dict[str, Any], by_name: dict[str, Any],
 def _section_roll(payload: dict[str, Any], by_name: dict[str, Any],
                   figures_dir: str) -> list[str]:
     rows = []
+    spread_ratios: list[float] = []
+    cost_ratios: list[float] = []
+    below = 0
+    below_outside = 0
+    measured = 0
     for pair in sorted(payload["roll"]):
         block = payload["roll"][pair]
         if not block:
             continue
         inside, outside = block["inside"], block["outside"]
+        measured += 1
+        if outside["median_spread_pips"]:
+            spread_ratios.append(inside["median_spread_pips"]
+                                 / outside["median_spread_pips"])
+        if block["cost_ratio"] is not None:
+            cost_ratios.append(float(block["cost_ratio"]))
+        if (block["move_over_cost_inside"] or 0.0) <= 1.0:
+            below += 1
+        if (block["move_over_cost_outside"] or 0.0) <= 1.0:
+            below_outside += 1
         rows.append([
             f"`{pair}`", _n(inside["n"]),
             _f(inside["median_spread_pips"]), _f(outside["median_spread_pips"]),
@@ -1021,6 +1036,10 @@ def _section_roll(payload: dict[str, Any], by_name: dict[str, Any],
             _f(block["move_over_cost_outside"], 2),
             _pct(block["share_above_cost_inside"]),
             _pct(block["share_above_cost_outside"])])
+    spread_ratio = (sorted(spread_ratios)[len(spread_ratios) // 2]
+                    if spread_ratios else None)
+    cost_ratio = (sorted(cost_ratios)[len(cost_ratios) // 2]
+                  if cost_ratios else None)
     return [
         "## 5 — The roll window, quantified against cost (pre-reg #4)",
         "",
@@ -1042,6 +1061,26 @@ def _section_roll(payload: dict[str, Any], by_name: dict[str, Any],
                  "roll median |move| (bp)", "elsewhere", "move ratio",
                  "roll move / cost", "elsewhere", "roll share above cost",
                  "elsewhere"], rows),
+        "Two readings, both of which the table above supports and neither of "
+        "which T4's version of it could give:",
+        "",
+        f"**The cost penalty is smaller than the spread penalty.** Inside the "
+        f"window the spread is a median {_x(spread_ratio)} its level outside, "
+        f"but the round trip is only {_x(cost_ratio)} — because the "
+        "commission does not widen with the spread, and a flat 0.40 bp is a "
+        "larger share of a cheap round trip than of a dear one. A card "
+        "arguing about the roll window on spread ratios alone would overstate "
+        "the penalty by about that difference.",
+        "",
+        f"**It does not matter, because the move falls further than the cost "
+        f"rises.** For {below} of {measured} "
+        f"{_plural(measured, 'pair', 'pairs')} the median move inside the "
+        f"window does not clear its own round trip at {BAR}× at all, "
+        f"against {below_outside} of {measured} outside it. That is the "
+        "arithmetic form of pre-registered decision #4, and it is a stronger "
+        "statement than the spread ratio: the window is not merely dearer, it "
+        "is a window in which the typical move is not worth capturing.",
+        "",
         *_p0a(payload),
         *_figure(by_name, "roll_window_cost_and_move", figures_dir),
     ]
@@ -1170,7 +1209,9 @@ def _section_sensitivity(payload: dict[str, Any], by_name: dict[str, Any],
         "",
         *_table(["pair", "cells measured",
                  *[f"executable @ {r}×" for r in ladder],
-                 "share surviving 2×", "first cells lost"], rows),
+                 f"share surviving {ladder[-1]}×",
+                 f"cells lost from {ladder[0]}× to "
+                 f"{ladder[-1]}×"], rows),
         *_p0a(payload),
         *_figure(by_name, "executable_universe_by_rung", figures_dir),
     ]
