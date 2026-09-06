@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Effective independent bets, rolling two years (1h)">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Effective independent bets, rolling two years (1h)</text>
+<line class="grid" x1="78" y1="295.621" x2="854" y2="295.621" />
+<text class="axis" x="70" y="299.621" text-anchor="end">4.00</text>
+<line class="grid" x1="78" y1="215.878" x2="854" y2="215.878" />
+<text class="axis" x="70" y="219.878" text-anchor="end">5.00</text>
+<line class="grid" x1="78" y1="136.136" x2="854" y2="136.136" />
+<text class="axis" x="70" y="140.136" text-anchor="end">6.00</text>
+<line class="grid" x1="78" y1="56.393" x2="854" y2="56.393" />
+<text class="axis" x="70" y="60.393" text-anchor="end">7.00</text>
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="352" text-anchor="end" transform="rotate(-45 119.571 352)">2015-01</text>
+<line class="grid" x1="162.875" y1="40" x2="162.875" y2="346" />
+<text class="axis" x="162.875" y="352" text-anchor="end" transform="rotate(-45 162.875 352)">2015-07</text>
+<line class="grid" x1="206.179" y1="40" x2="206.179" y2="346" />
+<text class="axis" x="206.179" y="352" text-anchor="end" transform="rotate(-45 206.179 352)">2016-01</text>
+<line class="grid" x1="249.482" y1="40" x2="249.482" y2="346" />
+<text class="axis" x="249.482" y="352" text-anchor="end" transform="rotate(-45 249.482 352)">2016-07</text>
+<line class="grid" x1="292.786" y1="40" x2="292.786" y2="346" />
+<text class="axis" x="292.786" y="352" text-anchor="end" transform="rotate(-45 292.786 352)">2017-01</text>
+<line class="grid" x1="336.089" y1="40" x2="336.089" y2="346" />
+<text class="axis" x="336.089" y="352" text-anchor="end" transform="rotate(-45 336.089 352)">2017-07</text>
+<line class="grid" x1="379.393" y1="40" x2="379.393" y2="346" />
+<text class="axis" x="379.393" y="352" text-anchor="end" transform="rotate(-45 379.393 352)">2018-01</text>
+<line class="grid" x1="422.696" y1="40" x2="422.696" y2="346" />
+<text class="axis" x="422.696" y="352" text-anchor="end" transform="rotate(-45 422.696 352)">2018-07</text>
+<line class="grid" x1="466" y1="40" x2="466" y2="346" />
+<text class="axis" x="466" y="352" text-anchor="end" transform="rotate(-45 466 352)">2019-01</text>
+<line class="grid" x1="509.304" y1="40" x2="509.304" y2="346" />
+<text class="axis" x="509.304" y="352" text-anchor="end" transform="rotate(-45 509.304 352)">2019-07</text>
+<line class="grid" x1="552.607" y1="40" x2="552.607" y2="346" />
+<text class="axis" x="552.607" y="352" text-anchor="end" transform="rotate(-45 552.607 352)">2020-01</text>
+<line class="grid" x1="595.911" y1="40" x2="595.911" y2="346" />
+<text class="axis" x="595.911" y="352" text-anchor="end" transform="rotate(-45 595.911 352)">2020-07</text>
+<line class="grid" x1="639.214" y1="40" x2="639.214" y2="346" />
+<text class="axis" x="639.214" y="352" text-anchor="end" transform="rotate(-45 639.214 352)">2021-01</text>
+<line class="grid" x1="682.518" y1="40" x2="682.518" y2="346" />
+<text class="axis" x="682.518" y="352" text-anchor="end" transform="rotate(-45 682.518 352)">2021-07</text>
+<line class="grid" x1="725.821" y1="40" x2="725.821" y2="346" />
+<text class="axis" x="725.821" y="352" text-anchor="end" transform="rotate(-45 725.821 352)">2022-01</text>
+<line class="grid" x1="769.125" y1="40" x2="769.125" y2="346" />
+<text class="axis" x="769.125" y="352" text-anchor="end" transform="rotate(-45 769.125 352)">2022-07</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="352" text-anchor="end" transform="rotate(-45 812.429 352)">2023-01</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">window start</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">effective bets</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,250.063 162.875,261.276 206.179,264.221 249.482,248.248 292.786,261.172 336.089,275.715 379.393,286.984 422.696,298.444 466,302.003 509.304,309.486 552.607,319.084 595.911,323.028 639.214,329.607 682.518,324.923 725.821,326.336 769.125,328.696 812.429,318.682" />
+<polyline class="series" stroke="#c0603a" points="119.571,184.369 162.875,192.755 206.179,194.385 249.482,184.417 292.786,191.699 336.089,200.914 379.393,208.182 422.696,219.029 466,222.574 509.304,229.313 552.607,236.796 595.911,240.962 639.214,250.374 682.518,248.033 725.821,250.324 769.125,253.108 812.429,246.296" />
+<line class="ref" x1="78" y1="56.393" x2="854" y2="56.393" />
+<text class="axis" x="850" y="52.393" text-anchor="end">structural ceiling</text>
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">participation ratio</text>
+<rect x="225.4" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="239.4" y="392">entropy bets</text>
+</svg>

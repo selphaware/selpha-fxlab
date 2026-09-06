@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="The simulated Engle-Granger null against MacKinnon&#x27;s published values">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">The simulated Engle-Granger null against MacKinnon&#x27;s published values</text>
+<line class="grid" x1="78" y1="266.221" x2="854" y2="266.221" />
+<text class="axis" x="70" y="270.221" text-anchor="end">-4.00</text>
+<line class="grid" x1="78" y1="156.936" x2="854" y2="156.936" />
+<text class="axis" x="70" y="160.936" text-anchor="end">-3.50</text>
+<line class="grid" x1="78" y1="47.65" x2="854" y2="47.65" />
+<text class="axis" x="70" y="51.65" text-anchor="end">-3.00</text>
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">n=2 1%</text>
+<line class="grid" x1="258.143" y1="40" x2="258.143" y2="346" />
+<text class="axis" x="258.143" y="362" text-anchor="middle">n=2 5%</text>
+<line class="grid" x1="396.714" y1="40" x2="396.714" y2="346" />
+<text class="axis" x="396.714" y="362" text-anchor="middle">n=2 10%</text>
+<line class="grid" x1="535.286" y1="40" x2="535.286" y2="346" />
+<text class="axis" x="535.286" y="362" text-anchor="middle">n=3 1%</text>
+<line class="grid" x1="673.857" y1="40" x2="673.857" y2="346" />
+<text class="axis" x="673.857" y="362" text-anchor="middle">n=3 5%</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">n=3 10%</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">scan width and level</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">critical tau</text>
+<circle class="dot" cx="119.571" cy="246.139" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="258.143" cy="118.157" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="396.714" cy="56.622" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="535.286" cy="323.507" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="673.857" cy="203.485" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="140.359" r="3.4" fill="#2f6f9f" />
+<circle class="dot" cx="119.571" cy="244.364" r="3.4" fill="#c0603a" />
+<circle class="dot" cx="258.143" cy="121.964" r="3.4" fill="#c0603a" />
+<circle class="dot" cx="396.714" cy="56.393" r="3.4" fill="#c0603a" />
+<circle class="dot" cx="535.286" cy="329.607" r="3.4" fill="#c0603a" />
+<circle class="dot" cx="673.857" cy="209.393" r="3.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="146.007" r="3.4" fill="#c0603a" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">simulated</text>
+<rect x="159.4" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="173.4" y="392">published</text>
+</svg>

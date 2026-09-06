@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Variance explained by each principal component">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Variance explained by each principal component</text>
+<line class="grid" x1="78" y1="329.607" x2="854" y2="329.607" />
+<text class="axis" x="70" y="333.607" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="220.321" x2="854" y2="220.321" />
+<text class="axis" x="70" y="224.321" text-anchor="end">0.20</text>
+<line class="grid" x1="78" y1="111.036" x2="854" y2="111.036" />
+<text class="axis" x="70" y="115.036" text-anchor="end">0.40</text>
+<line class="zero" x1="78" y1="329.607" x2="854" y2="329.607" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">1</text>
+<line class="grid" x1="182.558" y1="40" x2="182.558" y2="346" />
+<text class="axis" x="182.558" y="362" text-anchor="middle">2</text>
+<line class="grid" x1="245.545" y1="40" x2="245.545" y2="346" />
+<text class="axis" x="245.545" y="362" text-anchor="middle">3</text>
+<line class="grid" x1="308.532" y1="40" x2="308.532" y2="346" />
+<text class="axis" x="308.532" y="362" text-anchor="middle">4</text>
+<line class="grid" x1="371.519" y1="40" x2="371.519" y2="346" />
+<text class="axis" x="371.519" y="362" text-anchor="middle">5</text>
+<line class="grid" x1="434.506" y1="40" x2="434.506" y2="346" />
+<text class="axis" x="434.506" y="362" text-anchor="middle">6</text>
+<line class="grid" x1="497.494" y1="40" x2="497.494" y2="346" />
+<text class="axis" x="497.494" y="362" text-anchor="middle">7</text>
+<line class="grid" x1="560.481" y1="40" x2="560.481" y2="346" />
+<text class="axis" x="560.481" y="362" text-anchor="middle">8</text>
+<line class="grid" x1="623.468" y1="40" x2="623.468" y2="346" />
+<text class="axis" x="623.468" y="362" text-anchor="middle">9</text>
+<line class="grid" x1="686.455" y1="40" x2="686.455" y2="346" />
+<text class="axis" x="686.455" y="362" text-anchor="middle">10</text>
+<line class="grid" x1="749.442" y1="40" x2="749.442" y2="346" />
+<text class="axis" x="749.442" y="362" text-anchor="middle">11</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">12</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">component</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">share of universe variance</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,124.646 182.558,201.477 245.545,254.492 308.532,270.836 371.519,280.674 434.506,308.832 497.494,320.092 560.481,329.517 623.468,329.553 686.455,329.577 749.442,329.579 812.429,329.584" />
+<circle class="dot" cx="119.571" cy="124.646" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="182.558" cy="201.477" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="245.545" cy="254.492" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="308.532" cy="270.836" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="371.519" cy="280.674" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="434.506" cy="308.832" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="497.494" cy="320.092" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="560.481" cy="329.517" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="623.468" cy="329.553" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="686.455" cy="329.577" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="749.442" cy="329.579" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="329.584" r="2.4" fill="#2f6f9f" />
+<polyline class="series" stroke="#c0603a" points="119.571,122.717 182.558,197.99 245.545,255.341 308.532,273.633 371.519,280.661 434.506,309.885 497.494,320.662 560.481,329.578 623.468,329.593 686.455,329.598 749.442,329.599 812.429,329.6" />
+<circle class="dot" cx="119.571" cy="122.717" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="182.558" cy="197.99" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="245.545" cy="255.341" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="308.532" cy="273.633" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="371.519" cy="280.661" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="434.506" cy="309.885" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="497.494" cy="320.662" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="560.481" cy="329.578" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="623.468" cy="329.593" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="686.455" cy="329.598" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="749.442" cy="329.599" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="329.6" r="2.4" fill="#c0603a" />
+<polyline class="series" stroke="#4b8b5a" points="119.571,126.011 182.558,196.227 245.545,254.872 308.532,272.226 371.519,280.941 434.506,310.148 497.494,320.505 560.481,329.561 623.468,329.586 686.455,329.592 749.442,329.593 812.429,329.596" />
+<circle class="dot" cx="119.571" cy="126.011" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="182.558" cy="196.227" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="245.545" cy="254.872" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="308.532" cy="272.226" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="371.519" cy="280.941" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="434.506" cy="310.148" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="497.494" cy="320.505" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="560.481" cy="329.561" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="623.468" cy="329.586" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="686.455" cy="329.592" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="749.442" cy="329.593" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="812.429" cy="329.596" r="2.4" fill="#4b8b5a" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">1h</text>
+<rect x="113.2" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="127.2" y="392">4h</text>
+<rect x="148.4" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="162.4" y="392">1d</text>
+</svg>

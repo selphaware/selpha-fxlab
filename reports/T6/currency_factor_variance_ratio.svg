@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Currency-factor variance ratio at q=4, by horizon">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Currency-factor variance ratio at q=4, by horizon</text>
+<line class="grid" x1="78" y1="329.607" x2="854" y2="329.607" />
+<text class="axis" x="70" y="333.607" text-anchor="end">0.80</text>
+<line class="grid" x1="78" y1="238.536" x2="854" y2="238.536" />
+<text class="axis" x="70" y="242.536" text-anchor="end">0.90</text>
+<line class="grid" x1="78" y1="147.464" x2="854" y2="147.464" />
+<text class="axis" x="70" y="151.464" text-anchor="end">1.00</text>
+<line class="grid" x1="78" y1="56.393" x2="854" y2="56.393" />
+<text class="axis" x="70" y="60.393" text-anchor="end">1.10</text>
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="362" text-anchor="middle">EUR</text>
+<line class="grid" x1="218.551" y1="40" x2="218.551" y2="346" />
+<text class="axis" x="218.551" y="362" text-anchor="middle">USD</text>
+<line class="grid" x1="317.531" y1="40" x2="317.531" y2="346" />
+<text class="axis" x="317.531" y="362" text-anchor="middle">GBP</text>
+<line class="grid" x1="416.51" y1="40" x2="416.51" y2="346" />
+<text class="axis" x="416.51" y="362" text-anchor="middle">JPY</text>
+<line class="grid" x1="515.49" y1="40" x2="515.49" y2="346" />
+<text class="axis" x="515.49" y="362" text-anchor="middle">CHF</text>
+<line class="grid" x1="614.469" y1="40" x2="614.469" y2="346" />
+<text class="axis" x="614.469" y="362" text-anchor="middle">AUD</text>
+<line class="grid" x1="713.449" y1="40" x2="713.449" y2="346" />
+<text class="axis" x="713.449" y="362" text-anchor="middle">CAD</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="362" text-anchor="middle">NZD</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">currency factor</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">VR(4)</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,145.299 218.551,140.344 317.531,149.858 416.51,142.214 515.49,211.815 614.469,185.058 713.449,184.121 812.429,186.27" />
+<circle class="dot" cx="119.571" cy="145.299" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="218.551" cy="140.344" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="317.531" cy="149.858" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="416.51" cy="142.214" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="515.49" cy="211.815" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="614.469" cy="185.058" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="713.449" cy="184.121" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="186.27" r="2.4" fill="#2f6f9f" />
+<polyline class="series" stroke="#c0603a" points="119.571,153.626 218.551,133.074 317.531,157.017 416.51,162.984 515.49,158.078 614.469,171.779 713.449,175.527 812.429,145.308" />
+<circle class="dot" cx="119.571" cy="153.626" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="218.551" cy="133.074" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="317.531" cy="157.017" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="416.51" cy="162.984" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="515.49" cy="158.078" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="614.469" cy="171.779" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="713.449" cy="175.527" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="145.308" r="2.4" fill="#c0603a" />
+<polyline class="series" stroke="#4b8b5a" points="119.571,223.016 218.551,138.798 317.531,110.927 416.51,149.487 515.49,224.673 614.469,189.943 713.449,237.399 812.429,259.719" />
+<circle class="dot" cx="119.571" cy="223.016" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="218.551" cy="138.798" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="317.531" cy="110.927" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="416.51" cy="149.487" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="515.49" cy="224.673" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="614.469" cy="189.943" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="713.449" cy="237.399" r="2.4" fill="#4b8b5a" />
+<circle class="dot" cx="812.429" cy="259.719" r="2.4" fill="#4b8b5a" />
+<line class="ref" x1="78" y1="147.464" x2="854" y2="147.464" />
+<text class="axis" x="850" y="143.464" text-anchor="end">random walk</text>
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">1h</text>
+<rect x="113.2" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="127.2" y="392">4h</text>
+<rect x="148.4" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="162.4" y="392">1d</text>
+</svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Effective independent bets by volatility regime">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Effective independent bets by volatility regime</text>
+<line class="grid" x1="78" y1="329.607" x2="854" y2="329.607" />
+<text class="axis" x="70" y="333.607" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="217.643" x2="854" y2="217.643" />
+<text class="axis" x="70" y="221.643" text-anchor="end">2.00</text>
+<line class="grid" x1="78" y1="105.678" x2="854" y2="105.678" />
+<text class="axis" x="70" y="109.678" text-anchor="end">4.00</text>
+<line class="zero" x1="78" y1="329.607" x2="854" y2="329.607" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="352" text-anchor="end" transform="rotate(-45 119.571 352)">1h low</text>
+<line class="grid" x1="182.558" y1="40" x2="182.558" y2="346" />
+<text class="axis" x="182.558" y="352" text-anchor="end" transform="rotate(-45 182.558 352)">1h mid</text>
+<line class="grid" x1="245.545" y1="40" x2="245.545" y2="346" />
+<text class="axis" x="245.545" y="352" text-anchor="end" transform="rotate(-45 245.545 352)">1h high</text>
+<line class="grid" x1="308.532" y1="40" x2="308.532" y2="346" />
+<text class="axis" x="308.532" y="352" text-anchor="end" transform="rotate(-45 308.532 352)"></text>
+<line class="grid" x1="371.519" y1="40" x2="371.519" y2="346" />
+<text class="axis" x="371.519" y="352" text-anchor="end" transform="rotate(-45 371.519 352)">4h low</text>
+<line class="grid" x1="434.506" y1="40" x2="434.506" y2="346" />
+<text class="axis" x="434.506" y="352" text-anchor="end" transform="rotate(-45 434.506 352)">4h mid</text>
+<line class="grid" x1="497.494" y1="40" x2="497.494" y2="346" />
+<text class="axis" x="497.494" y="352" text-anchor="end" transform="rotate(-45 497.494 352)">4h high</text>
+<line class="grid" x1="560.481" y1="40" x2="560.481" y2="346" />
+<text class="axis" x="560.481" y="352" text-anchor="end" transform="rotate(-45 560.481 352)"></text>
+<line class="grid" x1="623.468" y1="40" x2="623.468" y2="346" />
+<text class="axis" x="623.468" y="352" text-anchor="end" transform="rotate(-45 623.468 352)">1d low</text>
+<line class="grid" x1="686.455" y1="40" x2="686.455" y2="346" />
+<text class="axis" x="686.455" y="352" text-anchor="end" transform="rotate(-45 686.455 352)">1d mid</text>
+<line class="grid" x1="749.442" y1="40" x2="749.442" y2="346" />
+<text class="axis" x="749.442" y="352" text-anchor="end" transform="rotate(-45 749.442 352)">1d high</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="352" text-anchor="end" transform="rotate(-45 812.429 352)"></text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">horizon and regime</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">participation ratio</text>
+<rect x="119.571" y="101.73" width="53.539" height="227.877" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="182.558" y="98.251" width="53.539" height="231.356" fill="#c0603a" fill-opacity="0.85" />
+<rect x="245.545" y="92.03" width="53.539" height="237.578" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="371.519" y="103.179" width="53.539" height="226.428" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="434.506" y="97.398" width="53.539" height="232.209" fill="#c0603a" fill-opacity="0.85" />
+<rect x="497.494" y="97.575" width="53.539" height="232.033" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="623.468" y="111.202" width="53.539" height="218.405" fill="#2f6f9f" fill-opacity="0.85" />
+<rect x="686.455" y="92.251" width="53.539" height="237.357" fill="#c0603a" fill-opacity="0.85" />
+<rect x="749.442" y="107.237" width="53.539" height="222.371" fill="#4b8b5a" fill-opacity="0.85" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">low</text>
+<rect x="119.8" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="133.8" y="392">mid</text>
+<rect x="161.6" y="384" width="10" height="10" fill="#4b8b5a" />
+<text class="axis" x="175.6" y="392">high</text>
+</svg>

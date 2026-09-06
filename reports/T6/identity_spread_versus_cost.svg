@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420" role="img" aria-label="Triangular identities: spread amplitude against three legs&#x27; cost">
+<style>
+  .bg { fill: #ffffff; }
+  .frame { stroke: #b9bec6; fill: none; stroke-width: 1; }
+  .grid { stroke: #e3e6ea; stroke-width: 1; }
+  .zero { stroke: #8a9099; stroke-width: 1; stroke-dasharray: 4 3; }
+  .ref { stroke: #8a9099; stroke-width: 1.2; stroke-dasharray: 6 4; }
+  text { font-family: "DejaVu Sans", "Segoe UI", system-ui, sans-serif;
+         font-size: 11px; fill: #2a2e34; }
+  text.title { font-size: 14px; font-weight: 600; }
+  text.axis { font-size: 11px; fill: #565c65; }
+  .series { fill: none; stroke-width: 1.8; stroke-linejoin: round; }
+  .dot { stroke: none; }
+  @media (prefers-color-scheme: dark) {
+    .bg { fill: #14171b; }
+    .frame { stroke: #4a5058; }
+    .grid { stroke: #262b31; }
+    .zero, .ref { stroke: #6d747d; }
+    text { fill: #d8dce1; }
+    text.axis { fill: #9aa1a9; }
+  }
+</style>
+<rect class="bg" x="0" y="0" width="880" height="420" />
+<text class="title" x="78" y="24">Triangular identities: spread amplitude against three legs&#x27; cost</text>
+<line class="grid" x1="78" y1="254.099" x2="854" y2="254.099" />
+<text class="axis" x="70" y="258.099" text-anchor="end">0</text>
+<line class="grid" x1="78" y1="132.721" x2="854" y2="132.721" />
+<text class="axis" x="70" y="136.721" text-anchor="end">0.50</text>
+<line class="zero" x1="78" y1="254.099" x2="854" y2="254.099" />
+<line class="grid" x1="119.571" y1="40" x2="119.571" y2="346" />
+<text class="axis" x="119.571" y="352" text-anchor="end" transform="rotate(-45 119.571 352)">EURCHF+EURUSD+USDCHF 1d</text>
+<line class="grid" x1="169.061" y1="40" x2="169.061" y2="346" />
+<text class="axis" x="169.061" y="352" text-anchor="end" transform="rotate(-45 169.061 352)">EURJPY+EURUSD+USDJPY 1d</text>
+<line class="grid" x1="218.551" y1="40" x2="218.551" y2="346" />
+<text class="axis" x="218.551" y="352" text-anchor="end" transform="rotate(-45 218.551 352)">EURGBP+EURUSD+GBPUSD 1d</text>
+<line class="grid" x1="268.041" y1="40" x2="268.041" y2="346" />
+<text class="axis" x="268.041" y="352" text-anchor="end" transform="rotate(-45 268.041 352)">GBPJPY+GBPUSD+USDJPY 1d</text>
+<line class="grid" x1="317.531" y1="40" x2="317.531" y2="346" />
+<text class="axis" x="317.531" y="352" text-anchor="end" transform="rotate(-45 317.531 352)">AUDJPY+AUDUSD+USDJPY 1d</text>
+<line class="grid" x1="367.02" y1="40" x2="367.02" y2="346" />
+<text class="axis" x="367.02" y="352" text-anchor="end" transform="rotate(-45 367.02 352)">EURJPY+EURUSD+USDJPY 4h</text>
+<line class="grid" x1="416.51" y1="40" x2="416.51" y2="346" />
+<text class="axis" x="416.51" y="352" text-anchor="end" transform="rotate(-45 416.51 352)">EURJPY+EURUSD+USDJPY 1h</text>
+<line class="grid" x1="466" y1="40" x2="466" y2="346" />
+<text class="axis" x="466" y="352" text-anchor="end" transform="rotate(-45 466 352)">EURCHF+EURUSD+USDCHF 4h</text>
+<line class="grid" x1="515.49" y1="40" x2="515.49" y2="346" />
+<text class="axis" x="515.49" y="352" text-anchor="end" transform="rotate(-45 515.49 352)">GBPJPY+GBPUSD+USDJPY 4h</text>
+<line class="grid" x1="564.98" y1="40" x2="564.98" y2="346" />
+<text class="axis" x="564.98" y="352" text-anchor="end" transform="rotate(-45 564.98 352)">EURCHF+EURUSD+USDCHF 1h</text>
+<line class="grid" x1="614.469" y1="40" x2="614.469" y2="346" />
+<text class="axis" x="614.469" y="352" text-anchor="end" transform="rotate(-45 614.469 352)">GBPJPY+GBPUSD+USDJPY 1h</text>
+<line class="grid" x1="663.959" y1="40" x2="663.959" y2="346" />
+<text class="axis" x="663.959" y="352" text-anchor="end" transform="rotate(-45 663.959 352)">EURGBP+EURUSD+GBPUSD 4h</text>
+<line class="grid" x1="713.449" y1="40" x2="713.449" y2="346" />
+<text class="axis" x="713.449" y="352" text-anchor="end" transform="rotate(-45 713.449 352)">AUDJPY+AUDUSD+USDJPY 4h</text>
+<line class="grid" x1="762.939" y1="40" x2="762.939" y2="346" />
+<text class="axis" x="762.939" y="352" text-anchor="end" transform="rotate(-45 762.939 352)">AUDJPY+AUDUSD+USDJPY 1h</text>
+<line class="grid" x1="812.429" y1="40" x2="812.429" y2="346" />
+<text class="axis" x="812.429" y="352" text-anchor="end" transform="rotate(-45 812.429 352)">EURGBP+EURUSD+GBPUSD 1h</text>
+<rect class="frame" x="78" y="40" width="776" height="306" />
+<text class="axis" x="440.0" y="414" text-anchor="middle">identity and horizon</text>
+<text class="axis" x="14" y="210.0" text-anchor="middle" transform="rotate(-90 14 210.0)">log10 basis points</text>
+<polyline class="series" stroke="#2f6f9f" points="119.571,166.977 169.061,238.378 218.551,215.304 268.041,210.623 317.531,211.612 367.02,294.774 416.51,300.87 466,257.397 515.49,283.491 564.98,291.461 614.469,300.231 663.959,303.515 713.449,282.63 762.939,295.646 812.429,329.607" />
+<circle class="dot" cx="119.571" cy="166.977" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="169.061" cy="238.378" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="218.551" cy="215.304" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="268.041" cy="210.623" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="317.531" cy="211.612" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="367.02" cy="294.774" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="416.51" cy="300.87" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="466" cy="257.397" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="515.49" cy="283.491" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="564.98" cy="291.461" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="614.469" cy="300.231" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="663.959" cy="303.515" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="713.449" cy="282.63" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="762.939" cy="295.646" r="2.4" fill="#2f6f9f" />
+<circle class="dot" cx="812.429" cy="329.607" r="2.4" fill="#2f6f9f" />
+<polyline class="series" stroke="#c0603a" points="119.571,67.857 169.061,111.244 218.551,83.165 268.041,77.894 317.531,57.491 367.02,108.766 416.51,113.751 466,69.382 515.49,75.329 564.98,74.168 614.469,80.407 663.959,81.461 713.449,56.393 762.939,60.282 812.429,85.839" />
+<circle class="dot" cx="119.571" cy="67.857" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="169.061" cy="111.244" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="218.551" cy="83.165" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="268.041" cy="77.894" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="317.531" cy="57.491" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="367.02" cy="108.766" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="416.51" cy="113.751" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="466" cy="69.382" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="515.49" cy="75.329" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="564.98" cy="74.168" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="614.469" cy="80.407" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="663.959" cy="81.461" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="713.449" cy="56.393" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="762.939" cy="60.282" r="2.4" fill="#c0603a" />
+<circle class="dot" cx="812.429" cy="85.839" r="2.4" fill="#c0603a" />
+<rect x="78" y="384" width="10" height="10" fill="#2f6f9f" />
+<text class="axis" x="92" y="392">spread sd (bp)</text>
+<rect x="192.4" y="384" width="10" height="10" fill="#c0603a" />
+<text class="axis" x="206.4" y="392">round trip @ 1.5x (bp)</text>
+</svg>

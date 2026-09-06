@@ -1,0 +1,281 @@
+# T6 - EDA battery III, cross-pair structure. See taskcards/T6.md.
+#
+# One program, like T4 and T5 and for the same reason: everything here is a
+# deterministic pass over the stored bars, a deterministic call into the Phase
+# 1 cost model, and one seeded simulation, so the experiment computes every
+# number it reports and the gate recomputes every one of them on every run.
+#
+#   python -m research.run --config <this file>
+#       the experiment. Reads bars through the research loader, aligns them
+#       onto common timestamp indices, runs the correlation, currency-factor,
+#       cointegration, lead-lag and portfolio batteries, prices every leg
+#       through fxlab.costs.IBCostModel at decision D9's reference notional,
+#       and writes result.json.
+#
+#   python -m research.cross_pair_report --result <result.json> --out <report>
+#       renders reports/T6_cross_pair.md and every figure under reports/T6/,
+#       each beside the CSV it was drawn from. Ruling R6: the report has no
+#       authored numbers -- every figure in it is derived here, at render
+#       time, from the result document.
+#
+# Mode. `scoring`, `scored = false`. This card produces evidence and questions
+# for a checkpoint, not a scorecard, and none can be demanded of it: nothing
+# here is backtested and no candidate is advanced or killed. `scoring` mode
+# rather than `mechanical` because that is what puts this config under the
+# gate's sealed-date scan and makes the loader police every date it serves --
+# including ruling R1's AUDUSD window, which the early era would otherwise walk
+# straight into.
+#
+# Seal. Every window ends on or before the last research day. No date at or
+# after the cutoff appears in this file or in any read it makes.
+
+[experiment]
+id = "T6-cross-pair"
+taskcard = "T6"
+entry = "research.cross_pair:run"
+seed = 20260906
+mode = "scoring"
+scored = false
+rerun_class = "full"
+
+# --------------------------------------------------------------------------- #
+# The cost model - one model, one set of parameters, every candidate
+# --------------------------------------------------------------------------- #
+#
+# SPEC2's cost rule, in its standard place, with the same Phase 1 IB tier-1
+# parameters T5 declared. This card changes no cost parameter and no validation
+# rule; what it changes is the size, and that is SPEC2 decision D9 rather than
+# this file's choice.
+[experiment.costs]
+commission_rate = 2e-05
+commission_min = 2.0
+cost_multiplier = 1.0
+
+[experiment.params]
+data_dir = "data/research"
+
+# The universe of pre-registered decision #9, in the order SPEC2 lists it.
+pairs = [
+  "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD",
+  "NZDUSD", "EURGBP", "EURJPY", "GBPJPY", "EURCHF", "AUDJPY",
+]
+
+# --------------------------------------------------------------------------- #
+# Windows
+# --------------------------------------------------------------------------- #
+#
+# Four of them, and the split between them is the card's out-of-window rule
+# rather than a convenience:
+#
+#   discovery     2015-01-01 .. 2019-12-31   the scan, and where the
+#                                            false-discovery correction runs
+#   confirmation  2020-01-01 .. 2025-02-28   untouched by the scan
+#   early         2009-01-01 .. 2012-12-31   untouched, and eleven pairs only
+#   primary       2015-01-01 .. 2025-02-28   context; it contains both halves
+#                                            and is therefore not a third
+#                                            independent test
+#
+# The discovery/confirmation split is the same one T4's split-half used, which
+# is deliberate -- one partition, stated once -- and it means "split-half
+# stable" and "confirmed out of window" are the same evidence rather than two
+# pieces of it. The rolling windows below are the independent stability check.
+start_date = "2015-01-01"
+end_date = "2025-02-28"
+discovery_end = "2019-12-31"
+confirm_start = "2020-01-01"
+
+# SPEC2 decision D6 makes 2009-2012 training data, so it is a confirmation
+# window rather than a stress test here. Ruling R1 excludes AUDUSD before
+# 2011-01-01, and R1 says a cross-pair analysis spanning that window runs on
+# eleven pairs and says so: the experiment derives the eleven from the
+# exclusion table rather than listing them here.
+early_start = "2009-01-01"
+early_end = "2012-12-31"
+
+# SPEC2 decision D7: cross-pair research horizons are 1h, 4h and 1d. 5m and 30m
+# are characterisation only and no hypothesis may be raised at them.
+timeframes = ["1h", "4h", "1d"]
+characterisation_timeframes = ["5m", "30m"]
+
+# Pre-reg #4's window, in America/New_York, derived to UTC per bar rather than
+# hardcoded. Used here only to build the cost series on the same footing T5
+# built them on.
+roll_start_hour_ny = 16
+roll_end_hour_ny = 18
+
+# --------------------------------------------------------------------------- #
+# Sizing
+# --------------------------------------------------------------------------- #
+
+# SPEC2 decision D9: the research reference notional is 100,000 units. Unlike
+# T5's 1,000,000 this is NOT above the per-order floor for the whole universe,
+# which is the point -- T5's Step 0 addendum measures where it binds, and every
+# two-leg cost below inherits that.
+reference_units = 100000
+
+# Volatility regimes: terciles of the standard deviation of the previous 20
+# returns, computed strictly before the return being labelled. T4's window, so
+# the regimes in all three reports are the same regimes. At the universe level
+# the regime is the cross-sectional mean of those trailing volatilities.
+vol_window = 20
+
+# --------------------------------------------------------------------------- #
+# Estimators
+# --------------------------------------------------------------------------- #
+
+# The ADF lag order T4 fixed and stated, used here for the Engle-Granger
+# residual test and for the VECM's short-run differences. One number rather
+# than two, applied everywhere and reported: a second lag order would be a
+# second thing for a reader to check and would answer no extra question.
+adf_lags = 10
+vecm_lags = 10
+
+# Lead-lag scan depth. Twelve bars is one trading hour at 5m, half a day at 1h
+# and a fortnight at 1d -- long enough for an information-transmission story to
+# show up at every horizon, short enough that the family stays countable.
+leadlag_max_lag = 12
+
+# Benjamini-Hochberg within each family, at the level T4 used.
+fdr_alpha = 0.05
+
+# The out-of-window confirmation rule, stated here rather than in the report's
+# prose so a checkpoint disagrees with a rule. A relationship discovered in
+# 2015-2019 confirms in another window when its Engle-Granger residual rejects
+# the unit root at `confirm_alpha` there AND its hedge ratio keeps its sign and
+# stays within a factor of `confirm_beta_tolerance` of the discovery value.
+# Neither thresholds anything SPEC2 thresholds: pre-reg #1 pins exactly one
+# bar, the 1.5x survival bar, and this adds no second one.
+confirm_alpha = 0.05
+confirm_beta_tolerance = 2.0
+
+# Where the correlation network is cut, on the distance sqrt(2(1 - rho)).
+# 1.0 is rho = 0.5: two pairs are in one cluster when their average
+# correlation across the cluster is above a half. Stated because a clustering
+# is a cut and nothing else.
+cluster_threshold = 1.0
+
+# T4's rolling discipline: two-year windows stepped six months. Consecutive
+# windows share three quarters of their data, so a property has to hold for two
+# years at a time everywhere in the decade rather than on average across it.
+rolling_window_years = 2
+rolling_step_months = 6
+
+# How many of the strongest cells get the full stability treatment and are
+# carried in the payload. Every test is in the register whatever this is; this
+# governs how many rows the result document carries beside the register.
+detail_limit = 40
+
+# --------------------------------------------------------------------------- #
+# The shock window
+# --------------------------------------------------------------------------- #
+#
+# T4 reported it in terms: EURCHF and USDCHF carry the 2015 SNB de-peg inside
+# the primary window -- a 15% five-minute move, 403 standard deviations -- and
+# "every statistic for those two pairs in the first half of the split is that
+# afternoon". T6's strongest lead-lag cells are EURCHF and USDCHF, so the card
+# owes the same statistic with that afternoon removed, as a measurement rather
+# than as a caveat.
+#
+# Declared here, before any result exists, with the event that motivates it.
+# Removing these days is NOT a correction to the data: the de-peg happened and
+# those prices are real. It is a robustness check, and the experiment reports
+# both figures side by side. The whole lead-lag family is re-scanned without
+# them, in its own family with its own correction, so the comparison is
+# "which cells win" rather than "do the winners hold".
+#
+# 2015-01-15 is the de-peg. 2015-01-16 is included because the day after a
+# 403-sigma move is not an ordinary trading day either, and a one-day window
+# would leave the rebound inside the sample while taking the shock out.
+shock_days = ["2015-01-15", "2015-01-16"]
+shock_reason = "SNB removes the EURCHF floor (T4 section 5: a 15% five-minute move, 403 standard deviations)"
+
+# --------------------------------------------------------------------------- #
+# The simulated null
+# --------------------------------------------------------------------------- #
+#
+# The Engle-Granger and Johansen statistics have no standard distribution, and
+# a scan needs p-values before it can have a correction. So the null is
+# simulated from independent random walks through the same code path the data
+# goes through, from this experiment's seed. The smallest p-value it can
+# produce is 1/(replications + 1) = 1/4001, and every result that lands there
+# is flagged and counted in the report.
+#
+# The replication count is set by what the correction needs rather than by
+# what looks generous. The Engle-Granger family is 432 tests, so the
+# Benjamini-Hochberg threshold at rank 1 is 0.05/432 = 1.16e-4: a simulation
+# whose smallest p-value were larger than that could never reject a lone
+# survivor however extreme its statistic, and a scan that can only find
+# relationships in groups is not a scan. 20,000 draws put the floor at 5.0e-5,
+# comfortably below it.
+#
+# `null_length` is the observations per draw. Two thousand is long enough that
+# the finite-sample correction sits below the resolution of the simulation --
+# `tests2/test_crossstats.py` checks the result against MacKinnon's published
+# asymptotic critical values -- and short enough that the whole null costs a
+# couple of minutes rather than an hour.
+null_replications = 20000
+null_length = 2000
+
+# --------------------------------------------------------------------------- #
+# The triples
+# --------------------------------------------------------------------------- #
+#
+# All 66 pairs-of-pairs are scanned in both Engle-Granger orderings. Triples
+# are not: there are 220 of them and most are arbitrary, so the card asks for
+# economically motivated ones and they are declared here, before any result
+# exists.
+#
+# The first five are the universe's triangular identities, and they are
+# declared as KNOWN-ANSWER CONTROLS rather than as candidates. log EURGBP is
+# log EURUSD less log GBPUSD by definition, so the scan must find them; a scan
+# that misses one is broken, and a report that lists one as an opportunity has
+# discovered arithmetic. The experiment derives which triples are identities
+# from the currency design matrix rather than trusting this comment.
+
+[[experiment.params.triples]]
+members = ["EURGBP", "EURUSD", "GBPUSD"]
+motivation = "triangular identity - known-answer control"
+
+[[experiment.params.triples]]
+members = ["EURJPY", "EURUSD", "USDJPY"]
+motivation = "triangular identity - known-answer control"
+
+[[experiment.params.triples]]
+members = ["GBPJPY", "GBPUSD", "USDJPY"]
+motivation = "triangular identity - known-answer control"
+
+[[experiment.params.triples]]
+members = ["EURCHF", "EURUSD", "USDCHF"]
+motivation = "triangular identity - known-answer control"
+
+[[experiment.params.triples]]
+members = ["AUDJPY", "AUDUSD", "USDJPY"]
+motivation = "triangular identity - known-answer control"
+
+[[experiment.params.triples]]
+members = ["AUDUSD", "NZDUSD", "USDCAD"]
+motivation = "commodity bloc - three currencies with the same terms-of-trade driver"
+
+[[experiment.params.triples]]
+members = ["EURUSD", "GBPUSD", "USDCHF"]
+motivation = "European bloc against the dollar"
+
+[[experiment.params.triples]]
+members = ["USDJPY", "EURJPY", "GBPJPY"]
+motivation = "yen crosses - a common funding currency, no identity between them"
+
+[[experiment.params.triples]]
+members = ["USDJPY", "USDCHF", "EURCHF"]
+motivation = "the two classic havens, and the cross that carries one of them"
+
+[[experiment.params.triples]]
+members = ["AUDUSD", "NZDUSD", "AUDJPY"]
+motivation = "antipodean risk proxies against a funding currency"
+
+[[experiment.params.triples]]
+members = ["EURGBP", "EURCHF", "GBPUSD"]
+motivation = "European crosses - regional rather than dollar-driven"
+
+[[experiment.params.triples]]
+members = ["USDCAD", "AUDUSD", "USDJPY"]
+motivation = "commodity exporters against a commodity importer"
