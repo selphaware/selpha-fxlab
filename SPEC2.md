@@ -329,6 +329,48 @@ a shard states its own exclusions and reconciles its own two lists — would be 
 format change, and per the T3 card that is a checkpoint decision. It is
 proposed, not made.
 
+### M3 checkpoint rulings, R7-R8 (approved in chat 2026-09-06)
+
+Fixed at the M3 checkpoint that closed T3 and opened T4, before any T4 result
+existed. Recorded here by `taskcards/T4.md`, which states them verbatim. They
+bind every card downstream in the same way §Pre-registered decisions does, and
+R7 is the first amendment any pre-registration has taken: it changes *how* the
+pre-reg #7 threshold is applied, and changes nothing about what happens to an
+hour that fails it.
+
+**R7 — Cross-check threshold (amends pre-reg #7) is density-aware.** For a
+sampled hour with ≥ 3,000 ticks the threshold is 1.0 pip. For an hour with
+500–2,999 ticks it is 1.0 pip + that hour's own median spread. Hours under 500
+ticks are classified `UNVERIFIABLE` (the check cannot see them) — usable,
+tagged, and their usage before 2013 is a T5 decision on the by-year agreement
+evidence. Hours failing the applicable threshold remain `BLOCKED`. The roll
+window stays exempt.
+
+The amendment is to the instrument, not to the verdict. T3 measured the fixed
+1.0 pip threshold rejecting 81% of hours under 500 ticks and 5.7% of hours
+holding 3k–10k, against a by-year median difference falling from 2.7 pip in
+2005 to 0.15 in 2024 — so the same pip threshold was answering a different
+question in each era, and most of what it rejected it rejected for being thin
+rather than for being wrong. R7 gives the middle band a threshold that scales
+with the instrument's own resolution and gives the thinnest band no verdict at
+all, because a check that cannot see an hour should say so rather than fail it.
+`BLOCKED` still means what pre-reg #7 said it means: out of research use until a
+checkpoint says otherwise.
+
+**R8 — Holiday eligibility.** The static major-holiday list in
+`config/calendar.toml` marks hours ineligible for execution in every backtest,
+in every year, regardless of whether the feed served data (pre-2013 the feed
+quoted through closed markets; those prices were not tradeable). The
+empties-derived calendar component is informational. This is a backtester rule
+to be implemented before T7; stated here.
+
+R8 exists because T3 found the derived calendar near-empty before 2013 for a
+reason that is about the feed rather than the market: through the early era the
+feed quoted straight across days the whole market was shut, so there is no
+emptiness there to derive a holiday from and the bars carry prices nobody
+traded at. A calendar that can only find the holidays the feed left empty
+cannot be the eligibility rule; the static list can, and is.
+
 ## Task roadmap (each = one task card, one bounded loop, one review)
 
 * **T1 — Coverage survey.** Measure Dukascopy coverage per pair per year,

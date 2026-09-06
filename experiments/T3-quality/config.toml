@@ -20,6 +20,23 @@
 #       calendar that does not match, so the committed file cannot drift away
 #       from the data that justified it.
 #
+#   python -m research.crosscheck_spreads --config <this file>
+#       measures the median spread of every hour the cross-check compared,
+#       which is what ruling R7's middle band thresholds against. About 11,800
+#       hourly tick files; minutes, resumable, checkpointed to spreads.jsonl.
+#       Never re-run by the gate, for the same reason as the two above.
+#
+#   python -m research.crosscheck_class --config <this file>
+#       derives config/crosscheck.toml -- the R7 class of every sampled hour --
+#       from oanda.jsonl and spreads.jsonl. Cheap and deterministic, and
+#       re-derived and compared by the experiment exactly like the calendar.
+#
+# T4's card, Step 0, re-issues this card's cross-check verdict under ruling R7.
+# The sample is not re-drawn: R7 changed the threshold, not the measurement,
+# and re-sampling would produce a different answer no reader could distinguish
+# from the amendment's effect. The pinned pre-reg #7 verdict is carried in the
+# result alongside the re-issued one for the same reason.
+#
 #   python -m research.run --config <this file>
 #       is the experiment. It reads all three back, re-derives everything
 #       derivable, and produces result.json. That is what the research gate
@@ -48,6 +65,7 @@ rerun_class = "full"
 experiment_dir = "experiments/T3-quality"
 data_dir = "data/research"
 calendar_path = "config/calendar.toml"
+crosscheck_classes_path = "config/crosscheck.toml"
 
 # The universe of pre-registered decision #9, in the order SPEC2 lists it.
 pairs = [

@@ -8119,8 +8119,8 @@
     ]
   },
   "config_path": "config.toml",
-  "config_sha256": "a778f17dc18e0452929eed9dbcbd8bbf7c853370fa140fd31365cd5c608a463a",
-  "created_at": "2026-09-05T23:02:20.977129+00:00",
+  "config_sha256": "5627059eb40cb4f21836f731e36a56e8a1dc3881e835a16fb8bb505fe40bba2e",
+  "created_at": "2026-09-06T13:30:57.274281+00:00",
   "entry": "research.quality:run",
   "experiment_id": "T3-quality",
   "mode": "scoring",
@@ -19050,6 +19050,6773 @@
         }
       },
       "pair_dates_sampled": 2952,
+      "r7": {
+        "against_pinned": {
+          "newly_blocked": 0,
+          "pinned_beyond_threshold": 1327,
+          "r7_blocked": 478,
+          "unblocked_to_pass": 344,
+          "unblocked_to_unverifiable": 505
+        },
+        "agreement_rate": 0.9419,
+        "blocked": [
+          {
+            "abs_worst_pips": 26.2,
+            "band": "middle",
+            "date": "2006-08-17",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 963
+          },
+          {
+            "abs_worst_pips": 18.35,
+            "band": "dense",
+            "date": "2025-01-07",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 20746
+          },
+          {
+            "abs_worst_pips": 13.5,
+            "band": "dense",
+            "date": "2008-03-04",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13070
+          },
+          {
+            "abs_worst_pips": 12.2,
+            "band": "middle",
+            "date": "2005-06-07",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 524
+          },
+          {
+            "abs_worst_pips": 11.15,
+            "band": "dense",
+            "date": "2024-01-05",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 13576
+          },
+          {
+            "abs_worst_pips": 10.7,
+            "band": "middle",
+            "date": "2005-12-02",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 507
+          },
+          {
+            "abs_worst_pips": 9.95,
+            "band": "dense",
+            "date": "2008-10-21",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4632
+          },
+          {
+            "abs_worst_pips": 9.6,
+            "band": "dense",
+            "date": "2025-02-03",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 31091
+          },
+          {
+            "abs_worst_pips": 9.15,
+            "band": "dense",
+            "date": "2025-01-10",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 25131
+          },
+          {
+            "abs_worst_pips": 8.6,
+            "band": "middle",
+            "date": "2005-08-29",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 5.0,
+            "ticks": 501
+          },
+          {
+            "abs_worst_pips": 8.2,
+            "band": "middle",
+            "date": "2006-08-17",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 957
+          },
+          {
+            "abs_worst_pips": 8.1,
+            "band": "dense",
+            "date": "2025-01-07",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 25394
+          },
+          {
+            "abs_worst_pips": 7.65,
+            "band": "dense",
+            "date": "2008-10-27",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8885
+          },
+          {
+            "abs_worst_pips": 7.6,
+            "band": "dense",
+            "date": "2023-12-05",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 23943
+          },
+          {
+            "abs_worst_pips": 7.5,
+            "band": "middle",
+            "date": "2005-06-07",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 503
+          },
+          {
+            "abs_worst_pips": 7.35,
+            "band": "dense",
+            "date": "2009-02-25",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6977
+          },
+          {
+            "abs_worst_pips": 7.2,
+            "band": "dense",
+            "date": "2008-12-01",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5973
+          },
+          {
+            "abs_worst_pips": 7.1,
+            "band": "middle",
+            "date": "2006-10-24",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1015
+          },
+          {
+            "abs_worst_pips": 7.0,
+            "band": "middle",
+            "date": "2007-04-24",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.4,
+            "ticks": 1345
+          },
+          {
+            "abs_worst_pips": 6.95,
+            "band": "middle",
+            "date": "2005-04-18",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1018
+          },
+          {
+            "abs_worst_pips": 6.9,
+            "band": "middle",
+            "date": "2009-05-07",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 5.5,
+            "ticks": 1965
+          },
+          {
+            "abs_worst_pips": 6.5,
+            "band": "middle",
+            "date": "2005-09-14",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 977
+          },
+          {
+            "abs_worst_pips": 6.5,
+            "band": "middle",
+            "date": "2005-09-14",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 978
+          },
+          {
+            "abs_worst_pips": 6.4,
+            "band": "middle",
+            "date": "2005-07-05",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1021
+          },
+          {
+            "abs_worst_pips": 6.3,
+            "band": "middle",
+            "date": "2005-07-05",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 998
+          },
+          {
+            "abs_worst_pips": 6.2,
+            "band": "middle",
+            "date": "2006-12-06",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 988
+          },
+          {
+            "abs_worst_pips": 6.2,
+            "band": "middle",
+            "date": "2006-10-23",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 5.0,
+            "ticks": 508
+          },
+          {
+            "abs_worst_pips": 6.2,
+            "band": "dense",
+            "date": "2008-11-25",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 3586
+          },
+          {
+            "abs_worst_pips": 6.1,
+            "band": "middle",
+            "date": "2005-01-20",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 881
+          },
+          {
+            "abs_worst_pips": 6.1,
+            "band": "dense",
+            "date": "2009-01-02",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5127
+          },
+          {
+            "abs_worst_pips": 6.1,
+            "band": "middle",
+            "date": "2005-02-22",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 524
+          },
+          {
+            "abs_worst_pips": 6.1,
+            "band": "middle",
+            "date": "2005-04-11",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 512
+          },
+          {
+            "abs_worst_pips": 6.0,
+            "band": "middle",
+            "date": "2006-04-10",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 979
+          },
+          {
+            "abs_worst_pips": 5.9,
+            "band": "middle",
+            "date": "2006-10-24",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 941
+          },
+          {
+            "abs_worst_pips": 5.9,
+            "band": "middle",
+            "date": "2007-06-20",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 4.5,
+            "ticks": 2607
+          },
+          {
+            "abs_worst_pips": 5.65,
+            "band": "middle",
+            "date": "2005-10-25",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 975
+          },
+          {
+            "abs_worst_pips": 5.6,
+            "band": "middle",
+            "date": "2005-08-02",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 972
+          },
+          {
+            "abs_worst_pips": 5.6,
+            "band": "middle",
+            "date": "2007-01-26",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 995
+          },
+          {
+            "abs_worst_pips": 5.6,
+            "band": "middle",
+            "date": "2009-12-25",
+            "hour": 1,
+            "pair": "USDCAD",
+            "threshold_pips": 5.0,
+            "ticks": 521
+          },
+          {
+            "abs_worst_pips": 5.5,
+            "band": "middle",
+            "date": "2005-09-19",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 509
+          },
+          {
+            "abs_worst_pips": 5.4,
+            "band": "middle",
+            "date": "2006-07-06",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 958
+          },
+          {
+            "abs_worst_pips": 5.4,
+            "band": "middle",
+            "date": "2005-02-22",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 515
+          },
+          {
+            "abs_worst_pips": 5.4,
+            "band": "dense",
+            "date": "2025-02-05",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7704
+          },
+          {
+            "abs_worst_pips": 5.3,
+            "band": "middle",
+            "date": "2005-07-11",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 945
+          },
+          {
+            "abs_worst_pips": 5.3,
+            "band": "middle",
+            "date": "2005-08-29",
+            "hour": 1,
+            "pair": "NZDUSD",
+            "threshold_pips": 5.0,
+            "ticks": 508
+          },
+          {
+            "abs_worst_pips": 5.2,
+            "band": "middle",
+            "date": "2009-03-19",
+            "hour": 1,
+            "pair": "EURGBP",
+            "threshold_pips": 3.5,
+            "ticks": 1597
+          },
+          {
+            "abs_worst_pips": 5.2,
+            "band": "middle",
+            "date": "2010-04-29",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1644
+          },
+          {
+            "abs_worst_pips": 5.2,
+            "band": "middle",
+            "date": "2005-03-23",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 513
+          },
+          {
+            "abs_worst_pips": 5.2,
+            "band": "middle",
+            "date": "2005-07-19",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 5.0,
+            "ticks": 504
+          },
+          {
+            "abs_worst_pips": 5.1,
+            "band": "middle",
+            "date": "2005-02-23",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 960
+          },
+          {
+            "abs_worst_pips": 5.1,
+            "band": "middle",
+            "date": "2007-01-02",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 3.0,
+            "ticks": 515
+          },
+          {
+            "abs_worst_pips": 5.1,
+            "band": "middle",
+            "date": "2005-08-08",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1027
+          },
+          {
+            "abs_worst_pips": 5.1,
+            "band": "middle",
+            "date": "2005-05-02",
+            "hour": 9,
+            "pair": "NZDUSD",
+            "threshold_pips": 5.0,
+            "ticks": 742
+          },
+          {
+            "abs_worst_pips": 5.0,
+            "band": "middle",
+            "date": "2005-01-25",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 986
+          },
+          {
+            "abs_worst_pips": 5.0,
+            "band": "middle",
+            "date": "2005-04-18",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 999
+          },
+          {
+            "abs_worst_pips": 5.0,
+            "band": "middle",
+            "date": "2006-01-06",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 853
+          },
+          {
+            "abs_worst_pips": 5.0,
+            "band": "dense",
+            "date": "2009-01-05",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3347
+          },
+          {
+            "abs_worst_pips": 4.8,
+            "band": "middle",
+            "date": "2005-08-02",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 995
+          },
+          {
+            "abs_worst_pips": 4.8,
+            "band": "middle",
+            "date": "2005-03-01",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 664
+          },
+          {
+            "abs_worst_pips": 4.7,
+            "band": "middle",
+            "date": "2005-03-31",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1031
+          },
+          {
+            "abs_worst_pips": 4.7,
+            "band": "middle",
+            "date": "2006-11-30",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 963
+          },
+          {
+            "abs_worst_pips": 4.7,
+            "band": "middle",
+            "date": "2005-05-30",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 881
+          },
+          {
+            "abs_worst_pips": 4.7,
+            "band": "dense",
+            "date": "2008-06-04",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 4.65,
+            "band": "middle",
+            "date": "2006-03-09",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 950
+          },
+          {
+            "abs_worst_pips": 4.6,
+            "band": "middle",
+            "date": "2006-03-09",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 976
+          },
+          {
+            "abs_worst_pips": 4.6,
+            "band": "middle",
+            "date": "2005-06-01",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 996
+          },
+          {
+            "abs_worst_pips": 4.55,
+            "band": "middle",
+            "date": "2005-08-02",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 967
+          },
+          {
+            "abs_worst_pips": 4.55,
+            "band": "dense",
+            "date": "2012-03-19",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4392
+          },
+          {
+            "abs_worst_pips": 4.5,
+            "band": "middle",
+            "date": "2006-05-02",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 967
+          },
+          {
+            "abs_worst_pips": 4.5,
+            "band": "middle",
+            "date": "2006-06-20",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 903
+          },
+          {
+            "abs_worst_pips": 4.5,
+            "band": "middle",
+            "date": "2005-02-18",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 3.0,
+            "ticks": 501
+          },
+          {
+            "abs_worst_pips": 4.4,
+            "band": "middle",
+            "date": "2005-04-21",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 753
+          },
+          {
+            "abs_worst_pips": 4.4,
+            "band": "dense",
+            "date": "2008-09-15",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6209
+          },
+          {
+            "abs_worst_pips": 4.3,
+            "band": "middle",
+            "date": "2005-02-23",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1004
+          },
+          {
+            "abs_worst_pips": 4.3,
+            "band": "middle",
+            "date": "2005-05-23",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 1031
+          },
+          {
+            "abs_worst_pips": 4.3,
+            "band": "middle",
+            "date": "2006-01-19",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 956
+          },
+          {
+            "abs_worst_pips": 4.3,
+            "band": "middle",
+            "date": "2006-02-17",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 978
+          },
+          {
+            "abs_worst_pips": 4.25,
+            "band": "middle",
+            "date": "2005-02-23",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 980
+          },
+          {
+            "abs_worst_pips": 4.25,
+            "band": "dense",
+            "date": "2008-02-18",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 8304
+          },
+          {
+            "abs_worst_pips": 4.2,
+            "band": "middle",
+            "date": "2005-10-10",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 905
+          },
+          {
+            "abs_worst_pips": 4.15,
+            "band": "dense",
+            "date": "2009-04-21",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5168
+          },
+          {
+            "abs_worst_pips": 4.1,
+            "band": "middle",
+            "date": "2005-12-13",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 926
+          },
+          {
+            "abs_worst_pips": 4.1,
+            "band": "middle",
+            "date": "2006-11-30",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 998
+          },
+          {
+            "abs_worst_pips": 4.1,
+            "band": "middle",
+            "date": "2007-01-26",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 963
+          },
+          {
+            "abs_worst_pips": 4.1,
+            "band": "middle",
+            "date": "2005-11-15",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 789
+          },
+          {
+            "abs_worst_pips": 4.05,
+            "band": "middle",
+            "date": "2006-12-06",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 987
+          },
+          {
+            "abs_worst_pips": 4.05,
+            "band": "middle",
+            "date": "2007-03-06",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 4.0,
+            "ticks": 982
+          },
+          {
+            "abs_worst_pips": 4.0,
+            "band": "dense",
+            "date": "2009-03-06",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3712
+          },
+          {
+            "abs_worst_pips": 4.0,
+            "band": "middle",
+            "date": "2005-01-20",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 854
+          },
+          {
+            "abs_worst_pips": 4.0,
+            "band": "dense",
+            "date": "2008-02-18",
+            "hour": 1,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 3640
+          },
+          {
+            "abs_worst_pips": 4.0,
+            "band": "dense",
+            "date": "2023-01-02",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 10380
+          },
+          {
+            "abs_worst_pips": 4.0,
+            "band": "middle",
+            "date": "2005-07-04",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 3.0,
+            "ticks": 527
+          },
+          {
+            "abs_worst_pips": 3.9,
+            "band": "middle",
+            "date": "2005-01-20",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 758
+          },
+          {
+            "abs_worst_pips": 3.9,
+            "band": "middle",
+            "date": "2006-07-19",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 714
+          },
+          {
+            "abs_worst_pips": 3.9,
+            "band": "dense",
+            "date": "2009-06-18",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4093
+          },
+          {
+            "abs_worst_pips": 3.9,
+            "band": "middle",
+            "date": "2007-02-27",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1384
+          },
+          {
+            "abs_worst_pips": 3.8,
+            "band": "middle",
+            "date": "2006-01-06",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 657
+          },
+          {
+            "abs_worst_pips": 3.8,
+            "band": "middle",
+            "date": "2010-07-01",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.6,
+            "ticks": 691
+          },
+          {
+            "abs_worst_pips": 3.75,
+            "band": "dense",
+            "date": "2008-01-18",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 10355
+          },
+          {
+            "abs_worst_pips": 3.7,
+            "band": "middle",
+            "date": "2005-02-17",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 890
+          },
+          {
+            "abs_worst_pips": 3.7,
+            "band": "middle",
+            "date": "2005-03-01",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 877
+          },
+          {
+            "abs_worst_pips": 3.7,
+            "band": "dense",
+            "date": "2009-04-15",
+            "hour": 1,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 3649
+          },
+          {
+            "abs_worst_pips": 3.7,
+            "band": "dense",
+            "date": "2022-11-23",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 19067
+          },
+          {
+            "abs_worst_pips": 3.65,
+            "band": "dense",
+            "date": "2012-04-04",
+            "hour": 15,
+            "pair": "AUDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4460
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "middle",
+            "date": "2006-11-30",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 713
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "middle",
+            "date": "2007-02-20",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 790
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "middle",
+            "date": "2005-05-10",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 954
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "middle",
+            "date": "2005-09-08",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 953
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "middle",
+            "date": "2006-10-10",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1537
+          },
+          {
+            "abs_worst_pips": 3.6,
+            "band": "dense",
+            "date": "2008-02-21",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2005-12-22",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 866
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2006-03-22",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 629
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2006-09-07",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 748
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2006-09-07",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 841
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2007-01-16",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 728
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2005-04-13",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 968
+          },
+          {
+            "abs_worst_pips": 3.5,
+            "band": "middle",
+            "date": "2006-05-18",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1391
+          },
+          {
+            "abs_worst_pips": 3.4,
+            "band": "middle",
+            "date": "2005-09-08",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1003
+          },
+          {
+            "abs_worst_pips": 3.4,
+            "band": "dense",
+            "date": "2007-11-29",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6440
+          },
+          {
+            "abs_worst_pips": 3.4,
+            "band": "dense",
+            "date": "2009-06-03",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6425
+          },
+          {
+            "abs_worst_pips": 3.4,
+            "band": "dense",
+            "date": "2025-01-10",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 20260
+          },
+          {
+            "abs_worst_pips": 3.35,
+            "band": "dense",
+            "date": "2007-09-10",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6018
+          },
+          {
+            "abs_worst_pips": 3.3,
+            "band": "middle",
+            "date": "2005-05-30",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 760
+          },
+          {
+            "abs_worst_pips": 3.3,
+            "band": "middle",
+            "date": "2005-10-10",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 780
+          },
+          {
+            "abs_worst_pips": 3.3,
+            "band": "dense",
+            "date": "2008-11-11",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6079
+          },
+          {
+            "abs_worst_pips": 3.3,
+            "band": "middle",
+            "date": "2005-01-17",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 898
+          },
+          {
+            "abs_worst_pips": 3.3,
+            "band": "dense",
+            "date": "2022-02-28",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12338
+          },
+          {
+            "abs_worst_pips": 3.25,
+            "band": "dense",
+            "date": "2008-08-28",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5879
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2005-02-17",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 856
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2005-03-01",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 916
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2005-09-26",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 859
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2005-06-01",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 929
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2005-08-08",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 931
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2006-01-19",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 954
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2006-09-04",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1512
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2007-11-19",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.6,
+            "ticks": 1150
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "dense",
+            "date": "2008-03-04",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8342
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "middle",
+            "date": "2010-05-03",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.9,
+            "ticks": 1518
+          },
+          {
+            "abs_worst_pips": 3.2,
+            "band": "dense",
+            "date": "2008-12-31",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3655
+          },
+          {
+            "abs_worst_pips": 3.15,
+            "band": "middle",
+            "date": "2010-06-09",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.9,
+            "ticks": 1442
+          },
+          {
+            "abs_worst_pips": 3.1,
+            "band": "middle",
+            "date": "2005-05-30",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 997
+          },
+          {
+            "abs_worst_pips": 3.1,
+            "band": "middle",
+            "date": "2005-07-05",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 890
+          },
+          {
+            "abs_worst_pips": 3.1,
+            "band": "middle",
+            "date": "2006-05-15",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 883
+          },
+          {
+            "abs_worst_pips": 3.1,
+            "band": "middle",
+            "date": "2006-07-19",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 3.0,
+            "ticks": 841
+          },
+          {
+            "abs_worst_pips": 3.1,
+            "band": "dense",
+            "date": "2008-08-25",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 3.0,
+            "band": "middle",
+            "date": "2009-09-16",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.95,
+            "band": "dense",
+            "date": "2009-03-26",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3953
+          },
+          {
+            "abs_worst_pips": 2.9,
+            "band": "middle",
+            "date": "2006-04-18",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 979
+          },
+          {
+            "abs_worst_pips": 2.9,
+            "band": "middle",
+            "date": "2010-01-15",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 544
+          },
+          {
+            "abs_worst_pips": 2.9,
+            "band": "dense",
+            "date": "2025-01-03",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14974
+          },
+          {
+            "abs_worst_pips": 2.85,
+            "band": "dense",
+            "date": "2008-10-21",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6214
+          },
+          {
+            "abs_worst_pips": 2.85,
+            "band": "dense",
+            "date": "2024-12-02",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 11992
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "dense",
+            "date": "2008-05-19",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "middle",
+            "date": "2009-11-26",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.6,
+            "ticks": 691
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "middle",
+            "date": "2010-03-31",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "middle",
+            "date": "2010-08-11",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "dense",
+            "date": "2009-02-02",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5287
+          },
+          {
+            "abs_worst_pips": 2.8,
+            "band": "dense",
+            "date": "2008-03-19",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 12693
+          },
+          {
+            "abs_worst_pips": 2.7,
+            "band": "dense",
+            "date": "2009-05-07",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3048
+          },
+          {
+            "abs_worst_pips": 2.7,
+            "band": "middle",
+            "date": "2005-07-11",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 966
+          },
+          {
+            "abs_worst_pips": 2.7,
+            "band": "middle",
+            "date": "2010-08-11",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.9,
+            "ticks": 1518
+          },
+          {
+            "abs_worst_pips": 2.7,
+            "band": "dense",
+            "date": "2009-05-06",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4769
+          },
+          {
+            "abs_worst_pips": 2.7,
+            "band": "dense",
+            "date": "2025-01-07",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 17739
+          },
+          {
+            "abs_worst_pips": 2.65,
+            "band": "dense",
+            "date": "2010-05-03",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3843
+          },
+          {
+            "abs_worst_pips": 2.65,
+            "band": "dense",
+            "date": "2009-05-07",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3977
+          },
+          {
+            "abs_worst_pips": 2.65,
+            "band": "dense",
+            "date": "2023-11-10",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4085
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "dense",
+            "date": "2008-10-07",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4295
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "middle",
+            "date": "2005-09-08",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 906
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "middle",
+            "date": "2006-05-18",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1482
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "middle",
+            "date": "2006-11-20",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1486
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "dense",
+            "date": "2008-04-22",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7646
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "dense",
+            "date": "2009-04-21",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3123
+          },
+          {
+            "abs_worst_pips": 2.6,
+            "band": "dense",
+            "date": "2024-12-12",
+            "hour": 1,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3247
+          },
+          {
+            "abs_worst_pips": 2.55,
+            "band": "dense",
+            "date": "2008-08-21",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4918
+          },
+          {
+            "abs_worst_pips": 2.55,
+            "band": "dense",
+            "date": "2008-10-07",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6442
+          },
+          {
+            "abs_worst_pips": 2.55,
+            "band": "dense",
+            "date": "2014-11-20",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 9805
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "dense",
+            "date": "2009-12-01",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7133
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "middle",
+            "date": "2005-02-21",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 931
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "middle",
+            "date": "2005-07-11",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1012
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "middle",
+            "date": "2006-04-18",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 891
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "middle",
+            "date": "2010-03-31",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.9,
+            "ticks": 1518
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "dense",
+            "date": "2007-08-27",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3798
+          },
+          {
+            "abs_worst_pips": 2.5,
+            "band": "middle",
+            "date": "2024-12-12",
+            "hour": 1,
+            "pair": "NZDUSD",
+            "threshold_pips": 2.1,
+            "ticks": 2354
+          },
+          {
+            "abs_worst_pips": 2.45,
+            "band": "dense",
+            "date": "2008-05-28",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6159
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "middle",
+            "date": "2005-05-10",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1030
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "middle",
+            "date": "2005-10-26",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1039
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "middle",
+            "date": "2009-12-30",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "dense",
+            "date": "2007-12-13",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 11195
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "dense",
+            "date": "2025-01-28",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13112
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "dense",
+            "date": "2008-04-17",
+            "hour": 1,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8903
+          },
+          {
+            "abs_worst_pips": 2.4,
+            "band": "dense",
+            "date": "2009-02-26",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4938
+          },
+          {
+            "abs_worst_pips": 2.35,
+            "band": "dense",
+            "date": "2008-03-06",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12878
+          },
+          {
+            "abs_worst_pips": 2.35,
+            "band": "dense",
+            "date": "2016-01-05",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6260
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "dense",
+            "date": "2025-02-05",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14926
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "dense",
+            "date": "2009-02-16",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3636
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "dense",
+            "date": "2008-11-12",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 6217
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "middle",
+            "date": "2007-01-30",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1465
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "dense",
+            "date": "2008-05-19",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 2.3,
+            "band": "dense",
+            "date": "2008-02-25",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12826
+          },
+          {
+            "abs_worst_pips": 2.25,
+            "band": "dense",
+            "date": "2008-01-18",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8392
+          },
+          {
+            "abs_worst_pips": 2.25,
+            "band": "dense",
+            "date": "2007-06-20",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4040
+          },
+          {
+            "abs_worst_pips": 2.25,
+            "band": "dense",
+            "date": "2007-10-01",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8215
+          },
+          {
+            "abs_worst_pips": 2.25,
+            "band": "dense",
+            "date": "2009-08-06",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3225
+          },
+          {
+            "abs_worst_pips": 2.25,
+            "band": "dense",
+            "date": "2008-09-29",
+            "hour": 1,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4547
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "middle",
+            "date": "2006-03-21",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 963
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "middle",
+            "date": "2006-06-15",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1364
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "dense",
+            "date": "2007-10-04",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "dense",
+            "date": "2008-07-14",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "middle",
+            "date": "2010-02-12",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "dense",
+            "date": "2007-06-27",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6812
+          },
+          {
+            "abs_worst_pips": 2.2,
+            "band": "dense",
+            "date": "2008-06-02",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5472
+          },
+          {
+            "abs_worst_pips": 2.15,
+            "band": "dense",
+            "date": "2023-12-08",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 15812
+          },
+          {
+            "abs_worst_pips": 2.15,
+            "band": "dense",
+            "date": "2010-05-17",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5589
+          },
+          {
+            "abs_worst_pips": 2.15,
+            "band": "dense",
+            "date": "2024-01-19",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 9137
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2005-03-07",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 986
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2005-04-13",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1027
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2005-12-20",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 906
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2006-03-21",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 931
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2007-02-27",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 2.0,
+            "ticks": 1532
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "dense",
+            "date": "2007-09-25",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2010-05-03",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1791
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "middle",
+            "date": "2010-06-09",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1644
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "dense",
+            "date": "2007-09-19",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4291
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "dense",
+            "date": "2012-02-28",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5458
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "dense",
+            "date": "2007-10-01",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5489
+          },
+          {
+            "abs_worst_pips": 2.1,
+            "band": "dense",
+            "date": "2008-09-17",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5143
+          },
+          {
+            "abs_worst_pips": 2.05,
+            "band": "dense",
+            "date": "2010-08-31",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3898
+          },
+          {
+            "abs_worst_pips": 2.05,
+            "band": "middle",
+            "date": "2015-01-29",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.3,
+            "ticks": 1967
+          },
+          {
+            "abs_worst_pips": 2.05,
+            "band": "dense",
+            "date": "2007-07-26",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7268
+          },
+          {
+            "abs_worst_pips": 2.05,
+            "band": "dense",
+            "date": "2009-01-15",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6937
+          },
+          {
+            "abs_worst_pips": 2.05,
+            "band": "dense",
+            "date": "2009-03-11",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6153
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "dense",
+            "date": "2011-01-27",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4288
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "dense",
+            "date": "2007-09-10",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 9193
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "dense",
+            "date": "2007-12-20",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "middle",
+            "date": "2009-11-26",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.9,
+            "ticks": 1518
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "dense",
+            "date": "2009-06-03",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7502
+          },
+          {
+            "abs_worst_pips": 2.0,
+            "band": "dense",
+            "date": "2008-03-03",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 12664
+          },
+          {
+            "abs_worst_pips": 1.95,
+            "band": "dense",
+            "date": "2024-01-24",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14134
+          },
+          {
+            "abs_worst_pips": 1.95,
+            "band": "dense",
+            "date": "2008-11-17",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3254
+          },
+          {
+            "abs_worst_pips": 1.95,
+            "band": "dense",
+            "date": "2025-02-21",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7548
+          },
+          {
+            "abs_worst_pips": 1.95,
+            "band": "dense",
+            "date": "2007-05-21",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 3078
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2015-02-25",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7755
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "middle",
+            "date": "2010-01-15",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.8,
+            "ticks": 1643
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2007-08-27",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3676
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2008-02-08",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 9782
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2012-02-29",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8960
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2007-08-08",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3379
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2008-03-19",
+            "hour": 9,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 12774
+          },
+          {
+            "abs_worst_pips": 1.9,
+            "band": "dense",
+            "date": "2009-01-09",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3835
+          },
+          {
+            "abs_worst_pips": 1.85,
+            "band": "dense",
+            "date": "2008-07-23",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 4709
+          },
+          {
+            "abs_worst_pips": 1.85,
+            "band": "dense",
+            "date": "2007-10-04",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6333
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-02-11",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7219
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2011-05-31",
+            "hour": 1,
+            "pair": "AUDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3803
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2009-05-06",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 4673
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2007-07-12",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6343
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2007-09-25",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-04-16",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-05-19",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2011-09-28",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6969
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-09-11",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6993
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2016-02-01",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13658
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-01-16",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 10989
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2008-05-20",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4152
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2010-02-01",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6251
+          },
+          {
+            "abs_worst_pips": 1.8,
+            "band": "dense",
+            "date": "2009-03-31",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 3595
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2007-07-05",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5069
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2007-09-03",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3614
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2007-09-03",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3606
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2008-10-07",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6878
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2008-03-04",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 13071
+          },
+          {
+            "abs_worst_pips": 1.75,
+            "band": "dense",
+            "date": "2009-01-07",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3808
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2007-12-27",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3348
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2007-12-27",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6508
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2007-09-25",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2008-04-16",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2008-08-25",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2008-08-25",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2007-12-13",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4084
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2008-09-17",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 8247
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2010-02-22",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3378
+          },
+          {
+            "abs_worst_pips": 1.7,
+            "band": "dense",
+            "date": "2008-01-22",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 11642
+          },
+          {
+            "abs_worst_pips": 1.65,
+            "band": "dense",
+            "date": "2007-11-12",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 15760
+          },
+          {
+            "abs_worst_pips": 1.65,
+            "band": "dense",
+            "date": "2008-09-15",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8342
+          },
+          {
+            "abs_worst_pips": 1.65,
+            "band": "dense",
+            "date": "2010-01-27",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7524
+          },
+          {
+            "abs_worst_pips": 1.65,
+            "band": "dense",
+            "date": "2010-05-18",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 4214
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2009-03-06",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4878
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2025-01-28",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 4462
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2008-12-18",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6516
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2007-10-04",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2007-12-20",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 1.6,
+            "band": "dense",
+            "date": "2008-01-02",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8342
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-09-02",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5063
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2010-12-09",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3574
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2011-10-18",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4925
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-08-20",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7984
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-12-18",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5563
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2014-04-30",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5909
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2011-10-27",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6261
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-03-04",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13253
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-09-11",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3043
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2008-11-17",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7213
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2009-04-21",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5361
+          },
+          {
+            "abs_worst_pips": 1.55,
+            "band": "dense",
+            "date": "2009-11-19",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5931
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-10-21",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5124
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-06-19",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 5552
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2009-03-19",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 6079
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2009-05-06",
+            "hour": 1,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 3752
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2011-10-27",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5134
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2025-02-03",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13635
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2007-11-19",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6209
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-04-16",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6031
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-06-04",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-01-11",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13333
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-04-22",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 10840
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2008-06-02",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3333
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2019-12-24",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6209
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2007-04-23",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4903
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2007-08-16",
+            "hour": 1,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3247
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2009-07-09",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5767
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2007-11-05",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 7154
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2015-01-22",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5678
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2015-12-03",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 8612
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2017-03-01",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5960
+          },
+          {
+            "abs_worst_pips": 1.5,
+            "band": "dense",
+            "date": "2007-06-04",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4215
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2009-10-14",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4461
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2009-04-16",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3731
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2013-05-21",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4337
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2015-01-16",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 6212
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2008-10-21",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5840
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2007-12-14",
+            "hour": 9,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 17724
+          },
+          {
+            "abs_worst_pips": 1.45,
+            "band": "dense",
+            "date": "2008-04-01",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 12801
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2008-03-10",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14373
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2009-03-26",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5002
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2022-12-09",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 11442
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-10-31",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5839
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-11-23",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 18517
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2009-04-14",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3034
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-11-19",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8342
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-12-20",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3252
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2011-03-14",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4614
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-07-19",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6241
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-10-22",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 14633
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2007-10-31",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14832
+          },
+          {
+            "abs_worst_pips": 1.4,
+            "band": "dense",
+            "date": "2008-10-09",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 10076
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2008-06-02",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4885
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2009-11-03",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3151
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2008-01-03",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 8990
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2008-11-10",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4073
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2009-07-07",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3368
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2009-06-04",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4332
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2008-10-07",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7436
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2007-11-29",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 9980
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2008-02-08",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7862
+          },
+          {
+            "abs_worst_pips": 1.35,
+            "band": "dense",
+            "date": "2016-12-27",
+            "hour": 1,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 10027
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2008-04-03",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 13383
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2008-01-03",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 8105
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2013-04-16",
+            "hour": 9,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7409
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2008-01-11",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12531
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2009-12-31",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 3849
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2015-02-19",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5354
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2023-12-01",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 12526
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2008-03-03",
+            "hour": 9,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 12834
+          },
+          {
+            "abs_worst_pips": 1.3,
+            "band": "dense",
+            "date": "2008-06-10",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5689
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2008-06-02",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3838
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2008-12-15",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3410
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2011-12-15",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5610
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2008-01-16",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 14267
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2008-08-20",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8306
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2009-04-14",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4553
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2009-11-09",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4924
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2007-12-13",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8579
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2009-11-19",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3837
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2008-03-04",
+            "hour": 1,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 13291
+          },
+          {
+            "abs_worst_pips": 1.25,
+            "band": "dense",
+            "date": "2007-10-01",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 8247
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-05-14",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4461
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-08-21",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3918
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-11-18",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6208
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2009-05-06",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4783
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-11-29",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 15857
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-02-29",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 12838
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-12-01",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4877
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2009-04-16",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3234
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2013-05-21",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 10398
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2009-06-03",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 7581
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-11-23",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 18362
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-06-03",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5224
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2009-08-04",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4293
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2010-03-10",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5660
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2010-05-04",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6726
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-07-14",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 7699
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-08-27",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4333
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2025-02-21",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14728
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-05-31",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8810
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-11-14",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4742
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-08-06",
+            "hour": 15,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 4526
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-12-14",
+            "hour": 1,
+            "pair": "USDCAD",
+            "threshold_pips": 1.0,
+            "ticks": 23161
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-11-15",
+            "hour": 1,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 18190
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2007-06-04",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3960
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2008-11-17",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4087
+          },
+          {
+            "abs_worst_pips": 1.2,
+            "band": "dense",
+            "date": "2009-01-07",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3558
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-11-12",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 16379
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-09-04",
+            "hour": 1,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5831
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2009-02-16",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3958
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2023-01-04",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 24075
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-01-03",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3378
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-04-28",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4345
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2013-10-15",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4694
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2015-01-16",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 10149
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2018-12-28",
+            "hour": 1,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 4242
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2019-01-31",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 9201
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-11-23",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 15913
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-07-21",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4635
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2025-01-28",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 15568
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-11-29",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8664
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-09-11",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5931
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2009-09-30",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4456
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2010-03-10",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5948
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2015-01-08",
+            "hour": 1,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5009
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-08-16",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8503
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-10-04",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 6544
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2007-06-11",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 6046
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2008-11-12",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5838
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2009-05-12",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4755
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2013-06-24",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4317
+          },
+          {
+            "abs_worst_pips": 1.15,
+            "band": "dense",
+            "date": "2015-02-24",
+            "hour": 1,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3958
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2012-02-06",
+            "hour": 9,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4283
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2007-05-08",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3296
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-03-12",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 13109
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-06-23",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3212
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2011-05-24",
+            "hour": 1,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3135
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2009-12-01",
+            "hour": 15,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 6543
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-01-11",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4670
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2009-04-14",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3811
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2016-08-31",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14263
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2011-03-14",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4893
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2007-06-27",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6708
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-01-11",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 11829
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-06-02",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6754
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2012-06-28",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4531
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2016-06-14",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 8928
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2017-05-29",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3416
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2024-08-08",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12829
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2013-07-31",
+            "hour": 9,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5391
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2007-12-14",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 14929
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-04-15",
+            "hour": 1,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 6026
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-06-10",
+            "hour": 9,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5196
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2008-09-29",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7310
+          },
+          {
+            "abs_worst_pips": 1.1,
+            "band": "dense",
+            "date": "2024-02-29",
+            "hour": 15,
+            "pair": "USDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 10991
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2007-05-31",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3994
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-03-10",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12694
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2014-12-23",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4571
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2015-05-28",
+            "hour": 15,
+            "pair": "AUDJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5469
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-10-21",
+            "hour": 9,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4672
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-08-26",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5116
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2017-03-03",
+            "hour": 15,
+            "pair": "EURCHF",
+            "threshold_pips": 1.0,
+            "ticks": 3921
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-04-15",
+            "hour": 9,
+            "pair": "EURGBP",
+            "threshold_pips": 1.0,
+            "ticks": 4577
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2011-01-28",
+            "hour": 1,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 3625
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2016-02-04",
+            "hour": 15,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 12341
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2023-09-11",
+            "hour": 9,
+            "pair": "EURJPY",
+            "threshold_pips": 1.0,
+            "ticks": 7795
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-10-07",
+            "hour": 1,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4066
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2015-02-24",
+            "hour": 15,
+            "pair": "EURUSD",
+            "threshold_pips": 1.0,
+            "ticks": 12039
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-11-17",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5447
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-07-16",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4336
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-09-30",
+            "hour": 15,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 5785
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2011-01-17",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 4451
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2016-03-22",
+            "hour": 9,
+            "pair": "GBPJPY",
+            "threshold_pips": 1.0,
+            "ticks": 10956
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2007-11-09",
+            "hour": 1,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4480
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2007-11-09",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 8814
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-06-23",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4954
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-07-01",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4288
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2008-08-05",
+            "hour": 15,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5106
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-07-09",
+            "hour": 9,
+            "pair": "GBPUSD",
+            "threshold_pips": 1.0,
+            "ticks": 5118
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2010-03-12",
+            "hour": 15,
+            "pair": "NZDUSD",
+            "threshold_pips": 1.0,
+            "ticks": 4180
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2007-09-12",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 5086
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-02-03",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4104
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2009-04-02",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4177
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2015-01-22",
+            "hour": 9,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 4306
+          },
+          {
+            "abs_worst_pips": 1.05,
+            "band": "dense",
+            "date": "2016-03-10",
+            "hour": 15,
+            "pair": "USDCHF",
+            "threshold_pips": 1.0,
+            "ticks": 10257
+          }
+        ],
+        "blocked_by_pair_year": [
+          {
+            "hours": 17,
+            "pair": "AUDJPY",
+            "year": "2005"
+          },
+          {
+            "hours": 16,
+            "pair": "AUDJPY",
+            "year": "2006"
+          },
+          {
+            "hours": 9,
+            "pair": "AUDJPY",
+            "year": "2007"
+          },
+          {
+            "hours": 17,
+            "pair": "AUDJPY",
+            "year": "2008"
+          },
+          {
+            "hours": 6,
+            "pair": "AUDJPY",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2010"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2011"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2012"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2014"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2015"
+          },
+          {
+            "hours": 2,
+            "pair": "AUDJPY",
+            "year": "2023"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDJPY",
+            "year": "2025"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDUSD",
+            "year": "2011"
+          },
+          {
+            "hours": 1,
+            "pair": "AUDUSD",
+            "year": "2012"
+          },
+          {
+            "hours": 18,
+            "pair": "EURCHF",
+            "year": "2005"
+          },
+          {
+            "hours": 9,
+            "pair": "EURCHF",
+            "year": "2006"
+          },
+          {
+            "hours": 6,
+            "pair": "EURCHF",
+            "year": "2007"
+          },
+          {
+            "hours": 12,
+            "pair": "EURCHF",
+            "year": "2008"
+          },
+          {
+            "hours": 11,
+            "pair": "EURCHF",
+            "year": "2009"
+          },
+          {
+            "hours": 2,
+            "pair": "EURCHF",
+            "year": "2010"
+          },
+          {
+            "hours": 3,
+            "pair": "EURCHF",
+            "year": "2011"
+          },
+          {
+            "hours": 3,
+            "pair": "EURCHF",
+            "year": "2013"
+          },
+          {
+            "hours": 2,
+            "pair": "EURCHF",
+            "year": "2015"
+          },
+          {
+            "hours": 1,
+            "pair": "EURCHF",
+            "year": "2017"
+          },
+          {
+            "hours": 1,
+            "pair": "EURCHF",
+            "year": "2023"
+          },
+          {
+            "hours": 6,
+            "pair": "EURGBP",
+            "year": "2008"
+          },
+          {
+            "hours": 8,
+            "pair": "EURGBP",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "EURGBP",
+            "year": "2018"
+          },
+          {
+            "hours": 1,
+            "pair": "EURGBP",
+            "year": "2019"
+          },
+          {
+            "hours": 1,
+            "pair": "EURGBP",
+            "year": "2022"
+          },
+          {
+            "hours": 1,
+            "pair": "EURGBP",
+            "year": "2023"
+          },
+          {
+            "hours": 1,
+            "pair": "EURGBP",
+            "year": "2025"
+          },
+          {
+            "hours": 10,
+            "pair": "EURJPY",
+            "year": "2007"
+          },
+          {
+            "hours": 10,
+            "pair": "EURJPY",
+            "year": "2008"
+          },
+          {
+            "hours": 9,
+            "pair": "EURJPY",
+            "year": "2009"
+          },
+          {
+            "hours": 2,
+            "pair": "EURJPY",
+            "year": "2010"
+          },
+          {
+            "hours": 2,
+            "pair": "EURJPY",
+            "year": "2011"
+          },
+          {
+            "hours": 2,
+            "pair": "EURJPY",
+            "year": "2014"
+          },
+          {
+            "hours": 1,
+            "pair": "EURJPY",
+            "year": "2015"
+          },
+          {
+            "hours": 2,
+            "pair": "EURJPY",
+            "year": "2016"
+          },
+          {
+            "hours": 1,
+            "pair": "EURJPY",
+            "year": "2022"
+          },
+          {
+            "hours": 2,
+            "pair": "EURJPY",
+            "year": "2023"
+          },
+          {
+            "hours": 1,
+            "pair": "EURJPY",
+            "year": "2024"
+          },
+          {
+            "hours": 5,
+            "pair": "EURJPY",
+            "year": "2025"
+          },
+          {
+            "hours": 19,
+            "pair": "EURUSD",
+            "year": "2005"
+          },
+          {
+            "hours": 11,
+            "pair": "EURUSD",
+            "year": "2006"
+          },
+          {
+            "hours": 14,
+            "pair": "EURUSD",
+            "year": "2007"
+          },
+          {
+            "hours": 20,
+            "pair": "EURUSD",
+            "year": "2008"
+          },
+          {
+            "hours": 4,
+            "pair": "EURUSD",
+            "year": "2009"
+          },
+          {
+            "hours": 13,
+            "pair": "EURUSD",
+            "year": "2010"
+          },
+          {
+            "hours": 4,
+            "pair": "EURUSD",
+            "year": "2011"
+          },
+          {
+            "hours": 1,
+            "pair": "EURUSD",
+            "year": "2013"
+          },
+          {
+            "hours": 2,
+            "pair": "EURUSD",
+            "year": "2015"
+          },
+          {
+            "hours": 9,
+            "pair": "GBPJPY",
+            "year": "2005"
+          },
+          {
+            "hours": 14,
+            "pair": "GBPJPY",
+            "year": "2007"
+          },
+          {
+            "hours": 23,
+            "pair": "GBPJPY",
+            "year": "2008"
+          },
+          {
+            "hours": 13,
+            "pair": "GBPJPY",
+            "year": "2009"
+          },
+          {
+            "hours": 3,
+            "pair": "GBPJPY",
+            "year": "2010"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2011"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2012"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2015"
+          },
+          {
+            "hours": 4,
+            "pair": "GBPJPY",
+            "year": "2016"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2017"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2019"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2022"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPJPY",
+            "year": "2024"
+          },
+          {
+            "hours": 5,
+            "pair": "GBPJPY",
+            "year": "2025"
+          },
+          {
+            "hours": 2,
+            "pair": "GBPUSD",
+            "year": "2005"
+          },
+          {
+            "hours": 9,
+            "pair": "GBPUSD",
+            "year": "2007"
+          },
+          {
+            "hours": 11,
+            "pair": "GBPUSD",
+            "year": "2008"
+          },
+          {
+            "hours": 7,
+            "pair": "GBPUSD",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPUSD",
+            "year": "2010"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPUSD",
+            "year": "2012"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPUSD",
+            "year": "2015"
+          },
+          {
+            "hours": 1,
+            "pair": "GBPUSD",
+            "year": "2024"
+          },
+          {
+            "hours": 3,
+            "pair": "NZDUSD",
+            "year": "2005"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2006"
+          },
+          {
+            "hours": 3,
+            "pair": "NZDUSD",
+            "year": "2007"
+          },
+          {
+            "hours": 2,
+            "pair": "NZDUSD",
+            "year": "2008"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2010"
+          },
+          {
+            "hours": 2,
+            "pair": "NZDUSD",
+            "year": "2012"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2013"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2023"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2024"
+          },
+          {
+            "hours": 1,
+            "pair": "NZDUSD",
+            "year": "2025"
+          },
+          {
+            "hours": 5,
+            "pair": "USDCAD",
+            "year": "2007"
+          },
+          {
+            "hours": 3,
+            "pair": "USDCAD",
+            "year": "2008"
+          },
+          {
+            "hours": 2,
+            "pair": "USDCAD",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "USDCAD",
+            "year": "2010"
+          },
+          {
+            "hours": 1,
+            "pair": "USDCAD",
+            "year": "2024"
+          },
+          {
+            "hours": 5,
+            "pair": "USDCHF",
+            "year": "2007"
+          },
+          {
+            "hours": 4,
+            "pair": "USDCHF",
+            "year": "2008"
+          },
+          {
+            "hours": 4,
+            "pair": "USDCHF",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "USDCHF",
+            "year": "2010"
+          },
+          {
+            "hours": 1,
+            "pair": "USDCHF",
+            "year": "2013"
+          },
+          {
+            "hours": 4,
+            "pair": "USDCHF",
+            "year": "2015"
+          },
+          {
+            "hours": 2,
+            "pair": "USDCHF",
+            "year": "2016"
+          },
+          {
+            "hours": 1,
+            "pair": "USDCHF",
+            "year": "2017"
+          },
+          {
+            "hours": 2,
+            "pair": "USDCHF",
+            "year": "2024"
+          },
+          {
+            "hours": 4,
+            "pair": "USDJPY",
+            "year": "2007"
+          },
+          {
+            "hours": 9,
+            "pair": "USDJPY",
+            "year": "2008"
+          },
+          {
+            "hours": 2,
+            "pair": "USDJPY",
+            "year": "2009"
+          },
+          {
+            "hours": 1,
+            "pair": "USDJPY",
+            "year": "2024"
+          },
+          {
+            "hours": 2,
+            "pair": "USDJPY",
+            "year": "2025"
+          }
+        ],
+        "by_band": {
+          "dense": {
+            "blocked": 339,
+            "blocked_share": 0.0627,
+            "max": 18.35,
+            "mean": 0.415,
+            "median": 0.25,
+            "n": 5410,
+            "p95": 1.15,
+            "passed": 5071,
+            "threshold": {
+              "max": 1.0,
+              "mean": 1.0,
+              "median": 1.0,
+              "n": 5410,
+              "p95": 1.0
+            },
+            "unverifiable": 0
+          },
+          "middle": {
+            "blocked": 139,
+            "blocked_share": 0.0494,
+            "max": 26.2,
+            "mean": 0.7212,
+            "median": 0.3,
+            "n": 2815,
+            "p95": 3.2,
+            "passed": 2676,
+            "threshold": {
+              "max": 12.7,
+              "mean": 2.4697,
+              "median": 2.1,
+              "n": 2815,
+              "p95": 4.5
+            },
+            "unverifiable": 0
+          },
+          "thin": {
+            "blocked": 0,
+            "blocked_share": 0.0,
+            "max": 11.0,
+            "mean": 2.2777,
+            "median": 2.0,
+            "n": 624,
+            "p95": 4.7,
+            "passed": 0,
+            "threshold": {
+              "max": null,
+              "mean": null,
+              "median": null,
+              "n": 0,
+              "p95": null
+            },
+            "unverifiable": 624
+          }
+        },
+        "by_pair": {
+          "AUDJPY": {
+            "BLOCKED": 73,
+            "PASS": 683,
+            "ROLL_EXEMPT": 252,
+            "UNVERIFIABLE": 0,
+            "max": 26.2,
+            "mean": 0.7708,
+            "median": 0.25,
+            "n": 756,
+            "p95": 3.85
+          },
+          "AUDUSD": {
+            "BLOCKED": 2,
+            "PASS": 538,
+            "ROLL_EXEMPT": 180,
+            "UNVERIFIABLE": 0,
+            "max": 3.65,
+            "mean": 0.299,
+            "median": 0.25,
+            "n": 540,
+            "p95": 0.6
+          },
+          "EURCHF": {
+            "BLOCKED": 68,
+            "PASS": 680,
+            "ROLL_EXEMPT": 251,
+            "UNVERIFIABLE": 8,
+            "max": 7.0,
+            "mean": 0.6712,
+            "median": 0.3,
+            "n": 756,
+            "p95": 2.9
+          },
+          "EURGBP": {
+            "BLOCKED": 19,
+            "PASS": 656,
+            "ROLL_EXEMPT": 249,
+            "UNVERIFIABLE": 81,
+            "max": 5.85,
+            "mean": 0.4616,
+            "median": 0.25,
+            "n": 756,
+            "p95": 1.7
+          },
+          "EURJPY": {
+            "BLOCKED": 47,
+            "PASS": 627,
+            "ROLL_EXEMPT": 251,
+            "UNVERIFIABLE": 80,
+            "max": 9.6,
+            "mean": 0.6759,
+            "median": 0.35,
+            "n": 754,
+            "p95": 2.35
+          },
+          "EURUSD": {
+            "BLOCKED": 88,
+            "PASS": 658,
+            "ROLL_EXEMPT": 251,
+            "UNVERIFIABLE": 7,
+            "max": 6.8,
+            "mean": 0.6539,
+            "median": 0.3,
+            "n": 753,
+            "p95": 2.5
+          },
+          "GBPJPY": {
+            "BLOCKED": 78,
+            "PASS": 624,
+            "ROLL_EXEMPT": 251,
+            "UNVERIFIABLE": 54,
+            "max": 18.35,
+            "mean": 0.9696,
+            "median": 0.4,
+            "n": 756,
+            "p95": 4.1
+          },
+          "GBPUSD": {
+            "BLOCKED": 33,
+            "PASS": 645,
+            "ROLL_EXEMPT": 252,
+            "UNVERIFIABLE": 78,
+            "max": 7.2,
+            "mean": 0.6565,
+            "median": 0.35,
+            "n": 756,
+            "p95": 2.7
+          },
+          "NZDUSD": {
+            "BLOCKED": 16,
+            "PASS": 677,
+            "ROLL_EXEMPT": 252,
+            "UNVERIFIABLE": 63,
+            "max": 8.8,
+            "mean": 0.7031,
+            "median": 0.3,
+            "n": 756,
+            "p95": 3.3
+          },
+          "USDCAD": {
+            "BLOCKED": 12,
+            "PASS": 651,
+            "ROLL_EXEMPT": 250,
+            "UNVERIFIABLE": 91,
+            "max": 7.9,
+            "mean": 0.6721,
+            "median": 0.35,
+            "n": 754,
+            "p95": 2.9
+          },
+          "USDCHF": {
+            "BLOCKED": 24,
+            "PASS": 651,
+            "ROLL_EXEMPT": 252,
+            "UNVERIFIABLE": 81,
+            "max": 11.15,
+            "mean": 0.6305,
+            "median": 0.35,
+            "n": 756,
+            "p95": 2.2
+          },
+          "USDJPY": {
+            "BLOCKED": 18,
+            "PASS": 657,
+            "ROLL_EXEMPT": 250,
+            "UNVERIFIABLE": 81,
+            "max": 4.5,
+            "mean": 0.4629,
+            "median": 0.25,
+            "n": 756,
+            "p95": 1.9
+          }
+        },
+        "by_pair_year": {
+          "AUDJPY": {
+            "2005": {
+              "BLOCKED": 17,
+              "PASS": 19,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2006": {
+              "BLOCKED": 16,
+              "PASS": 20,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2007": {
+              "BLOCKED": 9,
+              "PASS": 27,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2008": {
+              "BLOCKED": 17,
+              "PASS": 19,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 6,
+              "PASS": 30,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "AUDUSD": {
+            "2011": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "EURCHF": {
+            "2005": {
+              "BLOCKED": 18,
+              "PASS": 18,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2006": {
+              "BLOCKED": 9,
+              "PASS": 27,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2007": {
+              "BLOCKED": 6,
+              "PASS": 30,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2008": {
+              "BLOCKED": 12,
+              "PASS": 24,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 11,
+              "PASS": 23,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 2
+            },
+            "2010": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 3,
+              "PASS": 33,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 31,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 5
+            },
+            "2013": {
+              "BLOCKED": 3,
+              "PASS": 32,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "EURGBP": {
+            "2005": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2007": {
+              "BLOCKED": 0,
+              "PASS": 27,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 9
+            },
+            "2008": {
+              "BLOCKED": 6,
+              "PASS": 30,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 8,
+              "PASS": 28,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 10,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "EURJPY": {
+            "2005": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2007": {
+              "BLOCKED": 10,
+              "PASS": 18,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 8
+            },
+            "2008": {
+              "BLOCKED": 10,
+              "PASS": 26,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 9,
+              "PASS": 27,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 1,
+              "PASS": 33,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 5,
+              "PASS": 31,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "EURUSD": {
+            "2005": {
+              "BLOCKED": 19,
+              "PASS": 17,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2006": {
+              "BLOCKED": 11,
+              "PASS": 25,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2007": {
+              "BLOCKED": 14,
+              "PASS": 17,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 5
+            },
+            "2008": {
+              "BLOCKED": 20,
+              "PASS": 16,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 4,
+              "PASS": 30,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 2
+            },
+            "2010": {
+              "BLOCKED": 13,
+              "PASS": 23,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 4,
+              "PASS": 32,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 33,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "GBPJPY": {
+            "2005": {
+              "BLOCKED": 9,
+              "PASS": 16,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 11
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 1,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 35
+            },
+            "2007": {
+              "BLOCKED": 14,
+              "PASS": 14,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 8
+            },
+            "2008": {
+              "BLOCKED": 23,
+              "PASS": 13,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 13,
+              "PASS": 23,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 3,
+              "PASS": 33,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 4,
+              "PASS": 32,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 5,
+              "PASS": 31,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "GBPUSD": {
+            "2005": {
+              "BLOCKED": 2,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 34
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 1,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 35
+            },
+            "2007": {
+              "BLOCKED": 9,
+              "PASS": 18,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 9
+            },
+            "2008": {
+              "BLOCKED": 11,
+              "PASS": 25,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 7,
+              "PASS": 29,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "NZDUSD": {
+            "2005": {
+              "BLOCKED": 3,
+              "PASS": 12,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 21
+            },
+            "2006": {
+              "BLOCKED": 1,
+              "PASS": 5,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 30
+            },
+            "2007": {
+              "BLOCKED": 3,
+              "PASS": 24,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 9
+            },
+            "2008": {
+              "BLOCKED": 2,
+              "PASS": 33,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2009": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 1,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "USDCAD": {
+            "2005": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2007": {
+              "BLOCKED": 5,
+              "PASS": 21,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 10
+            },
+            "2008": {
+              "BLOCKED": 3,
+              "PASS": 26,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 7
+            },
+            "2009": {
+              "BLOCKED": 2,
+              "PASS": 30,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 2
+            },
+            "2010": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "USDCHF": {
+            "2005": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 1,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 35
+            },
+            "2007": {
+              "BLOCKED": 5,
+              "PASS": 22,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 9
+            },
+            "2008": {
+              "BLOCKED": 4,
+              "PASS": 31,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2009": {
+              "BLOCKED": 4,
+              "PASS": 32,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 4,
+              "PASS": 32,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          },
+          "USDJPY": {
+            "2005": {
+              "BLOCKED": 0,
+              "PASS": 0,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 36
+            },
+            "2006": {
+              "BLOCKED": 0,
+              "PASS": 1,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 35
+            },
+            "2007": {
+              "BLOCKED": 4,
+              "PASS": 23,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 9
+            },
+            "2008": {
+              "BLOCKED": 9,
+              "PASS": 27,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2009": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2010": {
+              "BLOCKED": 0,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 1
+            },
+            "2011": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2012": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2013": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2014": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 11,
+              "UNVERIFIABLE": 0
+            },
+            "2015": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2016": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2017": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2018": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2019": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2020": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2021": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2022": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2023": {
+              "BLOCKED": 0,
+              "PASS": 36,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2024": {
+              "BLOCKED": 1,
+              "PASS": 35,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            },
+            "2025": {
+              "BLOCKED": 2,
+              "PASS": 34,
+              "ROLL_EXEMPT": 12,
+              "UNVERIFIABLE": 0
+            }
+          }
+        },
+        "by_year": {
+          "2005": {
+            "BLOCKED": 68,
+            "PASS": 82,
+            "ROLL_EXEMPT": 132,
+            "UNVERIFIABLE": 246,
+            "agreement_rate": 0.5467,
+            "sampled": 528,
+            "unverifiable_share": 0.4659,
+            "verifiable": 150
+          },
+          "2006": {
+            "BLOCKED": 37,
+            "PASS": 81,
+            "ROLL_EXEMPT": 132,
+            "UNVERIFIABLE": 278,
+            "agreement_rate": 0.6864,
+            "sampled": 528,
+            "unverifiable_share": 0.5265,
+            "verifiable": 118
+          },
+          "2007": {
+            "BLOCKED": 79,
+            "PASS": 241,
+            "ROLL_EXEMPT": 132,
+            "UNVERIFIABLE": 76,
+            "agreement_rate": 0.7531,
+            "sampled": 528,
+            "unverifiable_share": 0.1439,
+            "verifiable": 320
+          },
+          "2008": {
+            "BLOCKED": 117,
+            "PASS": 270,
+            "ROLL_EXEMPT": 132,
+            "UNVERIFIABLE": 9,
+            "agreement_rate": 0.6977,
+            "sampled": 528,
+            "unverifiable_share": 0.017,
+            "verifiable": 387
+          },
+          "2009": {
+            "BLOCKED": 66,
+            "PASS": 322,
+            "ROLL_EXEMPT": 131,
+            "UNVERIFIABLE": 6,
+            "agreement_rate": 0.8299,
+            "sampled": 525,
+            "unverifiable_share": 0.0114,
+            "verifiable": 388
+          },
+          "2010": {
+            "BLOCKED": 25,
+            "PASS": 370,
+            "ROLL_EXEMPT": 132,
+            "UNVERIFIABLE": 1,
+            "agreement_rate": 0.9367,
+            "sampled": 528,
+            "unverifiable_share": 0.0019,
+            "verifiable": 395
+          },
+          "2011": {
+            "BLOCKED": 12,
+            "PASS": 420,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9722,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2012": {
+            "BLOCKED": 6,
+            "PASS": 421,
+            "ROLL_EXEMPT": 143,
+            "UNVERIFIABLE": 5,
+            "agreement_rate": 0.9859,
+            "sampled": 575,
+            "unverifiable_share": 0.0087,
+            "verifiable": 427
+          },
+          "2013": {
+            "BLOCKED": 6,
+            "PASS": 424,
+            "ROLL_EXEMPT": 140,
+            "UNVERIFIABLE": 2,
+            "agreement_rate": 0.986,
+            "sampled": 572,
+            "unverifiable_share": 0.0035,
+            "verifiable": 430
+          },
+          "2014": {
+            "BLOCKED": 3,
+            "PASS": 429,
+            "ROLL_EXEMPT": 142,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9931,
+            "sampled": 574,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2015": {
+            "BLOCKED": 12,
+            "PASS": 420,
+            "ROLL_EXEMPT": 142,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9722,
+            "sampled": 574,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2016": {
+            "BLOCKED": 8,
+            "PASS": 421,
+            "ROLL_EXEMPT": 143,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9814,
+            "sampled": 572,
+            "unverifiable_share": 0.0,
+            "verifiable": 429
+          },
+          "2017": {
+            "BLOCKED": 3,
+            "PASS": 429,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9931,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2018": {
+            "BLOCKED": 1,
+            "PASS": 430,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 1,
+            "agreement_rate": 0.9977,
+            "sampled": 576,
+            "unverifiable_share": 0.0017,
+            "verifiable": 431
+          },
+          "2019": {
+            "BLOCKED": 2,
+            "PASS": 430,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9954,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2020": {
+            "BLOCKED": 0,
+            "PASS": 432,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 1.0,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2021": {
+            "BLOCKED": 0,
+            "PASS": 432,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 1.0,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2022": {
+            "BLOCKED": 3,
+            "PASS": 427,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.993,
+            "sampled": 574,
+            "unverifiable_share": 0.0,
+            "verifiable": 430
+          },
+          "2023": {
+            "BLOCKED": 7,
+            "PASS": 425,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9838,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2024": {
+            "BLOCKED": 8,
+            "PASS": 424,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9815,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          },
+          "2025": {
+            "BLOCKED": 15,
+            "PASS": 417,
+            "ROLL_EXEMPT": 144,
+            "UNVERIFIABLE": 0,
+            "agreement_rate": 0.9653,
+            "sampled": 576,
+            "unverifiable_share": 0.0,
+            "verifiable": 432
+          }
+        },
+        "counts": {
+          "BLOCKED": 478,
+          "PASS": 7747,
+          "ROLL_EXEMPT": 2941,
+          "UNVERIFIABLE": 624
+        },
+        "hours_classified": 11790,
+        "hours_without_a_measured_spread": 0,
+        "median_spread_pips": {
+          "max": 24.3,
+          "mean": 1.7116,
+          "median": 1.3,
+          "n": 11790,
+          "p95": 4.0
+        },
+        "rules": {
+          "base_pips": 1.0,
+          "dense_ticks": 3000,
+          "unverifiable_ticks": 500
+        },
+        "spread_pass": {
+          "checkpoint": "spreads.jsonl",
+          "hours_measured": 11790
+        },
+        "unmeasured": [],
+        "verdict": "BLOCKED",
+        "verifiable_hours": 8225
+      },
       "roll_window_ny": [
         16,
         18
@@ -19063,6 +25830,16 @@
       "threshold_pips": 1.0,
       "verdict": "BLOCKED"
     },
+    "crosscheck_committed": {
+      "agrees": true,
+      "counts_agree": true,
+      "disagreements": [],
+      "hours_committed": 11790,
+      "hours_disagreeing": 0,
+      "path": "config/crosscheck.toml",
+      "present": true,
+      "rules_agree": true
+    },
     "loader": {
       "excluded_dates_withheld": 1772,
       "excluded_pairs": [
@@ -19071,7 +25848,7 @@
       "mode": "scoring",
       "sealed_dates_served": []
     },
-    "note": "Data quality for the whole store: a reconciliation of the manifests against the ingestion results and the files on disk, an offline re-validation of every stored hour, the holiday calendar derived from hour statuses, and a sampled cross-check against a second venue. No EDA, no strategy content; the experiment is not scorable.",
+    "note": "Data quality for the whole store: a reconciliation of the manifests against the ingestion results and the files on disk, an offline re-validation of every stored hour, the holiday calendar derived from hour statuses, and a sampled cross-check against a second venue -- re-issued under ruling R7 by T4's Step 0, which re-thresholds the same stored sample by density and commits the per-hour classification. No EDA, no strategy content; the experiment is not scorable.",
     "reconciliation": {
       "against_experiments": [
         {
@@ -19354,6 +26131,20 @@
         "enforced_by": "research.ingest_report.check_note",
         "statement": "no hand-written numbers in reports; every figure is derived at render time"
       },
+      "R7": {
+        "amends": "pre-registered decision #7",
+        "bands": {
+          "dense_ticks": 3000,
+          "unverifiable_ticks": 500
+        },
+        "enforced_by": "research.crosscheck_class, tagged through research.loader.crosscheck_class",
+        "statement": "the cross-check threshold is density-aware: 1.0 pip at >= 3,000 ticks, 1.0 pip + the hour's own median spread at 500-2,999, UNVERIFIABLE below 500; the roll window stays exempt and a failing hour stays BLOCKED"
+      },
+      "R8": {
+        "enforced_by": "a backtester rule, to be implemented before T7",
+        "statement": "the static major-holiday list marks hours ineligible for execution in every backtest, in every year, regardless of whether the feed served data; the empties-derived calendar component is informational",
+        "status": "stated, not yet implemented"
+      },
       "seal": {
         "canary_detail": "HOLDOUT_SEALED: 2025-03-01 is on or after the sealed cutoff 2025-03-01 (load_ticks(EURUSD))",
         "canary_refused": true,
@@ -19438,7 +26229,7 @@
     }
   },
   "rerun_class": "full",
-  "result_hash": "b33e6949a9ed844a1c10a331de841e23551ae87564909d68963d6007dde22449",
+  "result_hash": "4d019b876f50f6555139b1bf043c978a86ce3837f7a3cd22bfd3679285a8ae1d",
   "scope": {
     "dates": [
       "2005-01-03",

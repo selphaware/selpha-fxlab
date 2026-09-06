@@ -72,6 +72,7 @@ def render(document: dict[str, Any], trials: int, gate_status: str,
     lines += _bars(payload)
     lines += _calendar(payload)
     lines += _crosscheck(payload)
+    lines += _reissue(payload)
     lines += _exclusion(payload)
     lines += _provenance(document, gate_status, home)
     return "\n".join(lines) + "\n"
@@ -112,7 +113,7 @@ def _rulings(payload: dict[str, Any]) -> list[str]:
     """R1-R6, and evidence for the two that are code rather than policy."""
     rulings = payload["rulings"]
     rows = []
-    for key in ("R1", "R2", "R3", "R4", "R5", "R6"):
+    for key in sorted(k for k in rulings if k.startswith("R")):
         entry = rulings[key]
         rows.append([f"**{key}**", entry["statement"],
                      f"`{entry['enforced_by']}`"])
@@ -122,8 +123,11 @@ def _rulings(payload: dict[str, Any]) -> list[str]:
         "## The rulings in force",
         "",
         "R1-R6 were fixed at the M2 checkpoint before any T3 result existed "
-        "and are recorded in `SPEC2.md`. They are restated here because a "
-        "report that a ruling shapes should say which ruling shaped it.",
+        "and are recorded in `SPEC2.md`. R7 and R8 were fixed at the M3 "
+        "checkpoint that closed this card and opened T4; R7 amends "
+        "pre-registered decision #7 and the re-issued verdict it produces is "
+        "the last section below. They are restated here because a report that "
+        "a ruling shapes should say which ruling shaped it.",
         "",
         *_table(["ruling", "statement", "enforced by"], rows),
         "Three of those constrain how a report may *speak* and have nothing to "
@@ -719,6 +723,194 @@ def _by_year(cross: dict[str, Any]) -> list[str]:
     ]
 
 
+def _reissue(payload: dict[str, Any]) -> list[str]:
+    """Step 0 of the T4 card: the same sample, re-judged under ruling R7."""
+    cross = payload["crosscheck"]
+    r7 = cross.get("r7")
+    if not r7:
+        return []
+    counts = r7["counts"]
+    against = r7["against_pinned"]
+    rules = r7["rules"]
+    committed = payload.get("crosscheck_committed") or {}
+
+    band_rows = []
+    for name in ("dense", "middle", "thin"):
+        band = (r7.get("by_band") or {}).get(name)
+        if not band:
+            continue
+        threshold = band.get("threshold") or {}
+        band_rows.append([
+            f"`{name}`",
+            {"dense": f"≥ {_n(rules['dense_ticks'])}",
+             "middle": f"{_n(rules['unverifiable_ticks'])}–"
+                       f"{_n(rules['dense_ticks'] - 1)}",
+             "thin": f"< {_n(rules['unverifiable_ticks'])}"}[name],
+            _n(band["n"]),
+            (f"{_f(rules['base_pips'], 1)}" if name == "dense"
+             else (f"{_f(threshold.get('median'))} (median)" if name == "middle"
+                   else "— none")),
+            _f(band["median"]), _f(band["p95"]), _f(band["max"]),
+            _n(band["blocked"]),
+            f"{100.0 * float(band['blocked_share']):.1f}%",
+        ])
+
+    year_rows = [[year, _n(b["sampled"]), _n(b["PASS"]), _n(b["BLOCKED"]),
+                  _n(b["UNVERIFIABLE"]), _n(b["ROLL_EXEMPT"]),
+                  (f"{100.0 * float(b['agreement_rate']):.1f}%"
+                   if b["agreement_rate"] is not None else "—"),
+                  (f"{100.0 * float(b['unverifiable_share']):.1f}%"
+                   if b["unverifiable_share"] is not None else "—")]
+                 for year, b in (r7.get("by_year") or {}).items()]
+
+    pair_rows = [[f"`{pair}`", _n(b["PASS"]), _n(b["BLOCKED"]),
+                  _n(b["UNVERIFIABLE"]), _n(b["ROLL_EXEMPT"]),
+                  _f(b["median"]), _f(b["p95"]), _f(b["max"])]
+                 for pair, b in (r7.get("by_pair") or {}).items()]
+
+    blocked_rows = [[f"`{b['pair']}`", b["date"], f"{int(b['hour']):02d}:00Z",
+                     _n(b["ticks"]), f"`{b['band']}`",
+                     _f(b["threshold_pips"]), _f(b["abs_worst_pips"])]
+                    for b in (r7.get("blocked") or [])[:MAX_FLAGGED_ROWS]]
+
+    rollup_rows = [[f"`{b['pair']}`", b["year"], _n(b["hours"])]
+                   for b in sorted(r7.get("blocked_by_pair_year") or [],
+                                   key=lambda b: (-int(b["hours"]), b["pair"],
+                                                  b["year"]))[:MAX_FLAGGED_ROWS]]
+
+    spread = r7.get("median_spread_pips") or {}
+    return [
+        "## Step 0 of T4 — the verdict re-issued under ruling R7",
+        "",
+        "Ruling R7 (M3 checkpoint, 2026-09-06) amends pre-registered decision "
+        "#7. It is the first amendment any pre-registration here has taken, "
+        "and it changes the instrument rather than the consequence: an hour "
+        "beyond the threshold that applies to it is still `BLOCKED`, and "
+        "`BLOCKED` still means out of research use until a checkpoint says "
+        "otherwise.",
+        "",
+        "What changed is which threshold applies. The section above measured "
+        "the flat 1.0 pip threshold rejecting most of what it rejected for "
+        "being thin rather than for being wrong, so R7 thresholds by the "
+        "density of the hour being read:",
+        "",
+        *_table(["ticks in the hour", "threshold", "class when it fails"], [
+            [f"≥ {_n(rules['dense_ticks'])}",
+             f"{_f(rules['base_pips'], 1)} pip, exactly as pinned", "`BLOCKED`"],
+            [f"{_n(rules['unverifiable_ticks'])}–{_n(rules['dense_ticks'] - 1)}",
+             f"{_f(rules['base_pips'], 1)} pip + that hour's own median spread",
+             "`BLOCKED`"],
+            [f"< {_n(rules['unverifiable_ticks'])}",
+             "none — the check cannot see the hour", "`UNVERIFIABLE`"],
+            ["any, inside the roll window",
+             "none — exempt by pre-reg #4 and #7", "`ROLL_EXEMPT`"],
+        ]),
+        "**The sample is not re-drawn.** R7 changed the threshold, not the "
+        "measurement, and re-sampling would produce a different answer that no "
+        "reader could tell apart from the amendment's effect. These are the "
+        "same hours the section above judged, re-judged. Each middle-band "
+        "hour's own median spread comes from re-reading its stored ticks "
+        f"(`{r7['spread_pass']['checkpoint']}`, "
+        f"{_n(r7['spread_pass']['hours_measured'])} hours measured, "
+        f"{_n(r7['hours_without_a_measured_spread'])} unmeasured) — the bar "
+        "tables carry a mean spread, and in a distribution this skewed a mean "
+        "is not a median.",
+        "",
+        "### What the amendment did",
+        "",
+        *_table(["measure", "value"], [
+            ["hours classified", _n(r7["hours_classified"])],
+            ["**`PASS`**", f"**{_n(counts['PASS'])}**"],
+            ["**`BLOCKED`**", f"**{_n(counts['BLOCKED'])}**"],
+            ["**`UNVERIFIABLE`**", f"**{_n(counts['UNVERIFIABLE'])}**"],
+            ["`ROLL_EXEMPT`", _n(counts["ROLL_EXEMPT"])],
+            ["verifiable hours (`PASS` + `BLOCKED`)",
+             _n(r7["verifiable_hours"])],
+            ["**agreement rate among verifiable hours**",
+             (f"**{100.0 * float(r7['agreement_rate']):.1f}%**"
+              if r7["agreement_rate"] is not None else "—")],
+            ["**verdict**", f"**{r7['verdict']}**"],
+            ["blocked under the pinned flat threshold",
+             _n(against["pinned_beyond_threshold"])],
+            ["of those, now `PASS`", _n(against["unblocked_to_pass"])],
+            ["of those, now `UNVERIFIABLE`",
+             _n(against["unblocked_to_unverifiable"])],
+            ["blocked by R7 that the flat threshold passed",
+             _n(against["newly_blocked"])],
+            ["median spread of a sampled hour (pips)",
+             f"{_f(spread.get('median'))} (p95 {_f(spread.get('p95'))}, "
+             f"max {_f(spread.get('max'))})"],
+        ]),
+        "The agreement rate is taken over `PASS + BLOCKED` and not over every "
+        "sampled hour, and the distinction is the point of the ruling: an "
+        "`UNVERIFIABLE` hour is not a disagreement, it is an hour the check "
+        "could not see. Dividing by the whole sample would make the early "
+        "years look corroborated in proportion to how blind the check was "
+        "there.",
+        "",
+        "### By density band",
+        "",
+        "The same stratification the section above used to diagnose the "
+        "problem, now showing what the amended threshold does to each band:",
+        "",
+        *_table(["band", "ticks", "hours", "threshold (pips)",
+                 "median abs Δ", "p95", "max", "blocked", "share"], band_rows),
+        "### By year — the agreement table",
+        "",
+        "The table T4's appendix era-tags the full history against. Read the "
+        "last two columns together: the agreement rate says how often the two "
+        "venues agreed where the check could see, and the unverifiable share "
+        "says how often it could not.",
+        "",
+        *_table(["year", "sampled", "`PASS`", "`BLOCKED`", "`UNVERIFIABLE`",
+                 "`ROLL_EXEMPT`", "agreement", "unverifiable"], year_rows),
+        "### By pair",
+        "",
+        *_table(["pair", "`PASS`", "`BLOCKED`", "`UNVERIFIABLE`",
+                 "`ROLL_EXEMPT`", "median abs Δ", "p95", "max"], pair_rows),
+        "### The blocked-hour list",
+        "",
+        "The final blocked set under R7, per hour. Pre-reg #7's blocking "
+        "clause is unchanged: these hours are out of research use until a "
+        "checkpoint says otherwise.",
+        "",
+        *_table(["pair", "year", "hours blocked"], rollup_rows),
+        "The widest of them, worst first — each against the threshold that "
+        "actually applied to it:",
+        "",
+        *_table(["pair", "date", "hour", "ticks", "band", "threshold (pips)",
+                 "worst abs Δ (pips)"], blocked_rows),
+        "### The classification is committed and re-derived",
+        "",
+        f"`{committed.get('path', 'config/crosscheck.toml')}` carries the class "
+        "of every sampled hour, so a later scoring experiment can ask rather "
+        "than re-derive. It is held to the same discipline as "
+        "`config/calendar.toml`: derived, tracked, and re-derived and compared "
+        "on every run of this experiment, because a tracked file anybody can "
+        "open is a file that will eventually be edited.",
+        "",
+        *_table(["check", "result"], [
+            ["the file exists", _tick(committed.get("present"))],
+            ["its bands and base threshold match R7",
+             _tick(committed.get("rules_agree"))],
+            ["its counts match the re-derivation",
+             _tick(committed.get("counts_agree"))],
+            ["every hour's class matches the re-derivation",
+             _tick(committed.get("agrees"))],
+            ["hours disagreeing", _n(committed.get("hours_disagreeing", 0))],
+            ["hours committed", _n(committed.get("hours_committed", 0))],
+        ]),
+        "`research.loader.ResearchLoader.crosscheck_class` is how it is read. "
+        "It tags and never filters: an experiment decides what a `BLOCKED` "
+        "hour means for its own question and says so, rather than inheriting a "
+        "decision the loader made silently. An hour the sample never drew "
+        "returns `UNSAMPLED`, which is a different fact from `PASS` — the "
+        f"check covers {_n(r7['hours_classified'])} hours, not the "
+        f"{_n(payload['reconciliation']['totals']['ok'])} the store holds.",
+        "",
+    ]
+
+
 def _exclusion(payload: dict[str, Any]) -> list[str]:
     """R1, stated wherever AUDUSD appears — which is everywhere here."""
     rulings = payload["rulings"]["R1"]
@@ -768,9 +960,15 @@ def _provenance(document: dict[str, Any], gate_status: str,
         "oanda_availability.jsonl`, written by "
         "`python -m research.crosscheck_oanda` against the OANDA practice "
         "host. The token comes from `OANDA_API_TOKEN` and is never logged.",
+        f"* Median spreads for ruling R7: `{home}/spreads.jsonl`, one record "
+        "per pair-date, written by `python -m research.crosscheck_spreads` "
+        "from the stored ticks through the research loader.",
         "* Calendar: `config/calendar.toml`, written by "
         "`python -m research.calendar_build` and re-derived and compared on "
         "every run of this experiment.",
+        "* Cross-check classification: `config/crosscheck.toml`, written by "
+        "`python -m research.crosscheck_class` and re-derived and compared the "
+        "same way.",
         f"* Result: `{home}/result.json`, hash `{document['result_hash']}`",
         f"* Loader mode `{document['mode']}`, scored `{document['scored']}`, "
         f"re-run class `{document['rerun_class']}`. It served "

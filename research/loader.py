@@ -20,6 +20,12 @@ reasons:
 4. **Data-quality exclusions.** Ruling R1 excludes AUDUSD before 2011-01-01
    (:mod:`research.exclusions`). The same chokepoint that polices the seal
    polices those windows, with the named reason ``PAIR_EXCLUDED_WINDOW``.
+5. **The cross-check tag.** Ruling R7 classifies every sampled hour as
+   ``PASS``, ``BLOCKED``, ``UNVERIFIABLE`` or ``ROLL_EXEMPT``, and everything
+   else as ``UNSAMPLED``. :meth:`ResearchLoader.crosscheck_class` is where a
+   later scoring experiment asks. It tags and never filters -- an experiment
+   decides what a ``BLOCKED`` hour means for its own question and states the
+   decision, rather than inheriting one the loader made silently.
 
 The seal and the exclusions are enforced at one place -- :meth:`check_date` --
 and neither is enforced by trimming. A request that reaches for a forbidden
@@ -150,6 +156,7 @@ class ResearchLoader:
         self.root = self._resolve_root(mode, root)
         self.access = AccessRecord(mode=mode, root=self.root.as_posix(),
                                    scorable=(mode == MODE_SCORING))
+        self._crosscheck: Any = None
 
     # -- construction -----------------------------------------------------
 
@@ -249,6 +256,72 @@ class ResearchLoader:
         _LOG.debug("loaded %d ticks for %s over %d date(s) in %s mode",
                    len(frame), pair, len(checked), self.mode)
         return frame
+
+    def load_tick_hour(self, pair: str, date: Any, hour: int,
+                       columns: Sequence[str] | None = None) -> Any:
+        """Read one stored hour of ticks, or ``None`` if the file is absent.
+
+        The tick store is one Parquet per hour, and several passes want exactly
+        one of them rather than a whole day: the cross-check compares an hour's
+        boundary quotes, and ruling R7 needs an hour's own median spread. Those
+        passes used to open the file themselves, which put a read outside the
+        chokepoint that polices the seal and the exclusion windows. This is the
+        same read, inside it.
+
+        Args:
+            pair: Pair name.
+            date: Anything :func:`research.seal.as_date` accepts.
+            hour: UTC hour, 0-23.
+            columns: Columns to read; ``None`` reads all of them.
+
+        Returns:
+            A :class:`pyarrow.Table`, or ``None`` when the hour is not stored.
+            ``None`` rather than an empty table, because "the feed served
+            nothing" and "this hour is not in the store" are different facts
+            and a zero-row table says the first when it means the second.
+        """
+        self.access.pairs.add(pair)
+        checked = self.check_date(date, f"load_tick_hour({pair})", pair=pair)
+        path = (self.root / "ticks" / f"pair={pair}" / f"date={checked}"
+                / f"{pair}_{checked}_{int(hour):02d}h.parquet")
+        if not path.is_file():
+            return None
+        self.access.files.append(self._rel(path))
+        return pq.read_table(path, columns=list(columns) if columns else None)
+
+    def crosscheck_class(self, pair: str, date: Any, hour: int) -> str:
+        """The cross-check class of one stored hour under ruling R7.
+
+        One of ``PASS``, ``BLOCKED``, ``UNVERIFIABLE``, ``ROLL_EXEMPT`` or
+        ``UNSAMPLED`` (see :mod:`research.crosscheck_class`). The T4 card asks
+        the loader to carry this tag "where a scoring experiment could later
+        need it", and the loader is where it belongs for the same reason the
+        seal is: it is the one place every research read already passes
+        through.
+
+        This tags. It does not filter. A caller decides what a ``BLOCKED`` hour
+        means for its own question and says so in its report; a loader that
+        silently dropped them would make every downstream number depend on a
+        decision nobody wrote down.
+        """
+        return self._classes().classify(pair, date, hour)
+
+    def crosscheck_classes(self, pair: str, stamps: Any) -> list[str]:
+        """Classify a sequence of bar timestamps for one pair.
+
+        Bar timestamps are bar **open** times, so a bar is classified by the
+        UTC hour it opens in -- which is the only granularity the cross-check
+        ever had, the sample being hourly.
+        """
+        return self._classes().classify_many(pair, stamps)
+
+    def _classes(self) -> Any:
+        """The committed cross-check classification, read once and cached."""
+        from research.crosscheck_class import CLASSES_RELPATH, load_classes
+
+        if self._crosscheck is None:
+            self._crosscheck = load_classes(self._base / CLASSES_RELPATH)
+        return self._crosscheck
 
     def load_bars(self, pair: str, timeframe: str, *,
                   start: Any = None, end: Any = None) -> Any:

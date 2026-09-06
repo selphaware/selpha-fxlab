@@ -42,7 +42,9 @@ from fxlab.ingestion.manifest import (MANIFEST_NAME, STATUS_CLOSED,
                                       STATUS_EMPTY, STATUS_GAP, STATUS_OK)
 from fxlab.ingestion.sessions import is_market_open
 from research import calendar_build
+from research import crosscheck_class
 from research import crosscheck_oanda as crosscheck
+from research import crosscheck_spreads
 from research import validate_store
 from research.bulk_ingest import MANIFEST_DIRNAME
 from research.exclusions import (EXCLUSIONS, clamp_window, is_excluded,
@@ -88,6 +90,15 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         validate_store.read_checkpoint(
             experiment_dir / validate_store.VALIDATION_NAME).values())
     cross = read_crosscheck(experiment_dir, params)
+    classes = compare_committed_classes(
+        base, params, cross["r7"], (start.isoformat(), end.isoformat()))
+    # The classified rows are the input to both the summary and the committed
+    # file, and there are 11,790 of them. They stay out of the payload: the
+    # committed classification is where a consumer reads them, and duplicating
+    # them here would multiply the result document by seven to say the same
+    # thing twice.
+    cross["r7"].pop("_classified", None)
+    classes.pop("derived", None)
     bars = check_bars(loader, walk, pairs, start, end)
 
     return {
@@ -95,8 +106,11 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
                  "manifests against the ingestion results and the files on "
                  "disk, an offline re-validation of every stored hour, the "
                  "holiday calendar derived from hour statuses, and a sampled "
-                 "cross-check against a second venue. No EDA, no strategy "
-                 "content; the experiment is not scorable."),
+                 "cross-check against a second venue -- re-issued under "
+                 "ruling R7 by T4's Step 0, which re-thresholds the same "
+                 "stored sample by density and commits the per-hour "
+                 "classification. No EDA, no strategy content; the experiment "
+                 "is not scorable."),
         "window": {"start": start.isoformat(), "end": end.isoformat(),
                    "pairs": len(pairs)},
         "reconciliation": reconciliation,
@@ -104,6 +118,7 @@ def run(*, params: dict[str, Any], seed: int, loader: Any) -> dict[str, Any]:
         "calendar": calendar,
         "calendar_committed": committed,
         "crosscheck": cross,
+        "crosscheck_committed": classes,
         "bars": bars,
         "rulings": rulings(pairs),
         "loader": {"mode": loader.mode,
@@ -408,11 +423,19 @@ def compare_committed(base: pathlib.Path, params: dict[str, Any],
 
 def read_crosscheck(experiment_dir: pathlib.Path,
                     params: dict[str, Any]) -> dict[str, Any]:
-    """Fold the checkpointed OANDA sample into a distribution."""
+    """Fold the checkpointed OANDA sample into a distribution.
+
+    Two verdicts come out of one sample. The **pinned** one is pre-reg #7 as it
+    was written and as T3 first applied it: a flat 1.0 pip on every hour. The
+    **re-issued** one is ruling R7, which thresholds by density. Both are
+    carried, because an amendment that erases what it amended leaves nobody
+    able to see what changed -- and what changed here is most of the answer.
+    """
     threshold = float(params["crosscheck_threshold_pips"])
     rows = crosscheck.read_checkpoint(
         experiment_dir / crosscheck.CROSSCHECK_NAME)
     summary = crosscheck.summarise(rows.values(), threshold)
+    summary["r7"] = reissue_under_r7(experiment_dir, rows, params, threshold)
     summary["pair_dates_sampled"] = len(rows)
     summary["hours_sampled_per_date"] = len(params["crosscheck_hours"])
     summary["sample_hours_utc"] = [int(h) for h in params["crosscheck_hours"]]
@@ -454,6 +477,99 @@ def read_crosscheck(experiment_dir: pathlib.Path,
     summary["verdict"] = ("BLOCKED" if flagged else "CLEAR")
     summary["flagged"] = flagged[:MAX_MISMATCH_ROWS]
     return summary
+
+
+def reissue_under_r7(experiment_dir: pathlib.Path,
+                     rows: dict[tuple[str, str], dict[str, Any]],
+                     params: dict[str, Any],
+                     threshold: float) -> dict[str, Any]:
+    """Re-classify the stored cross-check sample under ruling R7.
+
+    The T4 card's Step 0. The sample is the one on disk -- re-drawing it would
+    be re-running the experiment rather than re-reading it, and a reader could
+    not tell which they were looking at. Each hour's own median spread comes
+    from the checkpointed :mod:`research.crosscheck_spreads` pass; a middle-band
+    hour without one is a hard failure rather than a default, because
+    defaulting it either way silently re-applies the flat threshold R7 exists
+    to replace.
+    """
+    spreads = crosscheck_spreads.spread_index(
+        crosscheck_spreads.read_spreads(
+            experiment_dir / crosscheck_spreads.SPREADS_NAME).values())
+    classified: list[dict[str, Any]] = []
+    unmeasured: list[str] = []
+    for (pair, date), record in sorted(rows.items()):
+        for hour in record.get("hours") or []:
+            spread = spreads.get((pair, date, int(hour["hour"])))
+            try:
+                classified.append(
+                    crosscheck_class.classify(hour, threshold, spread))
+            except crosscheck_class.SpreadNotMeasured:
+                unmeasured.append(f"{pair} {date} {int(hour['hour']):02d}")
+    summary = crosscheck_class.summarise(classified, threshold)
+    summary["hours_without_a_measured_spread"] = len(unmeasured)
+    summary["unmeasured"] = sorted(unmeasured)[:MAX_MISMATCH_ROWS]
+    summary["spread_pass"] = {
+        "checkpoint": crosscheck_spreads.SPREADS_NAME,
+        "hours_measured": len(spreads),
+    }
+    summary["_classified"] = classified
+    return summary
+
+
+def compare_committed_classes(base: pathlib.Path, params: dict[str, Any],
+                              reissue: dict[str, Any],
+                              window: tuple[str, str]) -> dict[str, Any]:
+    """The committed ``config/crosscheck.toml`` against the re-derivation.
+
+    Held to exactly the discipline ``config/calendar.toml`` is held to, and for
+    the same reason: it is a tracked file anybody can open, every card
+    downstream will trust what it says about which hours were corroborated, and
+    a hand-edited line in it would propagate silently. Re-deriving and
+    comparing on every gate run makes that edit fail loudly instead.
+    """
+    path = base / str(params.get("crosscheck_classes_path",
+                                 crosscheck_class.CLASSES_RELPATH))
+    roll = (int(params["crosscheck_roll_start_hour_ny"]),
+            int(params["crosscheck_roll_end_hour_ny"]))
+    derived = crosscheck_class.derive(
+        reissue["_classified"], base_pips=float(params["crosscheck_threshold_pips"]),
+        window=window, roll=roll)
+    if not path.is_file():
+        return {"present": False, "agrees": False,
+                "detail": f"{path.name} has not been built",
+                "derived": derived}
+    committed = crosscheck_class.load_classes(path)
+    mismatched: list[str] = []
+    derived_hours = derived["hours"]
+    for pair in sorted(set(derived_hours) | set(committed.sampled_pairs())):
+        entries = derived_hours.get(pair, {})
+        for key, code in sorted(entries.items()):
+            date, _, hour = key.partition(" ")
+            if committed.classify(pair, date, int(hour)) != \
+                    crosscheck_class.BY_CODE[code]:
+                mismatched.append(f"{pair} {key}")
+    return {
+        "present": True,
+        "path": str(params.get("crosscheck_classes_path",
+                               crosscheck_class.CLASSES_RELPATH)),
+        "rules_agree": (committed.rules["dense_ticks"]
+                        == crosscheck_class.DENSE_TICKS
+                        and committed.rules["unverifiable_ticks"]
+                        == crosscheck_class.UNVERIFIABLE_TICKS
+                        and abs(committed.rules["base_pips"]
+                                - float(params["crosscheck_threshold_pips"]))
+                        < 1e-12),
+        "counts_agree": (committed.counts["classified"]
+                         == derived["counts"]["classified"]
+                         and committed.counts[crosscheck_class.CLASS_BLOCKED]
+                         == derived["counts"][crosscheck_class.CLASS_BLOCKED]),
+        "hours_disagreeing": len(mismatched),
+        "disagreements": sorted(mismatched)[:MAX_MISMATCH_ROWS],
+        "agrees": not mismatched,
+        "hours_committed": committed.counts["classified"],
+        "derived": derived,
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -566,6 +682,28 @@ def rulings(pairs: Sequence[str]) -> dict[str, Any]:
             "statement": ("no hand-written numbers in reports; every figure "
                           "is derived at render time"),
             "enforced_by": "research.ingest_report.check_note",
+        },
+        "R7": {
+            "statement": ("the cross-check threshold is density-aware: 1.0 "
+                          "pip at >= 3,000 ticks, 1.0 pip + the hour's own "
+                          "median spread at 500-2,999, UNVERIFIABLE below "
+                          "500; the roll window stays exempt and a failing "
+                          "hour stays BLOCKED"),
+            "enforced_by": ("research.crosscheck_class, tagged through "
+                            "research.loader.crosscheck_class"),
+            "amends": "pre-registered decision #7",
+            "bands": {"dense_ticks": crosscheck_class.DENSE_TICKS,
+                      "unverifiable_ticks":
+                          crosscheck_class.UNVERIFIABLE_TICKS},
+        },
+        "R8": {
+            "statement": ("the static major-holiday list marks hours "
+                          "ineligible for execution in every backtest, in "
+                          "every year, regardless of whether the feed served "
+                          "data; the empties-derived calendar component is "
+                          "informational"),
+            "enforced_by": "a backtester rule, to be implemented before T7",
+            "status": "stated, not yet implemented",
         },
         "seal": {
             "cutoff": HOLDOUT_CUTOFF.isoformat(),

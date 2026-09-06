@@ -1,8 +1,8 @@
 # T3 — Data quality, holiday calendar and cross-venue check
 
-**Window:** 2005-01-03 → 2025-02-28, 12 pairs · **Task card:** `taskcards/T3.md` · **Experiment:** `T3-quality` · **Seed:** 20260905 · **Result hash:** `b33e6949a9ed844a`
+**Window:** 2005-01-03 → 2025-02-28, 12 pairs · **Task card:** `taskcards/T3.md` · **Experiment:** `T3-quality` · **Seed:** 20260905 · **Result hash:** `4d019b876f50f655`
 
-**Trials ledgered under T3:** 2 (SPEC2 pre-reg #10).
+**Trials ledgered under T3:** 3 (SPEC2 pre-reg #10).
 
 This card asks four questions about the store the two ingestion cards built, and answers them from four different directions: does the bookkeeping agree with the files, is every stored hour still valid, which quiet days were holidays, and does a second venue quote the same market. It produces no strategy content and is not scorable.
 
@@ -10,7 +10,7 @@ This card asks four questions about the store the two ingestion cards built, and
 
 ## The rulings in force
 
-R1-R6 were fixed at the M2 checkpoint before any T3 result existed and are recorded in `SPEC2.md`. They are restated here because a report that a ruling shapes should say which ruling shaped it.
+R1-R6 were fixed at the M2 checkpoint before any T3 result existed and are recorded in `SPEC2.md`. R7 and R8 were fixed at the M3 checkpoint that closed this card and opened T4; R7 amends pre-registered decision #7 and the re-issued verdict it produces is the last section below. They are restated here because a report that a ruling shapes should say which ruling shaped it.
 
 | ruling | statement | enforced by |
 | --- | --- | --- |
@@ -20,6 +20,8 @@ R1-R6 were fixed at the M2 checkpoint before any T3 result existed and are recor
 | **R4** | tick counts are not a volume or activity proxy until a T4 card has characterised the density series | `report framing` |
 | **R5** | the holiday calendar derives from manifest status == empty, never from the EMPTY_TRADING_HOUR warning list | `research.calendar_build.scan` |
 | **R6** | no hand-written numbers in reports; every figure is derived at render time | `research.ingest_report.check_note` |
+| **R7** | the cross-check threshold is density-aware: 1.0 pip at >= 3,000 ticks, 1.0 pip + the hour's own median spread at 500-2,999, UNVERIFIABLE below 500; the roll window stays exempt and a failing hour stays BLOCKED | `research.crosscheck_class, tagged through research.loader.crosscheck_class` |
+| **R8** | the static major-holiday list marks hours ineligible for execution in every backtest, in every year, regardless of whether the feed served data; the empties-derived calendar component is informational | `a backtester rule, to be implemented before T7` |
 
 Three of those constrain how a report may *speak* and have nothing to exercise. Two are code, and code that is never exercised is code nobody knows is still wired up — so both refusals were run while this result was produced:
 
@@ -498,6 +500,203 @@ The widest disagreements, worst first:
 
 **What this does and does not mean.** It does not mean the stored data is wrong: there is no consolidated tape to be wrong against, and the density table shows the disagreement tracking quote sparsity rather than anything about either feed's accuracy. It does mean these specific hours are not corroborated by a second venue, and pre-reg #7 says an uncorroborated hour is out of research use until a checkpoint says otherwise. Both halves of that are the pre-registration working as intended, and neither is this card's to reinterpret.
 
+## Step 0 of T4 — the verdict re-issued under ruling R7
+
+Ruling R7 (M3 checkpoint, 2026-09-06) amends pre-registered decision #7. It is the first amendment any pre-registration here has taken, and it changes the instrument rather than the consequence: an hour beyond the threshold that applies to it is still `BLOCKED`, and `BLOCKED` still means out of research use until a checkpoint says otherwise.
+
+What changed is which threshold applies. The section above measured the flat 1.0 pip threshold rejecting most of what it rejected for being thin rather than for being wrong, so R7 thresholds by the density of the hour being read:
+
+| ticks in the hour | threshold | class when it fails |
+| --- | --- | --- |
+| ≥ 3,000 | 1.0 pip, exactly as pinned | `BLOCKED` |
+| 500–2,999 | 1.0 pip + that hour's own median spread | `BLOCKED` |
+| < 500 | none — the check cannot see the hour | `UNVERIFIABLE` |
+| any, inside the roll window | none — exempt by pre-reg #4 and #7 | `ROLL_EXEMPT` |
+
+**The sample is not re-drawn.** R7 changed the threshold, not the measurement, and re-sampling would produce a different answer that no reader could tell apart from the amendment's effect. These are the same hours the section above judged, re-judged. Each middle-band hour's own median spread comes from re-reading its stored ticks (`spreads.jsonl`, 11,790 hours measured, 0 unmeasured) — the bar tables carry a mean spread, and in a distribution this skewed a mean is not a median.
+
+### What the amendment did
+
+| measure | value |
+| --- | --- |
+| hours classified | 11,790 |
+| **`PASS`** | **7,747** |
+| **`BLOCKED`** | **478** |
+| **`UNVERIFIABLE`** | **624** |
+| `ROLL_EXEMPT` | 2,941 |
+| verifiable hours (`PASS` + `BLOCKED`) | 8,225 |
+| **agreement rate among verifiable hours** | **94.2%** |
+| **verdict** | **BLOCKED** |
+| blocked under the pinned flat threshold | 1,327 |
+| of those, now `PASS` | 344 |
+| of those, now `UNVERIFIABLE` | 505 |
+| blocked by R7 that the flat threshold passed | 0 |
+| median spread of a sampled hour (pips) | 1.300 (p95 4.000, max 24.300) |
+
+The agreement rate is taken over `PASS + BLOCKED` and not over every sampled hour, and the distinction is the point of the ruling: an `UNVERIFIABLE` hour is not a disagreement, it is an hour the check could not see. Dividing by the whole sample would make the early years look corroborated in proportion to how blind the check was there.
+
+### By density band
+
+The same stratification the section above used to diagnose the problem, now showing what the amended threshold does to each band:
+
+| band | ticks | hours | threshold (pips) | median abs Δ | p95 | max | blocked | share |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `dense` | ≥ 3,000 | 5,410 | 1.0 | 0.250 | 1.150 | 18.350 | 339 | 6.3% |
+| `middle` | 500–2,999 | 2,815 | 2.100 (median) | 0.300 | 3.200 | 26.200 | 139 | 4.9% |
+| `thin` | < 500 | 624 | — none | 2.000 | 4.700 | 11.000 | 0 | 0.0% |
+
+### By year — the agreement table
+
+The table T4's appendix era-tags the full history against. Read the last two columns together: the agreement rate says how often the two venues agreed where the check could see, and the unverifiable share says how often it could not.
+
+| year | sampled | `PASS` | `BLOCKED` | `UNVERIFIABLE` | `ROLL_EXEMPT` | agreement | unverifiable |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 2005 | 528 | 82 | 68 | 246 | 132 | 54.7% | 46.6% |
+| 2006 | 528 | 81 | 37 | 278 | 132 | 68.6% | 52.6% |
+| 2007 | 528 | 241 | 79 | 76 | 132 | 75.3% | 14.4% |
+| 2008 | 528 | 270 | 117 | 9 | 132 | 69.8% | 1.7% |
+| 2009 | 525 | 322 | 66 | 6 | 131 | 83.0% | 1.1% |
+| 2010 | 528 | 370 | 25 | 1 | 132 | 93.7% | 0.2% |
+| 2011 | 576 | 420 | 12 | 0 | 144 | 97.2% | 0.0% |
+| 2012 | 575 | 421 | 6 | 5 | 143 | 98.6% | 0.9% |
+| 2013 | 572 | 424 | 6 | 2 | 140 | 98.6% | 0.4% |
+| 2014 | 574 | 429 | 3 | 0 | 142 | 99.3% | 0.0% |
+| 2015 | 574 | 420 | 12 | 0 | 142 | 97.2% | 0.0% |
+| 2016 | 572 | 421 | 8 | 0 | 143 | 98.1% | 0.0% |
+| 2017 | 576 | 429 | 3 | 0 | 144 | 99.3% | 0.0% |
+| 2018 | 576 | 430 | 1 | 1 | 144 | 99.8% | 0.2% |
+| 2019 | 576 | 430 | 2 | 0 | 144 | 99.5% | 0.0% |
+| 2020 | 576 | 432 | 0 | 0 | 144 | 100.0% | 0.0% |
+| 2021 | 576 | 432 | 0 | 0 | 144 | 100.0% | 0.0% |
+| 2022 | 574 | 427 | 3 | 0 | 144 | 99.3% | 0.0% |
+| 2023 | 576 | 425 | 7 | 0 | 144 | 98.4% | 0.0% |
+| 2024 | 576 | 424 | 8 | 0 | 144 | 98.2% | 0.0% |
+| 2025 | 576 | 417 | 15 | 0 | 144 | 96.5% | 0.0% |
+
+### By pair
+
+| pair | `PASS` | `BLOCKED` | `UNVERIFIABLE` | `ROLL_EXEMPT` | median abs Δ | p95 | max |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `AUDJPY` | 683 | 73 | 0 | 252 | 0.250 | 3.850 | 26.200 |
+| `AUDUSD` | 538 | 2 | 0 | 180 | 0.250 | 0.600 | 3.650 |
+| `EURCHF` | 680 | 68 | 8 | 251 | 0.300 | 2.900 | 7.000 |
+| `EURGBP` | 656 | 19 | 81 | 249 | 0.250 | 1.700 | 5.850 |
+| `EURJPY` | 627 | 47 | 80 | 251 | 0.350 | 2.350 | 9.600 |
+| `EURUSD` | 658 | 88 | 7 | 251 | 0.300 | 2.500 | 6.800 |
+| `GBPJPY` | 624 | 78 | 54 | 251 | 0.400 | 4.100 | 18.350 |
+| `GBPUSD` | 645 | 33 | 78 | 252 | 0.350 | 2.700 | 7.200 |
+| `NZDUSD` | 677 | 16 | 63 | 252 | 0.300 | 3.300 | 8.800 |
+| `USDCAD` | 651 | 12 | 91 | 250 | 0.350 | 2.900 | 7.900 |
+| `USDCHF` | 651 | 24 | 81 | 252 | 0.350 | 2.200 | 11.150 |
+| `USDJPY` | 657 | 18 | 81 | 250 | 0.250 | 1.900 | 4.500 |
+
+### The blocked-hour list
+
+The final blocked set under R7, per hour. Pre-reg #7's blocking clause is unchanged: these hours are out of research use until a checkpoint says otherwise.
+
+| pair | year | hours blocked |
+| --- | --- | --- |
+| `GBPJPY` | 2008 | 23 |
+| `EURUSD` | 2008 | 20 |
+| `EURUSD` | 2005 | 19 |
+| `EURCHF` | 2005 | 18 |
+| `AUDJPY` | 2005 | 17 |
+| `AUDJPY` | 2008 | 17 |
+| `AUDJPY` | 2006 | 16 |
+| `EURUSD` | 2007 | 14 |
+| `GBPJPY` | 2007 | 14 |
+| `EURUSD` | 2010 | 13 |
+| `GBPJPY` | 2009 | 13 |
+| `EURCHF` | 2008 | 12 |
+| `EURCHF` | 2009 | 11 |
+| `EURUSD` | 2006 | 11 |
+| `GBPUSD` | 2008 | 11 |
+| `EURJPY` | 2007 | 10 |
+| `EURJPY` | 2008 | 10 |
+| `AUDJPY` | 2007 | 9 |
+| `EURCHF` | 2006 | 9 |
+| `EURJPY` | 2009 | 9 |
+| `GBPJPY` | 2005 | 9 |
+| `GBPUSD` | 2007 | 9 |
+| `USDJPY` | 2008 | 9 |
+| `EURGBP` | 2009 | 8 |
+| `GBPUSD` | 2009 | 7 |
+| `AUDJPY` | 2009 | 6 |
+| `EURCHF` | 2007 | 6 |
+| `EURGBP` | 2008 | 6 |
+| `EURJPY` | 2025 | 5 |
+| `GBPJPY` | 2025 | 5 |
+| `USDCAD` | 2007 | 5 |
+| `USDCHF` | 2007 | 5 |
+| `EURUSD` | 2009 | 4 |
+| `EURUSD` | 2011 | 4 |
+| `GBPJPY` | 2016 | 4 |
+| `USDCHF` | 2008 | 4 |
+| `USDCHF` | 2009 | 4 |
+| `USDCHF` | 2015 | 4 |
+| `USDJPY` | 2007 | 4 |
+| `EURCHF` | 2011 | 3 |
+
+The widest of them, worst first — each against the threshold that actually applied to it:
+
+| pair | date | hour | ticks | band | threshold (pips) | worst abs Δ (pips) |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AUDJPY` | 2006-08-17 | 09:00Z | 963 | `middle` | 4.000 | 26.200 |
+| `GBPJPY` | 2025-01-07 | 15:00Z | 20,746 | `dense` | 1.000 | 18.350 |
+| `GBPJPY` | 2008-03-04 | 09:00Z | 13,070 | `dense` | 1.000 | 13.500 |
+| `GBPJPY` | 2005-06-07 | 15:00Z | 524 | `middle` | 5.000 | 12.200 |
+| `USDCHF` | 2024-01-05 | 15:00Z | 13,576 | `dense` | 1.000 | 11.150 |
+| `GBPJPY` | 2005-12-02 | 15:00Z | 507 | `middle` | 5.000 | 10.700 |
+| `GBPJPY` | 2008-10-21 | 09:00Z | 4,632 | `dense` | 1.000 | 9.950 |
+| `EURJPY` | 2025-02-03 | 15:00Z | 31,091 | `dense` | 1.000 | 9.600 |
+| `EURJPY` | 2025-01-10 | 15:00Z | 25,131 | `dense` | 1.000 | 9.150 |
+| `NZDUSD` | 2005-08-29 | 15:00Z | 501 | `middle` | 5.000 | 8.600 |
+| `AUDJPY` | 2006-08-17 | 15:00Z | 957 | `middle` | 4.000 | 8.200 |
+| `EURJPY` | 2025-01-07 | 15:00Z | 25,394 | `dense` | 1.000 | 8.100 |
+| `EURJPY` | 2008-10-27 | 09:00Z | 8,885 | `dense` | 1.000 | 7.650 |
+| `EURJPY` | 2023-12-05 | 15:00Z | 23,943 | `dense` | 1.000 | 7.600 |
+| `GBPJPY` | 2005-06-07 | 09:00Z | 503 | `middle` | 5.000 | 7.500 |
+| `EURJPY` | 2009-02-25 | 15:00Z | 6,977 | `dense` | 1.000 | 7.350 |
+| `GBPUSD` | 2008-12-01 | 15:00Z | 5,973 | `dense` | 1.000 | 7.200 |
+| `AUDJPY` | 2006-10-24 | 09:00Z | 1,015 | `middle` | 4.000 | 7.100 |
+| `EURCHF` | 2007-04-24 | 01:00Z | 1,345 | `middle` | 3.400 | 7.000 |
+| `AUDJPY` | 2005-04-18 | 01:00Z | 1,018 | `middle` | 4.000 | 6.950 |
+| `EURCHF` | 2009-05-07 | 01:00Z | 1,965 | `middle` | 5.500 | 6.900 |
+| `AUDJPY` | 2005-09-14 | 01:00Z | 977 | `middle` | 4.000 | 6.500 |
+| `AUDJPY` | 2005-09-14 | 09:00Z | 978 | `middle` | 4.000 | 6.500 |
+| `AUDJPY` | 2005-07-05 | 09:00Z | 1,021 | `middle` | 4.000 | 6.400 |
+| `AUDJPY` | 2005-07-05 | 15:00Z | 998 | `middle` | 4.000 | 6.300 |
+| `AUDJPY` | 2006-12-06 | 09:00Z | 988 | `middle` | 4.000 | 6.200 |
+| `NZDUSD` | 2006-10-23 | 15:00Z | 508 | `middle` | 5.000 | 6.200 |
+| `USDCAD` | 2008-11-25 | 15:00Z | 3,586 | `dense` | 1.000 | 6.200 |
+| `EURCHF` | 2005-01-20 | 09:00Z | 881 | `middle` | 3.000 | 6.100 |
+| `EURJPY` | 2009-01-02 | 15:00Z | 5,127 | `dense` | 1.000 | 6.100 |
+| `GBPJPY` | 2005-02-22 | 01:00Z | 524 | `middle` | 5.000 | 6.100 |
+| `GBPJPY` | 2005-04-11 | 01:00Z | 512 | `middle` | 5.000 | 6.100 |
+| `AUDJPY` | 2006-04-10 | 09:00Z | 979 | `middle` | 4.000 | 6.000 |
+| `AUDJPY` | 2006-10-24 | 15:00Z | 941 | `middle` | 4.000 | 5.900 |
+| `NZDUSD` | 2007-06-20 | 15:00Z | 2,607 | `middle` | 4.500 | 5.900 |
+| `AUDJPY` | 2005-10-25 | 01:00Z | 975 | `middle` | 4.000 | 5.650 |
+| `AUDJPY` | 2005-08-02 | 15:00Z | 972 | `middle` | 4.000 | 5.600 |
+| `AUDJPY` | 2007-01-26 | 09:00Z | 995 | `middle` | 4.000 | 5.600 |
+| `USDCAD` | 2009-12-25 | 01:00Z | 521 | `middle` | 5.000 | 5.600 |
+| `GBPJPY` | 2005-09-19 | 01:00Z | 509 | `middle` | 5.000 | 5.500 |
+
+### The classification is committed and re-derived
+
+`config/crosscheck.toml` carries the class of every sampled hour, so a later scoring experiment can ask rather than re-derive. It is held to the same discipline as `config/calendar.toml`: derived, tracked, and re-derived and compared on every run of this experiment, because a tracked file anybody can open is a file that will eventually be edited.
+
+| check | result |
+| --- | --- |
+| the file exists | yes |
+| its bands and base threshold match R7 | yes |
+| its counts match the re-derivation | yes |
+| every hour's class matches the re-derivation | yes |
+| hours disagreeing | 0 |
+| hours committed | 11,790 |
+
+`research.loader.ResearchLoader.crosscheck_class` is how it is read. It tags and never filters: an experiment decides what a `BLOCKED` hour means for its own question and says so, rather than inheriting a decision the loader made silently. An hour the sample never drew returns `UNSAMPLED`, which is a different fact from `PASS` — the check covers 11,790 hours, not the 1,495,740 the store holds.
+
 ## The AUDUSD exclusion (ruling R1)
 
 Stated here because every report and scorecard that touches the pair must state it, and this one touches it in all four steps.
@@ -510,12 +709,14 @@ The loader refused it while this result was produced (`PAIR_EXCLUDED_WINDOW`: ye
 
 ## Provenance
 
-* Config: `experiments/T3-quality/config.toml` (sha256 `a778f17dc18e0452`)
+* Config: `experiments/T3-quality/config.toml` (sha256 `5627059eb40cb4f2`)
 * Manifests: `data/research/manifests/pair=<PAIR>/<YYYY-MM>/manifest.json`, read the canonical way (SPEC2 §The canonical manifest reading) — hour records and the derived coverage block, never the session warning log.
 * Validation pass: `experiments/T3-quality/validation.jsonl`, one record per pair-month, written by `python -m research.validate_store`.
 * Cross-check: `experiments/T3-quality/oanda.jsonl` and `experiments/T3-quality/oanda_availability.jsonl`, written by `python -m research.crosscheck_oanda` against the OANDA practice host. The token comes from `OANDA_API_TOKEN` and is never logged.
+* Median spreads for ruling R7: `experiments/T3-quality/spreads.jsonl`, one record per pair-date, written by `python -m research.crosscheck_spreads` from the stored ticks through the research loader.
 * Calendar: `config/calendar.toml`, written by `python -m research.calendar_build` and re-derived and compared on every run of this experiment.
-* Result: `experiments/T3-quality/result.json`, hash `b33e6949a9ed844a1c10a331de841e23551ae87564909d68963d6007dde22449`
+* Cross-check classification: `config/crosscheck.toml`, written by `python -m research.crosscheck_class` and re-derived and compared the same way.
+* Result: `experiments/T3-quality/result.json`, hash `4d019b876f50f6555139b1bf043c978a86ce3837f7a3cd22bfd3679285a8ae1d`
 * Loader mode `scoring`, scored `False`, re-run class `full`. It served 12 file(s) across 12 pair(s) and 6307 date(s); sealed dates served: none; dates withheld by an exclusion window: 1,772.
 * Research gate: exit 0 (full, 2026-09-06)
 
