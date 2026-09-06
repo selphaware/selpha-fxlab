@@ -80,13 +80,18 @@ def _x(value: Any, places: int = 2) -> str:
 
 
 def _p(value: Any) -> str:
-    """A p or q value, with the very small ones written as such."""
+    """A p or q value, with the very small ones written as such.
+
+    Everything in the payload is rounded to twelve places for the hash, so a
+    value that reads as zero here is a value below 5e-13 and the report says
+    exactly that rather than claiming a precision the result does not carry.
+    """
     try:
         number = float(value)
     except (TypeError, ValueError):
         return "—"
     if number <= 0.0:
-        return "<1e-16"
+        return "<1e-12"
     if number < 1e-4:
         return f"{number:.1e}"
     return f"{number:.4f}"
@@ -134,6 +139,7 @@ def render(document: dict[str, Any], trials: int, gate_status: str, home: str,
     lines += _section_characterisation(payload)
     lines += _section_testing(payload, trials)
     lines += _closing_ranked(payload)
+    lines += _closing_summaries(payload)
     lines += _closing_questions(payload)
     lines += _provenance(document, payload, home, figures, figures_dir,
                          gate_status)
@@ -254,9 +260,13 @@ def _header(document: dict[str, Any], payload: dict[str, Any],
            "window."),
         f"3. **{_n(len(counts['stable_non_identity']))} non-identity "
         "cointegration relationships confirm out of window.** "
-        + ("The scan finds hundreds that survive the correction inside the "
-           "discovery window; every one of them fails in 2020-2025, in "
-           "2009-2012, or in both."
+        + (f"{_n(sum(1 for r in counts['surviving'] if not r['identity']))} "
+           "of them survive the correction inside the discovery window and "
+           "every one of those fails in "
+           f"{payload['window']['confirmation']['start'][:4]}-"
+           f"{payload['window']['confirmation']['end'][:4]}, in "
+           f"{payload['window']['early']['start'][:4]}-"
+           f"{payload['window']['early']['end'][:4]}, or in both."
            if not counts["stable_non_identity"] else
            "They are listed in the ranked table."),
         "4. **The correlation structure is stable, and it is not the "
@@ -286,7 +296,10 @@ def _header(document: dict[str, Any], payload: dict[str, Any],
         "",
         "The honest one-line summary: **this universe's only reliable "
         "cross-pair structure is the structure that is true by definition, "
-        "and it is between two and ten times too narrow to pay for itself.**",
+        f"and it is {_f((worst_identity or {}).get('cost', {}).get('break_even_entry_sd'), 1)}"
+        " times too narrow to pay for itself at its worst and "
+        f"{_f((best_identity or {}).get('cost', {}).get('break_even_entry_sd'), 1)}"
+        " at its best.**",
         "",
     ]
 
@@ -366,7 +379,7 @@ def _method(payload: dict[str, Any], by_name: dict[str, Any],
         row["to"] or "—"] for row in coverage]
 
     return [
-        "## Method, and the four things that shape every number",
+        "## Method, and the six things that shape every number",
         "",
         "### The universe has twelve series and seven degrees of freedom",
         "",
@@ -589,6 +602,22 @@ def _section_correlation(payload: dict[str, Any], by_name: dict[str, Any],
                     for index, cluster in enumerate(
                         (payload["correlation"].get(horizon) or {}).get(
                             "clusters", []))]
+
+    regime_clusters: list[list[Any]] = []
+    regime_same = True
+    for horizon in horizons:
+        block = payload["correlation"].get(horizon)
+        if not block:
+            continue
+        for regime, entry in block["by_regime"].items():
+            clusters = entry.get("clusters") or []
+            if clusters != block["clusters"]:
+                regime_same = False
+            regime_clusters.append([
+                f"`{horizon}`", regime, _n(len(clusters)),
+                "same partition as all hours" if clusters == block["clusters"]
+                else "; ".join(", ".join(f"`{name}`" for name in cluster)
+                               for cluster in clusters)])
     identical = len({json.dumps((payload["correlation"].get(h) or {}).get(
         "clusters")) for h in horizons if payload["correlation"].get(h)}) == 1
 
@@ -675,12 +704,133 @@ def _section_correlation(payload: dict[str, Any], by_name: dict[str, Any],
         *_table(["horizon", "cluster", "members"], cluster_rows),
         ("**The clusters are identical at every research horizon.** They are "
          "the currency blocs the design matrix already implies: a pair sits "
-         "with the pairs it shares a currency with, and `EURGBP` and "
-         "`USDCAD` sit alone because the currency each of them contributes is "
-         "in nothing else that trades against the same side."
+         "with the pairs it shares a currency with."
          if identical else
          "**The clusters differ between horizons**, which is a fact the "
          "table above carries and this card does not interpret."),
+        "",
+        *_singletons(payload),
+        "And the same network, regime by regime — the card asks how the "
+        "clusters change in high volatility, which is a different question "
+        "from how many independent directions they leave:",
+        "",
+        *_table(["horizon", "regime", "clusters", "membership"],
+                regime_clusters),
+        *_regime_network_verdict(payload),
+    ]
+
+
+def _singletons(payload: dict[str, Any]) -> list[str]:
+    """The pairs that cluster alone, and how far outside the blocs they sit.
+
+    Derived rather than explained: the mean correlation of a singleton with
+    the rest of the universe is the number that puts it outside the cut, and
+    the currency counts say whether the reason is that it shares a currency
+    with nobody. Everything past that is a story, and the card is not owed
+    one.
+    """
+    horizons = payload["window"]["horizons"]
+    block = payload["correlation"].get(horizons[0])
+    if not block:
+        return []
+    alone = [cluster[0] for cluster in block["clusters"] if len(cluster) == 1]
+    if not alone:
+        return []
+    names = block["pairs"]
+    matrix = block["matrix"]
+    counts = (payload["currency"].get(horizons[0]) or {}).get(
+        "appearances", {})
+    rows = []
+    for pair in alone:
+        index = names.index(pair)
+        values = [abs(float(matrix[index][other]))
+                  for other in range(len(names)) if other != index]
+        rare = [code for code in (pair[:3], pair[3:])
+                if counts.get(code, 0) <= 1]
+        rows.append([
+            f"`{pair}`", _f(sum(values) / len(values), 4),
+            _f(max(values), 4),
+            ", ".join(rare) if rare else "—"])
+    return [
+        f"{_n(len(alone))} "
+        f"{_plural(len(alone), 'pair clusters', 'pairs cluster')} alone at "
+        f"`{horizons[0]}`, and the reasons are not the same:",
+        "",
+        *_table(["pair", "mean |ρ| with the rest", "strongest single |ρ|",
+                 "currencies appearing in no other pair"], rows),
+    ]
+
+
+def _co_members(clusters: Sequence[Sequence[str]]) -> dict[str, frozenset]:
+    """Each pair mapped to the set of pairs it shares a cluster with."""
+    out: dict[str, frozenset] = {}
+    for cluster in clusters:
+        members = frozenset(cluster)
+        for name in cluster:
+            out[name] = members - {name}
+    return out
+
+
+def _regime_network_verdict(payload: dict[str, Any]) -> list[str]:
+    """What the clustering does across regimes, derived rather than asserted.
+
+    Two things a reader wants and a "yes it changes" cannot give: which
+    regimes reproduce the unconditional partition, and which pairs are doing
+    the moving. Both come out of the clusters themselves.
+    """
+    horizons = payload["window"]["horizons"]
+    matching: list[str] = []
+    differing: list[str] = []
+    movers: dict[str, int] = {}
+    cells = 0
+    for horizon in horizons:
+        block = payload["correlation"].get(horizon)
+        if not block:
+            continue
+        base = _co_members(block["clusters"])
+        for regime, entry in block["by_regime"].items():
+            clusters = entry.get("clusters")
+            if clusters is None:
+                continue
+            cells += 1
+            if clusters == block["clusters"]:
+                matching.append(f"`{horizon}` {regime}")
+                continue
+            differing.append(f"`{horizon}` {regime}")
+            regime_map = _co_members(clusters)
+            for name, companions in regime_map.items():
+                if companions != base.get(name):
+                    movers[name] = movers.get(name, 0) + 1
+    if not cells:
+        return [""]
+    if not differing:
+        return [
+            "**The clustering does not change with the regime either.** All "
+            f"{_n(cells)} regime cells at the research horizons produce the "
+            "same partition as the unconditional matrix, which is the "
+            "strongest form of the answer above: the network is not merely as "
+            "wide in a crisis, it is the same network.",
+            "",
+        ]
+    ranked = sorted(movers.items(), key=lambda kv: (-kv[1], kv[0]))
+    named = ", ".join(f"`{name}` ({_n(count)})" for name, count in ranked[:5])
+    high = [name for name in matching if name.endswith("high")]
+    return [
+        f"**The clustering moves with the regime in {_n(len(differing))} of "
+        f"{_n(cells)} regime cells**, and the movement is concentrated: "
+        f"{named} change who they sit with, out of "
+        f"{_n(len(payload['window']['pairs']))} pairs. Everything else keeps "
+        "its bloc in every regime at every horizon.",
+        "",
+        (f"The direction is worth reading carefully, because it is the "
+         "opposite of the usual story. The cells that reproduce the "
+         f"unconditional partition exactly are {', '.join(matching)} — the "
+         "**high-volatility** ones — and the deviations are in the quieter "
+         "regimes. In high volatility this universe's network is not a "
+         "collapsed version of itself; it is precisely itself."
+         if high and len(high) == len(matching) else
+         "Which regimes reproduce the unconditional partition is in the table "
+         f"above: {', '.join(matching) if matching else 'none of them'}."),
         "",
     ]
 
@@ -932,7 +1082,8 @@ def _section_cointegration(payload: dict[str, Any], by_name: dict[str, Any],
     return [
         "## 3 — Cointegration scans",
         "",
-        f"All {_n(66)} pairs-of-pairs in both Engle-Granger orderings, plus "
+        f"All {_n(len(payload['window']['pairs']) * (len(payload['window']['pairs']) - 1) // 2)}"
+        " pairs-of-pairs in both Engle-Granger orderings, plus "
         f"{_n(len(block['triples_declared']))} declared triples, at each "
         f"research horizon: **{_n(block['scanned'])} relationships** scanned "
         "in the discovery window, then confirmed — untouched — in the two "
@@ -973,14 +1124,24 @@ def _section_cointegration(payload: dict[str, Any], by_name: dict[str, Any],
                  "half-life (bars)", "spread sd (bp)",
                  f"3-leg round trip @ {BAR}× (bp)", "amplitude / cost",
                  "break-even entry (σ)"], identity_rows),
+        f"**Trial count for every row above** (pre-reg #10): "
+        f"{_n(eg.get('tests'))} tests in `cointegration_engle_granger` and "
+        f"{_n(johansen.get('tests'))} in `cointegration_johansen`, both "
+        "corrected within their own family.",
+        "",
         *_figure(by_name, "identity_spread_versus_cost", figures_dir),
         "The break-even entry column is the whole story. A triangular spread "
         "would have to reach that many standard deviations from its mean "
         "before a full reversion to the mean covered three round trips at the "
         "reference notional — and a spread whose own standard deviation is "
         "the unit is not going to reach it. **Triangular arbitrage in this "
-        "universe is real, statistically overwhelming, confirmed in every "
-        "window, and between two and ten times too narrow to trade.**",
+        "universe is real, statistically overwhelming, confirmed out of "
+        f"window for {_n(sum(1 for r in counts['identity'] if r['stable_out_of_window']))}"
+        f" of {_n(len(counts['identity']))} of these cells, and "
+        f"{_f(min((r['cost'] or {}).get('break_even_entry_sd') for r in counts['identity'] if (r['cost'] or {}).get('break_even_entry_sd')), 1)}"
+        " to "
+        f"{_f(max((r['cost'] or {}).get('break_even_entry_sd') for r in counts['identity'] if (r['cost'] or {}).get('break_even_entry_sd')), 1)}"
+        " times too narrow to trade.**",
         "",
         "### Everything else",
         "",
@@ -1137,7 +1298,7 @@ def _section_leadlag(payload: dict[str, Any], by_name: dict[str, Any],
         "### The shock check",
         "",
         *_figure(by_name, "leadlag_shock_sensitivity", figures_dir),
-        _shock_verdict(payload),
+        *_shock_verdict(payload),
         "",
         f"The strongest {_n(per_horizon)} cells that survive the correction "
         f"at each research horizon, of {_n(total_survivors)} that do "
@@ -1168,11 +1329,24 @@ def _section_leadlag(payload: dict[str, Any], by_name: dict[str, Any],
     ]
 
 
-def _shock_verdict(payload: dict[str, Any]) -> str:
-    """The generated reading of the shock-window comparison."""
+#: How much of a correlation has to disappear before the report calls it a
+#: collapse rather than a threshold effect. Half, stated, so a reader can
+#: disagree with the word rather than with the number behind it.
+COLLAPSE_SHARE: Final[float] = 0.5
+
+
+def _shock_verdict(payload: dict[str, Any]) -> tuple[str, ...]:
+    """The generated reading of the shock-window comparison.
+
+    Two mechanisms can take a cell out of the family, and they mean different
+    things, so both are counted: the correlation itself can collapse, or the
+    cell can slip below a Benjamini-Hochberg threshold that moved when the
+    collapsing cells left the family. The second is bookkeeping; the first is
+    the finding.
+    """
     horizons = payload["window"]["horizons"]
-    collapsed = 0
     survivors = 0
+    collapsed: list[dict[str, Any]] = []
     for horizon in horizons:
         for row in (payload["leadlag_headline"].get(horizon) or {}).get(
                 "rows", []):
@@ -1180,19 +1354,32 @@ def _shock_verdict(payload: dict[str, Any]) -> str:
                 continue
             survivors += 1
             if not row.get("survives_without_shock"):
-                collapsed += 1
+                collapsed.append(row)
     if not survivors:
-        return ""
+        return ()
     method = payload["method"]
     days = ", ".join(f"`{day}`" for day in method["shock_days"])
+    chf = [row for row in collapsed
+           if "CHF" in row["lead"] or "CHF" in row["lagging"]]
+    real = [row for row in collapsed
+            if row.get("rho") and row.get("rho_without_shock") is not None
+            and abs(float(row["rho_without_shock"]))
+            < COLLAPSE_SHARE * abs(float(row["rho"]))]
     return (
-        f"**{_n(collapsed)} of {_n(survivors)} cells that survive the "
+        f"**{_n(len(collapsed))} of {_n(survivors)} cells that survive the "
         f"correction stop surviving it when {days} are removed** and the "
-        "whole family is re-scanned without them. Two days out of a decade. "
-        "Every one of them involves `EURCHF` or `USDCHF`, which is precisely "
-        "what T4's warning about those two pairs predicted, and it is the "
-        "reason this check is a measurement in the card rather than a "
-        "sentence at the end of it.")
+        "whole family is re-scanned without them. Two days out of a decade.",
+        "",
+        f"Two mechanisms do that, and they mean different things. "
+        f"{_n(len(real))} of the {_n(len(collapsed))} lose more than half "
+        "their correlation outright — the cell was mostly that afternoon — "
+        f"and {_n(len(chf))} of them involve `EURCHF` or `USDCHF`, which is "
+        "precisely what T4's warning about those two pairs predicted. The "
+        f"remaining {_n(len(collapsed) - len(real))} keep more than half of "
+        "it and slip under a Benjamini-Hochberg threshold that shifted when "
+        "the collapsing cells left the family, which is bookkeeping rather "
+        "than evidence. Both are why this check is a measurement in the card "
+        "rather than a sentence at the end of it.")
 
 
 # --------------------------------------------------------------------------- #
@@ -1460,6 +1647,10 @@ def _closing_ranked(payload: dict[str, Any]) -> list[str]:
                  COST_WINDOW, "early", "spread sd (bp)",
                  f"cost @ {BAR}× (bp)", "amplitude / cost",
                  "break-even entry (σ)", "qualifies"], rows),
+        f"**Trial count for every row above** (pre-reg #10): "
+        f"{_n(payload['families']['families'].get('cointegration_engle_granger', {}).get('tests'))}"
+        " tests in the scan that produced them.",
+        "",
         "**Read the last two columns together.** These relationships are not "
         "marginal and they are not noise: they are the tightest, most "
         "overwhelmingly significant, most reliably confirmed structure "
@@ -1558,6 +1749,103 @@ def _closing_d4(payload: dict[str, Any]) -> list[str]:
         "evidence about the first — a wider set of *these* pairs adds "
         f"correlated combinations of {identity['rank']} currency factors, and "
         "the effective-bet count in section 5 is what that is worth.",
+        "",
+    ]
+
+
+# --------------------------------------------------------------------------- #
+# The two summaries the card asks the report to close with
+# --------------------------------------------------------------------------- #
+
+def _closing_summaries(payload: dict[str, Any]) -> list[str]:
+    """The currency-factor memory results and the portfolio geometry, again.
+
+    The card asks the report to *end* with them, beside the ranked table,
+    rather than leaving them in the sections that derived them. So they are
+    restated here in one table each: the same numbers, in the place a reader
+    who skipped to the end will look.
+    """
+    horizons = payload["window"]["horizons"]
+    families = payload["families"]["families"]
+    factor_rows: list[list[Any]] = []
+    for horizon in horizons:
+        block = payload["currency"].get(horizon)
+        if not block:
+            continue
+        for row in block["factors"]:
+            factor_rows.append([
+                f"`{horizon}`", row["currency"],
+                _n(row["pairs_it_appears_in"]),
+                _pct(row["share_of_universe_variance"], 1),
+                _f(row["rho1"], 5), _p(row["rho1_q"]),
+                _f(row["vr_headline"], 5), _p(row["vr_q_value"]),
+                "**yes**" if row["vr_survives_correction"] else "no"])
+    surviving = sum(1 for row in factor_rows if row[-1] == "**yes**")
+    pair_vr = families.get("pair_reference_variance_ratio", {})
+    # The table above is the q=4 headline only -- one row per currency per
+    # horizon -- while the family it is corrected inside covers every rung of
+    # the variance-ratio ladder. Both grains are stated, because comparing a
+    # count from one against a count from the other is the easiest way to
+    # make a small answer look like a large one.
+    pair_headline = [row for horizon in horizons
+                     for row in (payload["currency"].get(horizon) or {}).get(
+                         "pair_reference", [])]
+    pair_headline_survivors = sum(1 for row in pair_headline
+                                  if row.get("vr_survives_correction"))
+    factor_vr = families.get("currency_factor_variance_ratio", {})
+
+    portfolio = payload["portfolio"]
+    geometry_rows = [[
+        f"`{row['horizon']}`", _f(row["mean_abs_rho"], 4),
+        _f(row["participation_ratio"], 3), _f(row["entropy_bets"], 3),
+        _n(row["components_for_90pct"]), _pct(row["pc1_share"]),
+        *[_f((row["by_regime"].get(regime) or {}).get("participation_ratio"),
+             3) for regime in ("low", "mid", "high")],
+        _x(row["high_over_low_bets"])] for row in portfolio["rows"]]
+    rolling = payload["rolling_geometry"].get(horizons[0]) or []
+
+    return [
+        "## The currency-factor memory results",
+        "",
+        "Section 2 in one table, because the card asks the report to end with "
+        "it. The comparison it is against is the pair family: "
+        f"{_n(pair_vr.get('rejected'))} of {_n(pair_vr.get('tests'))} pair "
+        "variance ratios survive the correction at the research horizons.",
+        "",
+        *_table(["horizon", "currency", "pairs it appears in",
+                 "share of factor variance", "ρ(1)", "q", "VR(4)", "q",
+                 "VR survives"], factor_rows),
+        f"**{_n(surviving)} of {_n(len(factor_rows))} factor q=4 cells "
+        f"survive, against {_n(pair_headline_survivors)} of "
+        f"{_n(len(pair_headline))} pair q=4 cells** — and across the whole "
+        f"variance-ratio ladder, {_n(factor_vr.get('rejected'))} of "
+        f"{_n(factor_vr.get('tests'))} against "
+        f"{_n(pair_vr.get('rejected'))} of {_n(pair_vr.get('tests'))}. A "
+        "factor is a "
+        "pair with the broad-dollar component removed; where the pair looks "
+        "like a random walk and the factor does not, the memory is in the "
+        "currency rather than in the quote. Capturing it means a basket, and "
+        "a basket pays a round trip per leg — which is the arithmetic that "
+        "closed every triangular identity in section 3.",
+        "",
+        "## The portfolio geometry",
+        "",
+        "Section 5 in one table, and the input a portfolio-level T7 "
+        "evaluation needs. The structural ceiling is "
+        f"{portfolio['structural_ceiling']}, not twelve.",
+        "",
+        *_table(["horizon", "mean |ρ|", "participation ratio", "entropy bets",
+                 "components for 90%", "PC1 share", "low-vol bets",
+                 "mid-vol bets", "high-vol bets", "high / low"],
+                geometry_rows),
+        (f"Rolling: {_f(rolling[0]['participation_ratio'], 2)} effective bets "
+         f"in {rolling[0]['from'][:7]}, "
+         f"{_f(rolling[-1]['participation_ratio'], 2)} in "
+         f"{rolling[-1]['from'][:7]}, across {_n(len(rolling))} two-year "
+         "windows. **The regime split is flat and the time trend is not**, "
+         "and an evaluation that sizes against a decade average is sizing "
+         "against a number the universe has not had for years."
+         if len(rolling) >= 2 else ""),
         "",
     ]
 

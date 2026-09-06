@@ -366,6 +366,12 @@ def correlation_section(block: cs.Aligned, register: Register, horizon: str,
             "max_abs_rho": _r(float(np.nanmax(np.abs(
                 regime_matrix - np.eye(len(pairs))))), 5),
             "geometry": _round_geometry(cs.effective_bets(regime_matrix)),
+            # The card asks how the network changes in a high-volatility
+            # regime, which is a question about the clusters and not only
+            # about how many independent directions they leave.
+            "clusters": cs.average_linkage(
+                cs.correlation_distance(regime_matrix), pairs,
+                cluster_threshold),
         }
 
     distance = cs.correlation_distance(matrix)

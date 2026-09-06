@@ -1,26 +1,102 @@
 # HANDOFF2.md — Phase 2 research loop, unattended run
 
-Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T5
+Written 2026-08-23 for a ~1 week unattended stretch, updated 2026-09-06 when T6
 closed. If you are reading this because the session died, this file plus the
 checkpoints on disk are enough to restart without losing work.
 
-## State: ingestion, data quality and both EDA batteries are done
+## State: ingestion, data quality and all three EDA batteries are done
 
-Nothing is running. T2a, T2b, T3, T4 and T5 are complete, gated and pushed; the
-loop stopped there because T5's card says to. **Do not begin T6 without a
-checkpoint.**
+Nothing is running. T2a, T2b, T3, T4, T5 and T6 are complete, gated and
+pushed; the loop stopped there because T6's card says to. **Do not begin P7 or
+T7 without a checkpoint.**
 
-Every experiment in `experiments/` re-hashes exactly as recorded, checked after
-T5's changes to shared code. `verify2\research_gate.py <dir>` exits 0 on all
-six.
+Every experiment in `experiments/` re-hashes exactly as recorded, re-verified
+after T6's changes to shared code -- all eight, by `research.run --reproduce`.
+`verify2\research_gate.py <dir>` exits 0 (full) on `T5-cost-geometry` and
+`T6-cross-pair`, which are the two the T6 card names.
+
+The M5 checkpoint's decisions **D5-D10 are written into `SPEC2.md`** and bind
+every card downstream. The two that change how a later card works:
+
+* **D9 moves the research reference notional to 100,000 units.** Every cost
+  from T6 onward is quoted at it. Unlike T5's 1,000,000, this is *not* above
+  the per-order floor for the whole universe, so SPEC2 prerequisite P0-A has
+  stopped being a formality;
+* **D5 closes all 11 D2 cells** on the lag-1 measure and records the
+  variance-ratio bound as an oracle upper bound. One diagnostic T7 card is
+  authorised to measure the recoverable fraction, and its answer is binding
+  for the whole short-horizon reversion class.
+
+### T6, the cross-pair structure -- and the answer it gives D4
+
+`reports/T6_cross_pair.md`, experiment `experiments/T6-cross-pair`
+(hash `7912042f6401f81a`), research gate exit 0 (full). Read the report rather
+than this summary; every figure in it is derived at render time from
+`result.json`, and the six things below are the ones a next card should not
+have to rediscover.
+
+* **The universe has twelve series and seven degrees of freedom, and that is
+  the card's central fact.** Eight currencies, so five of the twelve pairs --
+  `EURGBP`, `EURJPY`, `GBPJPY`, `EURCHF`, `AUDJPY` -- are exact triangular
+  functions of the other seven. `cross_pair.identity_of` derives the flag from
+  the currency design matrix rather than from a list. **A cross-pair scan that
+  does not carry that flag will rank arbitrage definitions first and call them
+  opportunities.**
+* **Nothing satisfies the card's three conditions.** Of 432 relationships, 47
+  survive the false-discovery correction, 9 also confirm in **both** untouched
+  windows, and **0** of those pay their own legs' round trips. Every one of
+  the 9 is a triangular identity, and their break-even entry thresholds run
+  from 2.6 to 10.1 standard deviations. **Not one non-identity relationship
+  confirms out of window.**
+* **Exactly one cell passes every test, and it is a lead-lag.** `USDCAD`
+  leads `USDCHF` by one bar at `1d`: 2.10x its round trip, 94.1% rolling sign
+  agreement, and it *strengthens* when the January 2015 SNB days are removed.
+  **One cell out of 4,752 lead-lag tests at the research horizons**, and the
+  report states that count beside it every time it is named. It is a question
+  for a T7 card, not a finding.
+* **Correlations do not go to one in high volatility** -- the high-vol regime
+  carries 1.02x to 1.04x the effective bets of the low-vol one, and at `1h`
+  and `4h` the high-vol clustering is *exactly* the unconditional partition
+  while the quiet regimes are the ones that deviate -- **but the effective
+  bets fall from 4.57 to 3.71 across the decade**, against a structural
+  ceiling of 7. The regime split is flat; the time trend is not. A
+  portfolio-level evaluation should size against the recent window rather
+  than the decade average, or say why not.
+* **The currency decomposition is a change of basis, not a factor model**
+  (mean R^2 0.9996). `CAD` and `NZD` appear in one pair each, so their
+  equations are exactly satisfiable and those residuals are zero by
+  construction -- a residual of zero there is arithmetic, not fit. The `NZD`
+  *factor's* variance ratio survives correction at `1h` and `1d` while not one
+  of the twelve pairs' does at any research horizon.
+* **The shock check is the card's most transferable piece of method.** T4
+  warned that every `EURCHF`/`USDCHF` statistic in the first half of the split
+  is the 2015 de-peg afternoon. T6 re-scans the *whole* lead-lag family with
+  `2015-01-15` and `2015-01-16` removed, in its own family with its own
+  correction. 62 of 160 survivors stop surviving; 3 of the 4 daily cells that
+  paid their cost were that afternoon. **Any later card touching those two
+  pairs owes the same check.**
+
+**Step 0 re-expressed T5's cost floors at D9's notional and re-issued T5.**
+At 1,000,000 units the per-order minimum bound on 0 priced moves; at 100,000
+it binds for 6 of 12 pairs and for 3 of them on every move. Costs rise by up
+to 1.097x (`NZDUSD`), `AUDUSD`'s cheapest executable band moves from `london`
+to `london_ny_overlap`, and **no D2 verdict changes**. The sharp finding is
+that three pairs are floored on the wrong side of the comparison: the model
+floors `USDCHF` (95,868 CHF) and `EURGBP` (85,967 GBP) which under USD
+accounting would not, and does not floor `AUDJPY` (8.47M JPY) which under USD
+accounting would, at 1.394x the modelled commission. That is P0-A as an
+amount, and it is decision D10's whole point. T5-cost-geometry re-hashed
+`b2ef692281ebbe37` -> `c4194024c1e4ec98`.
 
 ### T5, the cost geometry -- and the answer it gives T4
 
 `reports/T5_cost_geometry.md`, experiment `experiments/T5-cost-geometry`
-(hash `b2ef692281ebbe37`), research gate exit 0 (full). Read the report rather
-than this summary; every figure in it is derived at render time from
-`result.json`, and the five things below are the ones a next card should not
-have to rediscover.
+(hash `c4194024c1e4ec98` since T6's Step 0 addendum), research gate exit 0
+(full). Read the report rather than this summary; every figure in it is derived
+at render time from `result.json`, and the five things below are the ones a
+next card should not have to rediscover. **Its section 1 has an addendum at
+the end re-expressing every cost floor at decision D9's 100,000-unit
+notional** -- that is the table a T7 card should read, not section 1's.
 
 **Every cost in the card comes out of `fxlab.costs.IBCostModel`.**
 `research/costs.py` builds two quotes from stored bars, hands them to the model
@@ -227,7 +303,36 @@ forward:
   dominated by feed changes, and 2007 alone moves ten of eleven pairs by 3x to
   8x.
 
-Left by T5, for the M5 checkpoint:
+Left by T6, for the M6 checkpoint:
+
+* **The price-only cross-pair search has returned its answer, and it is
+  negative.** The reliable structure in this universe is the structure its own
+  arithmetic guarantees, and that structure pays nothing. Decision D4 banks
+  the external-data question for a checkpoint; T6 does not originate it, and
+  its evidence is the strongest input that question has. The report's closing
+  section states the two readings available -- widen the universe, or widen
+  the information -- and chooses neither.
+* **`USDCAD` -> `USDCHF` at `1d`, lag 1, is the only price-only question T6
+  can hand forward**, at one survivor in 4,752 tests. A T7 card acting on it
+  is acting on that ratio, and the card should say so in its own text rather
+  than inherit it.
+* **The `NZD` currency factor reverts where no pair does.** A factor is not
+  tradeable: capturing it means a basket, and a basket pays a round trip per
+  leg -- the arithmetic that closed every triangular identity in section 3.
+  Whether that leaves anything is a question the report states and does not
+  answer.
+* **The triangular identities are the cleanest test case pre-reg #1's
+  revisit clause will ever get.** They fail on spread by a factor of 2.6 to
+  10.1, and decision D8's recorder is the only instrument that can revisit a
+  spread. If recorder-measured IB spreads come in materially below the model,
+  this is where it would show first.
+* **T6's cost verdicts are taken in the confirmation window** (2020-2025), so
+  both the stability test and the cost test are out of sample. The discovery
+  and primary-window figures are in `result.json` and differ; a card quoting a
+  T6 cost should say which window it took.
+
+Left by T5, for the M5 checkpoint -- **D5 has since answered the first of
+them**:
 
 * **The D2 verdict depends on which edge measure the checkpoint accepts**, and
   the two differ by more than an order of magnitude. Seven cells earn a T7 card
@@ -265,6 +370,41 @@ Left by T4, for the M4 checkpoint:
   five-figure kurtosis comes from. Every statistic for those two pairs in the
   first half of the split is that afternoon. The report tabulates the largest
   move in every cell so no reader has to guess.
+
+## What T6 added to the machinery
+
+| module | what it is |
+|---|---|
+| `research/crossstats.py` | every cross-series estimator, in numpy alone: alignment by intersection onto a common timestamp index, span-aware ADF, Engle-Granger, Johansen with an unrestricted constant, AR(1) half-life, correlation geometry, average-linkage clustering, currency-strength decomposition, and the **simulated null**. Checked in `tests2/test_crossstats.py` against MacKinnon's published critical values, against constructed systems whose answer is known, and by its rejection rate on fresh random walks |
+| `research/cross_pair.py` | the T6 experiment. Its six load-bearing decisions are documented at the top of the file and tested in `tests2/test_cross_pair.py` |
+| `research/cross_pair_report.py` | the report, including a *generated* ranked table, hypothesis section and D4 implication -- whether anything qualifies at all comes from the result, not from a paragraph |
+| `research/cross_pair_figures.py` | 9 figures, each written beside the CSV it was drawn from |
+
+Four things worth carrying forward:
+
+* **The Engle-Granger and Johansen statistics have no standard distribution,
+  and a scan cannot have a correction until it has p-values.** T6 simulates
+  the null from independent random walks through the same code path, seeded.
+  The replication count is set by what the correction needs: with a 432-test
+  family the BH threshold at rank 1 is 1.16e-4, so a simulation whose smallest
+  p-value were larger could never reject a lone survivor. 20,000 draws put the
+  floor at 5.0e-5. **This is the first place in Phase 2 where the seed is
+  load-bearing.**
+* **Johansen's published critical values are easy to quote and easy to quote
+  wrongly**, so T6 tabulates none of them. It is validated behaviourally --
+  constructed systems, and calibration on fresh walks -- and its p-values come
+  from the simulation. The Engle-Granger side *is* checked against a printed
+  table, and that check is what makes the whole instrument credible.
+* **A relationship pays one round trip per leg**, weighted by the hedge ratio,
+  in basis points of the first leg's notional so the sum stays currency-free.
+  Each leg is priced at 100,000 units of its *own* base currency rather than
+  at the value the hedge ratio implies -- which agrees above the floor and
+  differs by the floor term below it. P0-A again.
+* **A large spread standard deviation on an unconfirmed relationship is a
+  random walk's variance, not an edge.** 417 of 432 relationships "pay" their
+  legs arithmetically and every one of them fails the correction, the
+  out-of-window confirmation, or both. The order of the card's three
+  conditions is not decorative.
 
 ## What T5 added to the machinery
 

@@ -5879,7 +5879,7 @@
   },
   "config_path": "config.toml",
   "config_sha256": "07cb5744cd76e143e42de96eb0100149684f0f03965aaf3796f8d753b26e2faf",
-  "created_at": "2026-09-06T20:34:20.869971+00:00",
+  "created_at": "2026-09-06T21:26:46.277054+00:00",
   "entry": "research.cross_pair:run",
   "experiment_id": "T6-cross-pair",
   "mode": "scoring",
@@ -101679,6 +101679,32 @@
         "adjacent_share": 1.0,
         "by_regime": {
           "high": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ],
+              [
+                "USDCHF"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -101719,6 +101745,32 @@
             "n": 877
           },
           "low": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "USDJPY",
+                "USDCHF"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -101759,6 +101811,34 @@
             "n": 877
           },
           "mid": {
+            "clusters": [
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "EURUSD",
+                "GBPUSD"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ],
+              [
+                "USDCHF"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -103044,6 +103124,30 @@
         "adjacent_share": 0.991365,
         "by_regime": {
           "high": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "USDCHF",
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -103084,6 +103188,32 @@
             "n": 20915
           },
           "low": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "USDJPY",
+                "USDCHF"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -103124,6 +103254,32 @@
             "n": 20916
           },
           "mid": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ],
+              [
+                "USDCHF"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -104409,6 +104565,30 @@
         "adjacent_share": 0.966066,
         "by_regime": {
           "high": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "USDCHF",
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -104449,6 +104629,32 @@
             "n": 5269
           },
           "low": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "USDJPY",
+                "USDCHF"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -104489,6 +104695,32 @@
             "n": 5269
           },
           "mid": {
+            "clusters": [
+              [
+                "EURUSD",
+                "GBPUSD",
+                "AUDUSD",
+                "NZDUSD"
+              ],
+              [
+                "USDJPY",
+                "EURJPY",
+                "GBPJPY",
+                "AUDJPY"
+              ],
+              [
+                "EURCHF"
+              ],
+              [
+                "EURGBP"
+              ],
+              [
+                "USDCAD"
+              ],
+              [
+                "USDCHF"
+              ]
+            ],
             "geometry": {
               "components_for_90pct": 5,
               "eigenvalues": [
@@ -238851,7 +239083,7 @@
     }
   },
   "rerun_class": "full",
-  "result_hash": "83f874a4ef4dcdf97b04aac375013ebb1089fa6c58e94c6c7307a28a7c53eb41",
+  "result_hash": "7912042f6401f81a652f30d6ecf8c606f2fcf40afd69bb52ed97995767023140",
   "scope": {
     "dates": [
       "2009-01-01",
